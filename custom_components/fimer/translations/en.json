@@ -2,15 +2,162 @@
   "config": {
     "step": {
       "user": {
-        "title": "FIMER (ABB / Power-One)",
-        "description": "Set up your FIMER (ABB / Power-One) device.",
+        "title": "Connect to the inverter",
+        "description": "Enter the address of the inverter or of its VSN300 / VSN700 datalogger card. The inverter must be awake: a PVI without grid power answers nothing at night.",
         "data": {
-          "host": "Host"
+          "host": "Host",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "IP address or host name of the inverter or datalogger.",
+          "port": "Modbus TCP port, 502 unless changed on the device."
+        },
+        "sections": {
+          "advanced": {
+            "name": "Advanced settings",
+            "description": "The defaults fit a VSN300 or VSN700 datalogger. A natively Modbus inverter such as a REACT2 usually needs unit ID 1 and base address 40000.",
+            "data": {
+              "unit_id": "Modbus unit ID",
+              "base_address": "SunSpec base address"
+            },
+            "data_description": {
+              "unit_id": "The Modbus unit (slave) ID the inverter answers on. VSN cards use 2, some firmwares 247.",
+              "base_address": "The register the SunSpec map starts at: 0 behind a VSN card, 40000 on a natively Modbus inverter."
+            }
+          }
+        }
+      },
+      "reconfigure": {
+        "title": "Change the connection",
+        "description": "Update how Home Assistant reaches this inverter. It must still be the same inverter.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "IP address or host name of the inverter or datalogger.",
+          "port": "Modbus TCP port, 502 unless changed on the device."
+        },
+        "sections": {
+          "advanced": {
+            "name": "Advanced settings",
+            "description": "The defaults fit a VSN300 or VSN700 datalogger. A natively Modbus inverter such as a REACT2 usually needs unit ID 1 and base address 40000.",
+            "data": {
+              "unit_id": "Modbus unit ID",
+              "base_address": "SunSpec base address"
+            },
+            "data_description": {
+              "unit_id": "The Modbus unit (slave) ID the inverter answers on. VSN cards use 2, some firmwares 247.",
+              "base_address": "The register the SunSpec map starts at: 0 behind a VSN card, 40000 on a natively Modbus inverter."
+            }
+          }
         }
       }
     },
+    "error": {
+      "cannot_connect": "Failed to connect. Check the host and port, and that the inverter is awake.",
+      "no_sunspec": "No SunSpec map found at the base address. Try 0 behind a VSN card or 40000 on a natively Modbus inverter, and check the unit ID.",
+      "unsupported_device": "A SunSpec device answered but it is not an inverter.",
+      "link_conflict": "Another integration already uses this host with different Modbus link settings.",
+      "unknown": "Unexpected error"
+    },
     "abort": {
-      "already_configured": "Device is already configured"
+      "already_configured": "This inverter is already configured.",
+      "reconfigure_successful": "The connection settings were updated.",
+      "unique_id_mismatch": "The device at the new address is a different inverter."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Polling",
+        "data": {
+          "scan_interval": "Update interval"
+        },
+        "data_description": {
+          "scan_interval": "Seconds between polls of the inverter."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ac_power": { "name": "AC power" },
+      "ac_current": { "name": "AC current" },
+      "ac_current_phase_a": { "name": "AC current phase A" },
+      "ac_current_phase_b": { "name": "AC current phase B" },
+      "ac_current_phase_c": { "name": "AC current phase C" },
+      "ac_voltage_phase_a": { "name": "AC voltage phase A" },
+      "ac_voltage_phase_b": { "name": "AC voltage phase B" },
+      "ac_voltage_phase_c": { "name": "AC voltage phase C" },
+      "ac_voltage_phase_ab": { "name": "AC voltage phase A-B" },
+      "ac_voltage_phase_bc": { "name": "AC voltage phase B-C" },
+      "ac_voltage_phase_ca": { "name": "AC voltage phase C-A" },
+      "ac_frequency": { "name": "AC frequency" },
+      "apparent_power": { "name": "Apparent power" },
+      "reactive_power": { "name": "Reactive power" },
+      "power_factor": { "name": "Power factor" },
+      "ac_energy_total": { "name": "Total energy" },
+      "dc_current": { "name": "DC current" },
+      "dc_voltage": { "name": "DC voltage" },
+      "dc_power": { "name": "DC power" },
+      "cabinet_temperature": { "name": "Cabinet temperature" },
+      "heat_sink_temperature": { "name": "Heat sink temperature" },
+      "transformer_temperature": { "name": "Transformer temperature" },
+      "other_temperature": { "name": "Other temperature" },
+      "operating_state": {
+        "name": "Operating state",
+        "state": {
+          "off": "Off",
+          "sleeping": "Sleeping",
+          "starting": "Starting",
+          "mppt": "Producing (MPPT)",
+          "throttled": "Throttled",
+          "shutting_down": "Shutting down",
+          "fault": "Fault",
+          "standby": "Standby"
+        }
+      },
+      "vendor_operating_state": { "name": "Vendor operating state" },
+      "dc_current_input_1": { "name": "DC current input 1" },
+      "dc_voltage_input_1": { "name": "DC voltage input 1" },
+      "dc_power_input_1": { "name": "DC power input 1" },
+      "dc_energy_input_1": { "name": "DC energy input 1" },
+      "dc_current_input_2": { "name": "DC current input 2" },
+      "dc_voltage_input_2": { "name": "DC voltage input 2" },
+      "dc_power_input_2": { "name": "DC power input 2" },
+      "dc_energy_input_2": { "name": "DC energy input 2" },
+      "dc_current_input_3": { "name": "DC current input 3" },
+      "dc_voltage_input_3": { "name": "DC voltage input 3" },
+      "dc_power_input_3": { "name": "DC power input 3" },
+      "dc_energy_input_3": { "name": "DC energy input 3" },
+      "global_state": { "name": "Global state" },
+      "inverter_state": { "name": "Inverter state" },
+      "dc_input_1_state": { "name": "DC input 1 state" },
+      "dc_input_2_state": { "name": "DC input 2 state" },
+      "alarms": { "name": "Alarms" },
+      "system_time": { "name": "System time" },
+      "energy_today": { "name": "Energy today" },
+      "energy_this_week": { "name": "Energy this week" },
+      "energy_this_month": { "name": "Energy this month" },
+      "energy_this_year": { "name": "Energy this year" },
+      "energy_total_vendor": { "name": "Total energy (vendor model)" },
+      "energy_partial": { "name": "Partial energy" },
+      "inverter_temperature": { "name": "Inverter temperature" },
+      "booster_temperature": { "name": "Booster temperature" },
+      "isolation_resistance_input_1": { "name": "Isolation resistance input 1" },
+      "isolation_resistance_input_2": { "name": "Isolation resistance input 2" },
+      "cos_phi": { "name": "Cos phi" },
+      "power_limit_permanent": { "name": "Power limit (permanent)" },
+      "power_limit_dynamic": { "name": "Power limit (dynamic)" }
+    }
+  },
+  "exceptions": {
+    "update_failed": {
+      "message": "Error reading the inverter: {error}"
+    },
+    "modbus_link_conflict": {
+      "message": "Another integration already uses {host} with different Modbus link settings: {error}"
     }
   }
 }

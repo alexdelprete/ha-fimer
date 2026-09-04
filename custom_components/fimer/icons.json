@@ -1,3 +1,27 @@
 {
-  "entity": {}
+  "entity": {
+    "sensor": {
+      "ac_power": { "default": "mdi:solar-power" },
+      "dc_power": { "default": "mdi:solar-power-variant" },
+      "dc_power_input_1": { "default": "mdi:solar-power-variant" },
+      "dc_power_input_2": { "default": "mdi:solar-power-variant" },
+      "dc_power_input_3": { "default": "mdi:solar-power-variant" },
+      "dc_current": { "default": "mdi:current-dc" },
+      "dc_current_input_1": { "default": "mdi:current-dc" },
+      "dc_current_input_2": { "default": "mdi:current-dc" },
+      "dc_current_input_3": { "default": "mdi:current-dc" },
+      "operating_state": { "default": "mdi:state-machine" },
+      "vendor_operating_state": { "default": "mdi:state-machine" },
+      "global_state": { "default": "mdi:state-machine" },
+      "inverter_state": { "default": "mdi:state-machine" },
+      "dc_input_1_state": { "default": "mdi:state-machine" },
+      "dc_input_2_state": { "default": "mdi:state-machine" },
+      "alarms": { "default": "mdi:alert-circle-outline" },
+      "isolation_resistance_input_1": { "default": "mdi:omega" },
+      "isolation_resistance_input_2": { "default": "mdi:omega" },
+      "cos_phi": { "default": "mdi:angle-acute" },
+      "power_limit_permanent": { "default": "mdi:speedometer" },
+      "power_limit_dynamic": { "default": "mdi:speedometer" }
+    }
+  }
 }

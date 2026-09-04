@@ -3,9 +3,12 @@
   "name": "FIMER (ABB / Power-One)",
   "codeowners": ["@alexdelprete"],
   "config_flow": true,
+  "dependencies": ["modbus"],
   "documentation": "https://github.com/alexdelprete/ha-fimer",
+  "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/alexdelprete/ha-fimer/issues",
+  "loggers": ["modbus_connection"],
   "requirements": [],
   "version": "0.1.0"
 }
