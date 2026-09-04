@@ -105,8 +105,10 @@ async def test_discover_and_values(unit: MockModbusUnit) -> None:
     assert values["OutputW_Perm"] == 100
     assert values["OutputW_Dynamic"] is None
 
+    assert values["Inverter_CosPhi"] == 0.995
+
     raw = await inverter.async_read_raw()
-    assert raw["holding"][0] == 0x5375
+    assert raw["holding"][2] == 1
     assert raw["holding"][172] == 64061
 
 

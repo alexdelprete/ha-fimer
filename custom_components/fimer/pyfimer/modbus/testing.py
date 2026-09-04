@@ -352,9 +352,9 @@ def build_register_map(
 ) -> dict[int, int]:
     """Build the holding registers of a SunSpec chain as a VSN300 serves it.
 
-    The default ``options`` "X" decodes to a PVI-10.0-OUTD; pass ``"1"`` for
-    an UNO-DM-4.0-TL-PLUS, ``"0x0D"`` for a REACT2-UNO-5.0-TL, or an unknown
-    code to leave the inverter model undecoded.
+    The default ``options`` "X" decodes to a PVI-10.0-OUTD; pass ``"0x01"``
+    for an UNO-DM-4.0-TL-PLUS, ``"0x0D"`` for a REACT2-UNO-5.0-TL, or an
+    unknown code such as ``"?"`` to leave the inverter model undecoded.
     """
     registers: dict[int, int] = {
         base_address: 0x5375,  # "Su"

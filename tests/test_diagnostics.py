@@ -30,7 +30,8 @@ async def test_diagnostics(
     assert diag["vendor_model_length"] == 124
     assert diag["data"]["W"] == 1500
     assert diag["data"]["SN"] == REDACTED
-    assert diag["registers"]["holding"]["0"] == 0x5375
+    assert diag["registers"]["holding"]["2"] == 1
+    assert diag["registers"]["holding"]["172"] == 64061
 
 
 async def test_diagnostics_offline(

@@ -20,23 +20,24 @@ It is built on Home Assistant's shared Modbus connection layer
 asks Home Assistant for a unit on a shared connection instead of opening its own socket, so it can
 coexist with any other integration talking to the same inverter or datalogger.
 
-<!--
-TODO: The device list, entity list, and control section below are placeholders until the
-device library is modelled against real register maps. Confirm every device before release.
--->
-
 ## Supported devices
 
 The integration supports inverters that expose the SunSpec Modbus TCP interface, either directly or
-through a VSN300 / VSN700 datalogger card. This includes among others:
+through a VSN300 / VSN700 datalogger card. Behind a datalogger the inverter model is read from the
+SunSpec options string, so the device page shows the inverter (for example `PVI-10.0-OUTD`) rather
+than the card. Known model codes cover the PVI, TRIO, UNO, UNO-DM and REACT2 families.
 
-- PVI-3.0 / 3.6 / 4.2 / 5000 / 6000-TL-OUTD
-- PVI-10.0 / 12.5-TL-OUTD
-- TRIO
-- UNO-DM
-- REACT
+The SunSpec models read are:
 
-Devices connected to the same datalogger are supported as well, one Modbus unit ID per inverter.
+| Model   | Content                                                                         |
+| ------- | ------------------------------------------------------------------------------- |
+| 1       | Manufacturer, model, options, firmware version and serial number                |
+| 101/103 | Single or three phase inverter: AC and DC readings, energy, temperatures, state |
+| 160     | Per-input DC current, voltage and power (up to three MPPT inputs)               |
+| 64061   | ABB vendor model: Aurora states, alarms, daily to yearly energy, extra readings |
+
+Models the device does not serve are skipped, and readings the inverter reports as not
+implemented create no entity.
 
 ## Prerequisites
 
@@ -44,10 +45,11 @@ You should either set a static IP or assign a static DHCP lease for the inverter
 alternatively access it through the local DNS name if your network is configured accordingly.
 
 Modbus TCP must be enabled on the device. On a VSN300 / VSN700 datalogger, open the logger's web
-interface and enable the Modbus TCP server; note the port and the unit ID assigned to each
-inverter.
+interface and enable the Modbus TCP server. Behind a datalogger the SunSpec map starts at register
+`0` and the inverter answers on unit ID `2` (some firmwares use `247`); a natively Modbus inverter
+such as a REACT2 uses base address `40000` and unit ID `1`.
 
-<!-- TODO: Exact menu path per device family, and the default unit ID (often 2 behind a VSN300). -->
+The inverter must be awake while you set it up: a PVI without grid power answers nothing at night.
 
 <!-- BEGIN SHARED:repo-sync:installation -->
 <!-- Synced by repo-sync on 2026-09-04 -->
@@ -78,45 +80,52 @@ inverter.
 The integration is set up from the Home Assistant UI. Go to **Settings** > **Devices & services**,
 select **Add integration**, and search for **FIMER (ABB / Power-One)**.
 
-| Parameter     | Required | Description                                                                 |
-| ------------- | -------- | --------------------------------------------------------------------------- |
-| Host          | yes      | The host name or IP address of the inverter or datalogger.                  |
-| Port          | no       | The Modbus TCP port. The default is `502`.                                  |
-| Unit ID       | yes      | The Modbus unit ID (slave address) of the inverter.                         |
+| Parameter            | Required | Description                                                       |
+| -------------------- | -------- | ----------------------------------------------------------------- |
+| Host                 | yes      | The host name or IP address of the inverter or datalogger.        |
+| Port                 | no       | The Modbus TCP port. The default is `502`.                        |
+| Modbus unit ID       | no       | The unit (slave) ID the inverter answers on. The default is `2`.  |
+| SunSpec base address | no       | The register the SunSpec map starts at. The default is `0`.       |
 
-The connection is validated during setup by reading the SunSpec common model. The inverter's serial
-number becomes the unique identifier of the config entry, so changing the host or IP later does not
-affect entities or their history.
+The unit ID and base address sit under _Advanced settings_ in the form.
 
-The polling interval can be adjusted after setup from the integration's options.
+The connection is validated during setup by walking the SunSpec model chain and reading the common
+model. The inverter's serial number becomes the unique identifier of the config entry, so changing
+the host or IP later (through **Reconfigure** on the integration page) does not affect entities or
+their history.
+
+The polling interval (10 to 600 seconds, default 30) can be adjusted after setup from the
+integration's options.
 
 ## Monitored data
 
-The integration reads the SunSpec models the device exposes and creates entities for the values it
-implements. Values the device reports as "not implemented" do not create entities.
+The integration reads the SunSpec models the device exposes and creates a sensor for every reading
+the inverter implements. Readings that appear later, for instance once the inverter is producing,
+get their sensor on the next poll.
 
-- Inverter
+- Inverter (models 101/103)
 
-  AC power, current, voltage and frequency, split among the phases where supported, apparent and
-  reactive power, power factor, lifetime energy, DC power, current and voltage, cabinet and heat sink
-  temperatures, operating state, and vendor state and event flags.
-  Updated every minute by default.
+  AC power, current and voltage split among the phases on three phase inverters, frequency,
+  apparent and reactive power, power factor, total energy, DC power, current and voltage, cabinet
+  and other temperatures, and the SunSpec operating state.
 
-- MPP trackers
+- MPPT inputs (model 160)
 
-  `MPPT <n> DC power`, `MPPT <n> DC current`, `MPPT <n> DC voltage`, and `MPPT <n> energy` for each
-  MPP tracker the inverter reports. Current and voltage are disabled by default.
+  `DC current input <n>`, `DC voltage input <n>` and `DC power input <n>` for each input the
+  inverter reports. Per-input energy is exposed only on inverters that implement it.
 
-- Nameplate and settings
+- Aurora states and vendor readings (model 64061)
 
-  Rated power and the device limits, as diagnostic entities. Updated every hour.
+  Global, inverter and DC input states with their Aurora names, the active alarms, energy today,
+  this week, this month and this year, inverter and booster temperatures, isolation resistance,
+  cos phi, the permanent and dynamic power limits and the inverter's clock. The vendor lifetime
+  and partial counters are available but disabled by default.
 
-<!-- TODO: Add the ABB vendor-specific models once identified on real hardware. -->
-
-When the inverter is powered down at night, its entities become unavailable. Lifetime energy
-counters keep their last value, so long-term statistics and the energy dashboard keep their history.
-Connection loss is handled automatically: the shared connection reconnects on the next poll and the
-integration does not reload.
+When the inverter is powered down at night, its measurements become unavailable. Energy counters
+keep their last value, restored across restarts, so long-term statistics and the energy dashboard
+keep their history. Connection loss is handled automatically: the shared connection reconnects on
+the next poll and the integration does not reload. After three failed polls in a row the inverter
+is polled every five minutes until it answers again.
 
 ## Energy dashboard
 
@@ -125,8 +134,8 @@ Recommended [energy dashboard](https://www.home-assistant.io/docs/energy/) confi
 - For _"Solar production"_, add the inverter's `Total energy` entity. That is the AC energy you can
   use or sell.
 
-Where the device reports per-string energy, `MPPT <n> energy` is what the panels delivered before
-inverter conversion losses, so it reads a few percent higher. Prefer the AC value.
+Where the inverter reports per-input energy, `DC energy input <n>` is what the panels delivered
+before conversion losses, so it reads a few percent higher. Prefer the AC value.
 
 ## Example automation
 
@@ -138,13 +147,13 @@ mode: single
 triggers:
   - trigger: state
     entity_id:
-      - sensor.pvi_10_0_ac_power
+      - sensor.pvi_10_0_outd_ac_power
 conditions: []
 actions:
   - choose:
       - conditions:
           - condition: numeric_state
-            entity_id: sensor.pvi_10_0_ac_power
+            entity_id: sensor.pvi_10_0_outd_ac_power
             above: 1000
         sequence:
           - action: switch.turn_on
@@ -152,7 +161,7 @@ actions:
               entity_id: switch.my_load
       - conditions:
           - condition: numeric_state
-            entity_id: sensor.pvi_10_0_ac_power
+            entity_id: sensor.pvi_10_0_outd_ac_power
             below: 50
         sequence:
           - action: switch.turn_off
@@ -166,8 +175,12 @@ The integration is read-only. It exposes what the SunSpec models implement on th
 not write to the inverter.
 
 The SunSpec register map of a device can change with a firmware update or when a datalogger is
-reconfigured. The integration verifies the model headers on every poll and reloads itself to rescan
-when the map moves.
+reconfigured. The integration verifies the model headers on every poll and re-discovers the models
+in place when the map moves.
+
+The ABB vendor model (64061) is read according to the 2013 Power-One register map, which reports a
+model length of 124. A device serving a different length has its vendor model skipped, with a
+warning in the log; please open an issue with the diagnostics download so the layout can be added.
 
 Details about Modbus registers can be found in the device documentation or on the
 [FIMER website](https://www.fimer.com/).
@@ -176,9 +189,11 @@ Details about Modbus registers can be found in the device documentation or on th
 
 ### Can't set up the device
 
-- Make sure the device is not in a power-saving mode when currently not producing energy.
+- Make sure the inverter is awake: without grid power at night it does not answer at all.
 - Make sure the device is connected to the network and is reachable from the Home Assistant instance.
 - Check the device's settings to ensure that Modbus TCP is enabled and the unit ID is correct.
+- If no SunSpec map is found, try base address `0` behind a VSN card or `40000` on a natively
+  Modbus inverter, under _Advanced settings_.
 - If another integration already uses the same host with different link settings, Home Assistant
   reports a conflict. One connection cannot honour two configurations at once.
 

@@ -35,7 +35,8 @@ def test_alarm_codes_are_contiguous() -> None:
     [
         ("X", "PVI-10.0-OUTD"),
         ("Xabc", "PVI-10.0-OUTD"),
-        ("1", "UNO-DM-4.0-TL-PLUS"),
+        ("1", "PVI-3.0-OUTD"),  # chr(49)
+        ("0x01", "UNO-DM-4.0-TL-PLUS"),
         ("0x0D/0xFFFF", "REACT2-UNO-5.0-TL"),
         ("0X0D", "REACT2-UNO-5.0-TL"),
         ("0xZZ", None),

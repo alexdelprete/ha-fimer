@@ -15,12 +15,13 @@ from pytest_homeassistant_custom_component.common import (
     mock_restore_cache_with_extra_data,
 )
 
+from custom_components.fimer.const import DOMAIN
 from custom_components.fimer.pyfimer.modbus.testing import InverterSpec
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers import entity_registry as er
 
-from .conftest import INVERTER_SPEC, default_register_map
+from .conftest import INVERTER_SPEC, SERIAL_NUMBER, default_register_map
 
 
 @pytest.mark.parametrize(
@@ -45,7 +46,7 @@ from .conftest import INVERTER_SPEC, default_register_map
         ("sensor.pvi_10_0_outd_inverter_state", "Run"),
         ("sensor.pvi_10_0_outd_dc_input_1_state", "MPPT"),
         ("sensor.pvi_10_0_outd_alarms", "Sun Low, Grid OV, Energy data reset"),
-        ("sensor.pvi_10_0_outd_system_time", "2025-05-09T16:53:20+00:00"),
+        ("sensor.pvi_10_0_outd_system_time", "2025-05-08T06:13:20+00:00"),
         ("sensor.pvi_10_0_outd_energy_today", "12.345"),
         ("sensor.pvi_10_0_outd_energy_this_year", "3000.0"),
         ("sensor.pvi_10_0_outd_inverter_temperature", "45.5"),
@@ -127,12 +128,26 @@ async def test_energy_sensor_keeps_value_while_offline(
     assert hass.states.get("sensor.pvi_10_0_outd_ac_power").state == "1500"
 
 
+def _register_total_energy(entity_registry: er.EntityRegistry) -> None:
+    """Register the total energy sensor as an earlier run would have."""
+    entity_registry.async_get_or_create(
+        "sensor",
+        DOMAIN,
+        f"{SERIAL_NUMBER}_WH",
+        suggested_object_id="pvi_10_0_outd_total_energy",
+    )
+
+
 async def test_energy_sensor_restores_last_value(
-    hass: HomeAssistant, mock_config_entry: MockConfigEntry, mock_unit: MockModbusUnit
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,
+    mock_unit: MockModbusUnit,
+    entity_registry: er.EntityRegistry,
 ) -> None:
-    """A lifetime counter reading 0 at boot shows the restored value, not a reset."""
+    """A counter not yet reported at boot shows the restored value, not a gap."""
     mock_unit.holding.clear()
     mock_unit.holding.update(default_register_map(inverter=_inverter_with_energy(0)))
+    _register_total_energy(entity_registry)
     mock_restore_cache_with_extra_data(
         hass,
         (
@@ -150,11 +165,15 @@ async def test_energy_sensor_restores_last_value(
 
 
 async def test_energy_sensor_without_history_is_unknown(
-    hass: HomeAssistant, mock_config_entry: MockConfigEntry, mock_unit: MockModbusUnit
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,
+    mock_unit: MockModbusUnit,
+    entity_registry: er.EntityRegistry,
 ) -> None:
-    """A lifetime counter reading 0 with nothing to restore is unknown."""
+    """A counter not yet reported at boot with nothing to restore is unknown."""
     mock_unit.holding.clear()
     mock_unit.holding.update(default_register_map(inverter=_inverter_with_energy(0)))
+    _register_total_energy(entity_registry)
     mock_config_entry.add_to_hass(hass)
     await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()

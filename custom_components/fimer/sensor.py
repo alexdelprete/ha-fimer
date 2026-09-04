@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from homeassistant.components.sensor import (
+    DOMAIN as SENSOR_DOMAIN,
     RestoreSensor,
     SensorDeviceClass,
     SensorEntity,
@@ -27,10 +28,12 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
 from . import FimerConfigEntry
+from .const import DOMAIN
 from .coordinator import FimerCoordinator
 from .entity import FimerEntity
 from .pyfimer import DCDC_STATES, GLOBAL_STATES, INVERTER_STATES
@@ -310,16 +313,27 @@ async def async_setup_entry(
     """Add a sensor for every point the inverter reports, as it reports it.
 
     An inverter only implements some of the SunSpec points, and a point
-    can appear later (a model the datalogger serves once the inverter has
-    fully booted), so sensors are created for the points seen so far and
-    every later refresh adds the newly seen ones.
+    can appear later (a counter that reads as not implemented until the
+    inverter has fully booted), so sensors are created for the points seen
+    so far and every later refresh adds the newly seen ones.
     """
     coordinator = entry.runtime_data.coordinator
     pending = {description.key: description for description in SENSOR_DESCRIPTIONS}
 
+    # sensors registered by an earlier run come back right away, so an energy
+    # counter the inverter has not reported yet shows its restored value
+    entity_registry = er.async_get(hass)
+    known = {
+        key
+        for key in pending
+        if entity_registry.async_get_entity_id(
+            SENSOR_DOMAIN, DOMAIN, f"{coordinator.device_unique_id}_{key}"
+        )
+    }
+
     @callback
     def _async_add_seen_sensors() -> None:
-        seen = [key for key in pending if coordinator.data.get(key) is not None]
+        seen = [key for key in pending if key in known or coordinator.data.get(key) is not None]
         if seen:
             async_add_entities(_sensor_for(coordinator, pending.pop(key)) for key in seen)
 

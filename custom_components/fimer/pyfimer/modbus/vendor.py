@@ -133,8 +133,15 @@ class AbbVendor(FimerComponent):
     PF_Dynamic_St = enum16(108)
 
     def values(self) -> dict[str, Any]:
-        """Return the readings plus the decoded alarms and a Unix system time."""
-        values = super().values()
+        """Return the readings plus the decoded alarms and a Unix system time.
+
+        Floats are trimmed to the seven significant digits a float32 carries,
+        so 0.995 does not surface as 0.995000004768372.
+        """
+        values = {
+            name: float(f"{value:.7g}") if isinstance(value, float) else value
+            for name, value in super().values().items()
+        }
         values["Alarms"] = decode_alarms(self.Alarm1, self.Alarm2, self.Alarm3)
         sys_time = self.SysTime
         values["SysTime"] = None if sys_time is None else sys_time + AURORA_EPOCH_OFFSET
