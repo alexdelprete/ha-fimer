@@ -1,0 +1,16 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "ABB/FIMER PVI VSN Modbus",
+        "description": "Set up your ABB/FIMER PVI VSN Modbus device.",
+        "data": {
+          "host": "Host"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  }
+}
