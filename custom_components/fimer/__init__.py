@@ -1,4 +1,4 @@
-"""The ABB/FIMER PVI VSN Modbus integration."""
+"""The FIMER (ABB / Power-One) integration."""
 
 from __future__ import annotations
 
@@ -17,18 +17,18 @@ PLATFORMS: list[str] = ["sensor"]
 
 
 @dataclass
-class AbbFimerPviVsnModbusData:
-    """Runtime data for the ABB/FIMER PVI VSN Modbus integration."""
+class FimerData:
+    """Runtime data for the FIMER (ABB / Power-One) integration."""
 
     device_name: str
 
 
-type AbbFimerPviVsnModbusConfigEntry = ConfigEntry[AbbFimerPviVsnModbusData]
+type FimerConfigEntry = ConfigEntry[FimerData]
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: AbbFimerPviVsnModbusConfigEntry) -> bool:
-    """Set up ABB/FIMER PVI VSN Modbus from a config entry."""
-    entry.runtime_data = AbbFimerPviVsnModbusData(device_name=entry.title)
+async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> bool:
+    """Set up FIMER (ABB / Power-One) from a config entry."""
+    entry.runtime_data = FimerData(device_name=entry.title)
 
     # Register the device
     device_registry = dr.async_get(hass)
@@ -45,6 +45,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: AbbFimerPviVsnModbusConf
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: AbbFimerPviVsnModbusConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> bool:
     """Unload a config entry."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)

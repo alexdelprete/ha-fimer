@@ -1,4 +1,4 @@
-"""Repair flows for ABB/FIMER PVI VSN Modbus."""
+"""Repair flows for FIMER (ABB / Power-One)."""
 
 from __future__ import annotations
 

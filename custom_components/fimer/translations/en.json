@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "ABB/FIMER PVI VSN Modbus",
-        "description": "Set up your ABB/FIMER PVI VSN Modbus device.",
+        "title": "FIMER (ABB / Power-One)",
+        "description": "Set up your FIMER (ABB / Power-One) device.",
         "data": {
           "host": "Host"
         }

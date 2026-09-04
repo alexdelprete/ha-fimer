@@ -32,7 +32,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           pytest tests/ \
-            --cov=custom_components/abb_fimer_pvi_vsn_modbus \
+            --cov=custom_components/fimer \
             --cov-report=term-missing \
             --cov-report=xml \
             --junitxml=junit.xml \

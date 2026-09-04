@@ -1,1 +1,1 @@
-"""Tests for ABB/FIMER PVI VSN Modbus."""
+"""Tests for FIMER (ABB / Power-One)."""

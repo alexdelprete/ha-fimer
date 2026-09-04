@@ -1,4 +1,4 @@
-"""Fixtures for ABB/FIMER PVI VSN Modbus tests."""
+"""Fixtures for FIMER (ABB / Power-One) tests."""
 
 from __future__ import annotations
 

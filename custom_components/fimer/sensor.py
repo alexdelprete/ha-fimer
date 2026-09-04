@@ -1,4 +1,4 @@
-"""Sensor platform for ABB/FIMER PVI VSN Modbus."""
+"""Sensor platform for FIMER (ABB / Power-One)."""
 
 from __future__ import annotations
 
@@ -16,13 +16,13 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, kw_only=True)
-class AbbFimerPviVsnModbusSensorEntityDescription(SensorEntityDescription):
-    """Describes a ABB/FIMER PVI VSN Modbus sensor entity."""
+class FimerSensorEntityDescription(SensorEntityDescription):
+    """Describes a FIMER (ABB / Power-One) sensor entity."""
 
     value_fn: Callable[[dict[str, Any]], Any] | None = None
 
 
-SENSOR_DESCRIPTIONS: tuple[AbbFimerPviVsnModbusSensorEntityDescription, ...] = (
+SENSOR_DESCRIPTIONS: tuple[FimerSensorEntityDescription, ...] = (
     # TODO: Add sensor descriptions
 )
 

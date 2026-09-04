@@ -1,0 +1,11 @@
+{
+  "domain": "fimer",
+  "name": "FIMER (ABB / Power-One)",
+  "codeowners": ["@alexdelprete"],
+  "config_flow": true,
+  "documentation": "https://github.com/alexdelprete/ha-fimer",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/alexdelprete/ha-fimer/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

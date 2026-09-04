@@ -1,4 +1,4 @@
-# Contributing to ABB/FIMER PVI VSN Modbus
+# Contributing to FIMER (ABB / Power-One)
 
 Thanks for wanting to contribute. This document covers the development environment and the
 pull request flow. For anything beyond a small fix, open an issue first so we can agree on the
@@ -26,7 +26,7 @@ with no further setup:
 ```bash
 pytest tests/                    # the whole suite, without coverage
 pytest tests/test_init.py        # one module
-pytest tests/ --cov=custom_components/abb_fimer_pvi_vsn_modbus --cov-report=term-missing
+pytest tests/ --cov=custom_components/fimer --cov-report=term-missing
 ```
 
 The last form is what CI runs. Coverage is collected only in CI so local runs stay fast, and the
@@ -40,7 +40,7 @@ jsonlint and pymarkdown. The same hooks run automatically on `git commit`. The i
 ```bash
 ruff check custom_components/ tests/
 ruff format custom_components/ tests/
-ty check custom_components/abb_fimer_pvi_vsn_modbus
+ty check custom_components/fimer
 ```
 
 ### Running a live Home Assistant

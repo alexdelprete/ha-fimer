@@ -1,5 +1,5 @@
 {
-    "name": "ABB/FIMER PVI VSN Modbus",
+    "name": "FIMER (ABB / Power-One)",
     "build": {
         "dockerfile": "Dockerfile.dev",
         "context": "."
@@ -11,13 +11,13 @@
         "-e",
         "GIT_EDITOR=code --wait",
         "--security-opt=label=disable",
-        "--name=devc-abbmodbus",
-        "--label", "proxy.aliases=abbmodbus.code,abbmodbus.hadev",
+        "--name=devc-fimer",
+        "--label", "proxy.aliases=fimer.code,fimer.hadev",
         "--label", "proxy.#1.port=8443",
         "--label", "proxy.#1.scheme=http",
         "--label", "proxy.#2.port=8123",
-        "--label", "proxy.#1.homepage.name=abbmodbus code",
-        "--label", "proxy.#2.homepage.name=abbmodbus hadev"
+        "--label", "proxy.#1.homepage.name=fimer code",
+        "--label", "proxy.#2.homepage.name=fimer hadev"
     ],
     "postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && sudo rm -rf ./*.egg-info && uv pip install -e '.[dev]' --config-settings editable_mode=compat && pre-commit install",
     "postStartCommand": "uv pip install -q -e '.[dev]' --config-settings editable_mode=compat",
@@ -46,7 +46,7 @@
             "port": 8443,
             "host": "0.0.0.0",
             "auth": "none",
-            "workspace": "/workspaces/ha-abb-fimer-pvi-vsn-modbus"
+            "workspace": "/workspaces/ha-fimer"
         }
     },
     "remoteUser": "vscode",

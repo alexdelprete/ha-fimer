@@ -56,7 +56,7 @@ repos:
       - id: ty
         name: ty
         entry: >-
-          bash -c 'ty check --python "$(which python)" custom_components/abb_fimer_pvi_vsn_modbus'
+          bash -c 'ty check --python "$(which python)" custom_components/fimer'
         language: system
         pass_filenames: false
         types: [python]

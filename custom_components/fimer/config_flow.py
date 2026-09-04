@@ -1,4 +1,4 @@
-"""Config flow for ABB/FIMER PVI VSN Modbus."""
+"""Config flow for FIMER (ABB / Power-One)."""
 
 from __future__ import annotations
 
@@ -20,8 +20,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-class AbbFimerPviVsnModbusConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for ABB/FIMER PVI VSN Modbus."""
+class FimerConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for FIMER (ABB / Power-One)."""
 
     VERSION = 1
 

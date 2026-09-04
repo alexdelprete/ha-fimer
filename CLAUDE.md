@@ -1,4 +1,4 @@
-# Claude Code Development Guidelines for ABB/FIMER PVI VSN Modbus Integration
+# Claude Code Development Guidelines for FIMER (ABB / Power-One) Integration
 
 ## Critical Initial Steps
 
@@ -43,9 +43,9 @@ mentions to survive a template-side change to plain `pre-commit`).
 
 ## Project Overview
 
-### What is ABB/FIMER PVI VSN Modbus?
+### What is FIMER (ABB / Power-One)?
 
-A Home Assistant custom integration for ABB/FIMER PVI VSN Modbus.
+A Home Assistant custom integration for FIMER (ABB / Power-One).
 
 ### Integration Type
 
@@ -55,7 +55,7 @@ A Home Assistant custom integration for ABB/FIMER PVI VSN Modbus.
 ### File Structure
 
 ```text
-custom_components/abb_fimer_pvi_vsn_modbus/
+custom_components/fimer/
 ├── __init__.py          # Integration setup
 ├── config_flow.py       # Config flow
 ├── const.py             # Constants
@@ -195,28 +195,28 @@ The project has 3 CI workflows: **Lint**, **Tests**, and **Validate**.
 **List recent workflow runs:**
 
 ```bash
-gh run list --repo alexdelprete/ha-abb-fimer-pvi-vsn-modbus --limit 5
+gh run list --repo alexdelprete/ha-fimer --limit 5
 ```
 
 **Get workflow status for a specific run:**
 
 ```bash
-gh run view <run_id> --repo alexdelprete/ha-abb-fimer-pvi-vsn-modbus
+gh run view <run_id> --repo alexdelprete/ha-fimer
 ```
 
 **Get test coverage from Tests workflow logs:**
 
 ```bash
-gh run view <run_id> --repo alexdelprete/ha-abb-fimer-pvi-vsn-modbus --log 2>&1 | grep "TOTAL"
+gh run view <run_id> --repo alexdelprete/ha-fimer --log 2>&1 | grep "TOTAL"
 ```
 
 **Quick one-liner to get latest Tests run coverage:**
 
 ```bash
 # Get latest Tests run ID and fetch coverage
-gh run list --repo alexdelprete/ha-abb-fimer-pvi-vsn-modbus --limit 5 | grep Tests
+gh run list --repo alexdelprete/ha-fimer --limit 5 | grep Tests
 # Then use the run ID from the output
-gh run view <run_id> --repo alexdelprete/ha-abb-fimer-pvi-vsn-modbus --log 2>&1 | grep "TOTAL"
+gh run view <run_id> --repo alexdelprete/ha-fimer --log 2>&1 | grep "TOTAL"
 ```
 
 ## Coding Standards
@@ -490,8 +490,8 @@ in manifest.json and const.py.
 
 ### Version Locations (Must Be Synchronized)
 
-1. `custom_components/abb_fimer_pvi_vsn_modbus/manifest.json` → `"version": "X.Y.Z"`
-1. `custom_components/abb_fimer_pvi_vsn_modbus/const.py` → `VERSION = "X.Y.Z"`
+1. `custom_components/fimer/manifest.json` → `"version": "X.Y.Z"`
+1. `custom_components/fimer/const.py` → `VERSION = "X.Y.Z"`
 
 > const.py must declare the version as plain `VERSION = "X.Y.Z"` — no `Final`
 > annotation — because the release workflow and repo-sync validate that exact form.
@@ -530,7 +530,7 @@ in manifest.json and const.py.
 1. Use `mcp__GitHub_MCP_Remote__actions_list` to list recent workflow runs:
 
    ```text
-   actions_list(method="list_workflow_runs", owner="alexdelprete", repo="ha-abb-fimer-pvi-vsn-modbus")
+   actions_list(method="list_workflow_runs", owner="alexdelprete", repo="ha-fimer")
    ```
 
 1. Check that ALL workflows show `conclusion: "success"`:
@@ -558,7 +558,7 @@ This file is then used as the body when creating the GitHub release.
 ```markdown
 # Release vX.Y.Z
 
-[![GitHub Downloads](https://img.shields.io/github/downloads/alexdelprete/ha-abb-fimer-pvi-vsn-modbus/vX.Y.Z/total?style=for-the-badge)](https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-modbus/releases/tag/vX.Y.Z)
+[![GitHub Downloads](https://img.shields.io/github/downloads/alexdelprete/ha-fimer/vX.Y.Z/total?style=for-the-badge)](https://github.com/alexdelprete/ha-fimer/releases/tag/vX.Y.Z)
 
 **Release Date:** YYYY-MM-DD
 
@@ -579,7 +579,7 @@ This file is then used as the body when creating the GitHub release.
 - Fix 1
 
 **Full Changelog**:
-[compare/vPREV...vX.Y.Z](https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-modbus/compare/vPREV...vX.Y.Z)
+[compare/vPREV...vX.Y.Z](https://github.com/alexdelprete/ha-fimer/compare/vPREV...vX.Y.Z)
 ```
 
 ### Release Readiness Report (MANDATORY)
@@ -611,8 +611,8 @@ Check CI workflows and display:
 **How to get test coverage:**
 
 ```bash
-gh run list --repo alexdelprete/ha-abb-fimer-pvi-vsn-modbus --limit 5 | grep Tests
-gh run view <run_id> --repo alexdelprete/ha-abb-fimer-pvi-vsn-modbus --log 2>&1 | grep "TOTAL"
+gh run list --repo alexdelprete/ha-fimer --limit 5 | grep Tests
+gh run view <run_id> --repo alexdelprete/ha-fimer --log 2>&1 | grep "TOTAL"
 ```
 
 The coverage percentage is the last column in the TOTAL line.

@@ -1,13 +1,13 @@
 # Release Workflow
 
-This document describes the release workflow for the ABB/FIMER PVI VSN Modbus integration.
+This document describes the release workflow for the FIMER (ABB / Power-One) integration.
 
 ## Version Locations
 
 Versions must be synchronized in:
 
-1. `custom_components/abb_fimer_pvi_vsn_modbus/manifest.json` -> `"version": "X.Y.Z"`
-2. `custom_components/abb_fimer_pvi_vsn_modbus/const.py` -> `VERSION = "X.Y.Z"`
+1. `custom_components/fimer/manifest.json` -> `"version": "X.Y.Z"`
+2. `custom_components/fimer/const.py` -> `VERSION = "X.Y.Z"`
 3. Git tag -> `vX.Y.Z`
 
 ## Release Process

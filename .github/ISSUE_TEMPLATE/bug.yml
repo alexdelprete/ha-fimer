@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug with the ABB/FIMER PVI VSN Modbus integration
+description: Report a bug with the FIMER (ABB / Power-One) integration
 labels: ["bug"]
 body:
   - type: markdown
@@ -61,7 +61,7 @@ body:
         logger:
           default: warning
           logs:
-            custom_components.abb_fimer_pvi_vsn_modbus: debug
+            custom_components.fimer: debug
         ```
       render: shell
     validations:

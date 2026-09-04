@@ -48,4 +48,4 @@ jobs:
       - name: Install dependencies for ty
         run: uv pip install -e ".[dev]" --system
       - name: Run ty
-        run: uvx ty check -vv --python $(which python) custom_components/abb_fimer_pvi_vsn_modbus
+        run: uvx ty check -vv --python $(which python) custom_components/fimer

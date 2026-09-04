@@ -13,7 +13,7 @@ system_health:
 logger:
   default: info
   logs:
-    custom_components.abb_fimer_pvi_vsn_modbus: debug
+    custom_components.fimer: debug
     # Reverse-proxy healthcheck probes may carry an empty X-Forwarded-For;
     # silence the per-probe ERROR
     homeassistant.components.http.forwarded: fatal

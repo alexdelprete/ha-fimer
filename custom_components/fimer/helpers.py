@@ -1,4 +1,4 @@
-"""Helper functions for ABB/FIMER PVI VSN Modbus."""
+"""Helper functions for FIMER (ABB / Power-One)."""
 
 from __future__ import annotations
 

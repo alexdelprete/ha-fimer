@@ -1,4 +1,4 @@
-"""Device triggers for ABB/FIMER PVI VSN Modbus."""
+"""Device triggers for FIMER (ABB / Power-One)."""
 
 from __future__ import annotations
 

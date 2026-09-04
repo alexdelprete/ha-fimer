@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for ABB/FIMER PVI VSN Modbus."""
+"""DataUpdateCoordinator for FIMER (ABB / Power-One)."""
 
 from __future__ import annotations
 
@@ -15,8 +15,8 @@ _LOGGER = logging.getLogger(__name__)
 SCAN_INTERVAL = 30
 
 
-class AbbFimerPviVsnModbusCoordinator(DataUpdateCoordinator[dict[str, Any]]):
-    """Coordinator for ABB/FIMER PVI VSN Modbus."""
+class FimerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Coordinator for FIMER (ABB / Power-One)."""
 
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize the coordinator."""

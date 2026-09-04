@@ -26,11 +26,11 @@ jobs:
 
           # Extract version from manifest.json
           MANIFEST_VERSION=$(yq -r '.version' \
-            "${{ github.workspace }}/custom_components/abb_fimer_pvi_vsn_modbus/manifest.json")
+            "${{ github.workspace }}/custom_components/fimer/manifest.json")
 
           # Extract VERSION from const.py
           CONST_VERSION=$(grep -E "^VERSION = " \
-            "${{ github.workspace }}/custom_components/abb_fimer_pvi_vsn_modbus/const.py" \
+            "${{ github.workspace }}/custom_components/fimer/const.py" \
             | sed 's/VERSION = "\(.*\)"/\1/')
 
           # Fail early if extraction produced nothing (drifted declaration style)
@@ -69,10 +69,10 @@ jobs:
       - name: "ZIP the integration directory"
         shell: "bash"
         run: |
-          cd "${{ github.workspace }}/custom_components/abb_fimer_pvi_vsn_modbus"
-          zip abb_fimer_pvi_vsn_modbus.zip -r ./
+          cd "${{ github.workspace }}/custom_components/fimer"
+          zip fimer.zip -r ./
 
       - name: "Upload the ZIP file to the release"
         uses: softprops/action-gh-release@v3.0.3
         with:
-          files: ${{ github.workspace }}/custom_components/abb_fimer_pvi_vsn_modbus/abb_fimer_pvi_vsn_modbus.zip
+          files: ${{ github.workspace }}/custom_components/fimer/fimer.zip

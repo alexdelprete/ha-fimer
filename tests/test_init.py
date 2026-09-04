@@ -1,4 +1,4 @@
-"""Tests for ABB/FIMER PVI VSN Modbus integration setup."""
+"""Tests for FIMER (ABB / Power-One) integration setup."""
 
 from __future__ import annotations
 

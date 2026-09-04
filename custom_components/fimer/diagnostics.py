@@ -1,4 +1,4 @@
-"""Diagnostics support for ABB/FIMER PVI VSN Modbus."""
+"""Diagnostics support for FIMER (ABB / Power-One)."""
 
 from __future__ import annotations
 

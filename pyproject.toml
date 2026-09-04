@@ -1,15 +1,15 @@
 [project]
-name = "ha-abb-fimer-pvi-vsn-modbus"
+name = "ha-fimer"
 version = "0.1.0"
-description = "Home Assistant custom integration for ABB/FIMER PVI VSN Modbus"
+description = "Home Assistant custom integration for FIMER (ABB / Power-One)"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.14.2"
 authors = [{ name = "alexdelprete" }]
 
 [project.urls]
-"Homepage" = "https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-modbus"
-"Bug Tracker" = "https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-modbus/issues"
+"Homepage" = "https://github.com/alexdelprete/ha-fimer"
+"Bug Tracker" = "https://github.com/alexdelprete/ha-fimer/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -76,7 +76,7 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
 branch = true
-source = ["custom_components.abb_fimer_pvi_vsn_modbus"]
+source = ["custom_components.fimer"]
 relative_files = true
 
 [tool.coverage.report]
