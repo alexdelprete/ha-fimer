@@ -1,0 +1,63 @@
+# Pre-commit hooks configuration
+# Uses locally installed tools (no isolated environments)
+# Run: pre-commit install (first time setup)
+# Run: pre-commit run --all-files (manual check)
+
+repos:
+  - repo: local
+    hooks:
+      # Ruff linting (check-only)
+      - id: ruff
+        name: ruff
+        entry: ruff check --no-fix
+        language: system
+        types: [python]
+        verbose: true
+
+      # Ruff formatting (check-only)
+      - id: ruff-format
+        name: ruff-format
+        entry: ruff format --check
+        language: system
+        types: [python]
+        verbose: true
+
+      # JSON validation
+      - id: jsonlint
+        name: jsonlint
+        entry: uvx --from demjson3 jsonlint -S
+        language: system
+        types: [json]
+        exclude: ^\.vscode/
+        verbose: true
+
+      # YAML validation
+      - id: yamllint
+        name: yamllint
+        entry: >-
+          uvx yamllint -d "{extends: default, rules: {line-length: {max: 120},
+          document-start: disable, truthy: {check-keys: false},
+          comments: {min-spaces-from-content: 1}}}"
+        language: system
+        types: [yaml]
+        verbose: true
+
+      # Markdown linting
+      - id: pymarkdown
+        name: pymarkdown
+        entry: pymarkdown --config .pymarkdownlint.json scan
+        language: system
+        types: [markdown]
+        verbose: true
+
+      # Type checking (devcontainer only — requires HA deps installed).
+      # `--python "$(which python)"` resolves the interpreter at runtime
+      # so the hook works whether Python lives at the venv path or system path.
+      - id: ty
+        name: ty
+        entry: >-
+          bash -c 'ty check --python "$(which python)" custom_components/abb_fimer_pvi_vsn_modbus'
+        language: system
+        pass_filenames: false
+        types: [python]
+        verbose: true

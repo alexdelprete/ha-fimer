@@ -1,0 +1,51 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version-file: .python-version
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Validate JSON files
+        run: find . -name "*.json" -not -path "./.vscode/*" | xargs uvx --from demjson3 jsonlint -S
+
+      - name: Validate YAML files
+        run: >-
+          uvx yamllint -d "{extends: default, rules: {line-length: {max: 120},
+          document-start: disable, truthy: {check-keys: false},
+          comments: {min-spaces-from-content: 1}}}"
+          $(find . -name "*.yml" -o -name "*.yaml" | grep -v node_modules)
+
+      - name: Lint Markdown files
+        run: uvx --from pymarkdownlnt pymarkdown --config .pymarkdownlint.json scan .
+
+      - name: Run Ruff format check
+        run: uvx ruff format . --check
+
+      - name: Run Ruff check
+        run: uvx ruff check .
+
+      # ty needs dependencies installed to resolve imports (homeassistant, mqtt, etc.)
+      - name: Install dependencies for ty
+        run: uv pip install -e ".[dev]" --system
+      - name: Run ty
+        run: uvx ty check -vv --python $(which python) custom_components/abb_fimer_pvi_vsn_modbus

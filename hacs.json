@@ -1,0 +1,8 @@
+{
+  "name": "ABB/FIMER PVI VSN Modbus",
+  "homeassistant": "2026.8.0",
+  "content_in_root": false,
+  "render_readme": true,
+  "zip_release": true,
+  "filename": "abb_fimer_pvi_vsn_modbus.zip"
+}
