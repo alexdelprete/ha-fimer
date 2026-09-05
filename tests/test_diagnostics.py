@@ -51,5 +51,5 @@ async def test_diagnostics_offline(
     """When the inverter does not answer, the register dump reports the error."""
     mock_unit.fail_requests(ModbusConnectionError("asleep"))
     diag = await get_diagnostics_for_config_entry(hass, hass_client, init_integration)
-    assert diag["registers"] == {"error": "asleep"}
-    assert diag["data"]["W"] == 1500
+    assert diag["modbus"]["registers"] == {"error": "asleep"}
+    assert diag["modbus"]["data"]["W"] == 1500

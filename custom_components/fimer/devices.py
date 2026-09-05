@@ -105,8 +105,8 @@ def build_devices(
     devices: list[FimerDevice] = []
     datalogger_identifier: tuple[str, str] | None = None
 
-    if rest is not None and rest.logger.discovered:
-        identity = rest.logger.identity
+    if rest is not None and rest.rest_logger.discovered:
+        identity = rest.rest_logger.identity
         datalogger_identifier = (DOMAIN, identity.unique_id)
         devices.append(
             FimerDevice(
@@ -130,8 +130,8 @@ def build_devices(
     if inverter is not None:
         devices.insert(0, inverter)
 
-    if rest is not None and rest.logger.discovered:
-        for device_id, readings in rest.logger.devices.items():
+    if rest is not None and rest.rest_logger.discovered:
+        for device_id, readings in rest.rest_logger.devices.items():
             if readings.device_type == REST_DATALOGGER or readings.device_type.startswith(
                 "inverter"
             ):
@@ -161,7 +161,7 @@ def _rest_datalogger_id(rest: FimerRestCoordinator) -> str | None:
     return next(
         (
             device_id
-            for device_id, readings in rest.logger.devices.items()
+            for device_id, readings in rest.rest_logger.devices.items()
             if readings.device_type == REST_DATALOGGER
         ),
         None,
@@ -176,11 +176,11 @@ def _inverter_device(
 ) -> FimerDevice | None:
     rest_id = None
     rest_readings = None
-    if rest is not None and rest.logger.discovered:
+    if rest is not None and rest.rest_logger.discovered:
         rest_id, rest_readings = next(
             (
                 (device_id, readings)
-                for device_id, readings in rest.logger.devices.items()
+                for device_id, readings in rest.rest_logger.devices.items()
                 if readings.device_type.startswith("inverter")
             ),
             (None, None),

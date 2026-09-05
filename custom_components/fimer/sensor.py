@@ -411,6 +411,7 @@ def _rest_description(point: RestPoint) -> FimerSensorEntityDescription:
     ):
         state_class = None
     energy = device_class is SensorDeviceClass.ENERGY
+    numeric = unit is not None or state_class is not None or device_class is not None
     return FimerSensorEntityDescription(
         key=point.name,
         translation_key=point.ha_name,
@@ -418,7 +419,7 @@ def _rest_description(point: RestPoint) -> FimerSensorEntityDescription:
         suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR if energy else None,
         device_class=device_class,
         state_class=state_class,
-        suggested_display_precision=3 if energy else point.precision,
+        suggested_display_precision=(3 if energy else point.precision) if numeric else None,
         entity_category=_REST_CATEGORIES.get(point.entity_category or ""),
         invalid_when_zero=energy and point.scope == "lifetime",
     )

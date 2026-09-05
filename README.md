@@ -90,13 +90,29 @@ select **Add integration**, and search for **FIMER (ABB / Power-One)**.
 | Port                 | no       | The Modbus TCP port. The default is `502`.                        |
 | Modbus unit ID       | no       | The unit (slave) ID the inverter answers on. The default is `2`.  |
 | SunSpec base address | no       | The register the SunSpec map starts at. The default is `0`.       |
+| REST API             | no       | Also read the datalogger's REST API, with its username and password. |
 
-The unit ID and base address sit under _Advanced settings_ in the form.
+Two sources can be read, each optional but at least one enabled:
 
-The connection is validated during setup by walking the SunSpec model chain and reading the common
-model. The inverter's serial number becomes the unique identifier of the config entry, so changing
-the host or IP later (through **Reconfigure** on the integration page) does not affect entities or
-their history.
+- **Modbus TCP (SunSpec)**: fast, unauthenticated readings of the inverter's SunSpec models.
+- **Datalogger REST API**: the VSN300 / VSN700 card's own API, adding the datalogger itself, the
+  periodic energy counters, and on a VSN700 the meters and batteries. The username is usually
+  `guest`; the password is the one set on the card.
+
+When both are enabled, a reading available from both comes from Modbus, and REST fills in
+whatever Modbus lacks or while Modbus is down. Each physical device becomes one Home Assistant
+device: the inverter, the datalogger, and any meter or battery, linked through the datalogger.
+
+The connection is validated during setup. The inverter's serial number becomes the unique
+identifier of the config entry, so changing the host or IP later (through **Reconfigure** on the
+integration page) does not affect entities or their history.
+
+### Taking over the ABB/FIMER PVI VSN REST integration
+
+If the earlier `abb_fimer_pvi_vsn_rest` integration is installed, the setup starts with a choice
+to take over one of its entries. Its host and credentials are prefilled and, when the new entry
+loads, the old entry is removed and its sensors are re-registered here with their entity IDs,
+names, icons and areas, so recorded history and long-term statistics continue.
 
 The polling interval (10 to 600 seconds, default 30) can be adjusted after setup from the
 integration's options.

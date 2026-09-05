@@ -203,16 +203,16 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
             name=f"{DOMAIN}_{entry.data[CONF_HOST]}_rest",
             update_interval=self._default_interval,
         )
-        self.logger = logger
+        self.rest_logger = logger
         self._failed_update_count = 0
 
     async def _async_update_data(self) -> FimerRestData:
         """Discover on first use, then refresh every device's readings."""
         try:
-            if not self.logger.discovered:
-                await self.logger.discover()
+            if not self.rest_logger.discovered:
+                await self.rest_logger.discover()
             else:
-                await self.logger.async_update()
+                await self.rest_logger.async_update()
         except FimerError as err:
             self._failed_update_count += 1
             if self._failed_update_count == MAX_FAILED_UPDATES:
@@ -226,4 +226,4 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
         if self._failed_update_count:
             self._failed_update_count = 0
             self.update_interval = self._default_interval
-        return self.logger.values()
+        return self.rest_logger.values()
