@@ -27,6 +27,9 @@ from .sunspec import (
     NAMEPLATE_MODEL_ID,
     SETTINGS_MODEL_ID,
     STORAGE_MODEL_ID,
+    STRING_COMBINER_MODEL_ID,
+    TRIO_COMM_BOARD_MODEL_ID,
+    TRIO_FUSE_BOARD_MODEL_ID,
 )
 
 NOT_IMPLEMENTED_UINT16 = 0xFFFF
@@ -370,6 +373,69 @@ def _storage_model_data(spec: StorageSpec) -> list[int]:
     ]
 
 
+@dataclass
+class CombinerSpec:
+    """Values for one SunSpec model 403 string combiner of a TRIO."""
+
+    string_currents: list[float | None] = field(default_factory=lambda: [None] * 5)
+    """Per-string currents in amperes (hundredths)."""
+    total_current: float | None = None
+    voltage: float | None = None
+    temperature: int | None = None
+    rated_current: int | None = 32
+
+
+def _combiner_model_data(spec: CombinerSpec) -> list[int]:
+    data = [
+        _sf_word(SF_CURRENT),  # DCA_SF
+        NOT_IMPLEMENTED_INT16,  # DCAhr_SF
+        _sf_word(SF_VOLTAGE),  # DCV_SF
+        NOT_IMPLEMENTED_UINT16 if spec.rated_current is None else spec.rated_current,
+        len(spec.string_currents),  # N
+        *_uint32_words(0),  # Evt
+        *_uint32_words(0),  # EvtVnd
+        _scaled_word(spec.total_current, SF_CURRENT, signed=True),
+        *_uint32_words(NOT_IMPLEMENTED_ACC32),  # DCAhr
+        _scaled_word(spec.voltage, SF_VOLTAGE, signed=True),
+        NOT_IMPLEMENTED_INT16 if spec.temperature is None else spec.temperature & 0xFFFF,
+        _sf_word(SF_CURRENT),  # InDCA_SF
+        NOT_IMPLEMENTED_INT16,  # InDCAhr_SF
+    ]
+    for index, current in enumerate(spec.string_currents, start=1):
+        data += [
+            index,  # InID
+            *_uint32_words(0),  # InEvt
+            *_uint32_words(0),  # InEvtVnd
+            _scaled_word(current, SF_CURRENT, signed=True),
+            *_uint32_words(NOT_IMPLEMENTED_ACC32),  # InDCAhr
+        ]
+    return data
+
+
+def _trio_comm_board_data() -> list[int]:
+    return [
+        *_string_words("CB-SERIAL", 8),
+        *_string_words("1.2", 4),
+        0,
+        0,  # St4, St5
+        *_float32_words(21.5),  # PT100
+        *_float32_words(None),  # PT1000
+        *_float32_words(None),  # Analog1
+        *_float32_words(None),  # Analog2
+        *_float32_words(38.0),  # TmpInternal
+        *_float32_words(1.0),  # Analog1Gain
+        *_float32_words(0.0),  # Analog1Offset
+        *_string_words("V", 2),
+        *_float32_words(1.0),  # Analog2Gain
+        *_float32_words(0.0),  # Analog2Offset
+        *_string_words("V", 2),
+    ]
+
+
+def _trio_fuse_board_data() -> list[int]:
+    return [*_string_words("FB-SERIAL", 8), *_string_words("2.0", 4), 0, 0, 0, 0, 0, 0]
+
+
 def _alarm_words(codes: list[int]) -> list[int]:
     registers = [0, 0, 0]
     for code in codes:
@@ -479,6 +545,8 @@ def build_register_map(
     power_limit_enabled: bool = False,
     power_factor_implemented: bool = False,
     storage: StorageSpec | None = None,
+    combiners: list[CombinerSpec] | None = None,
+    trio_boards: bool = False,
     vendor: VendorSpec | None = None,
     include_vendor_model: bool = False,
     vendor_model_length: int = ABB_VENDOR_MODEL_LENGTH,
@@ -538,6 +606,12 @@ def build_register_map(
         )
     if storage is not None:
         add_model(STORAGE_MODEL_ID, _storage_model_data(storage))
+    if trio_boards:
+        add_model(TRIO_COMM_BOARD_MODEL_ID, _trio_comm_board_data())
+    for combiner in combiners or []:
+        add_model(STRING_COMBINER_MODEL_ID, _combiner_model_data(combiner))
+    if trio_boards:
+        add_model(TRIO_FUSE_BOARD_MODEL_ID, _trio_fuse_board_data())
     if include_vendor_model:
         add_model(
             ABB_VENDOR_MODEL_ID, _vendor_model_data(vendor or VendorSpec(), vendor_model_length)
@@ -549,6 +623,7 @@ def build_register_map(
 
 
 __all__ = [
+    "CombinerSpec",
     "InverterSpec",
     "MpptInputSpec",
     "StorageSpec",

@@ -38,10 +38,14 @@ from .sunspec import (
     NAMEPLATE_MODEL_ID,
     SETTINGS_MODEL_ID,
     STORAGE_MODEL_ID,
+    STRING_COMBINER_MODEL_ID,
+    TRIO_COMM_BOARD_MODEL_ID,
+    TRIO_FUSE_BOARD_MODEL_ID,
     SunSpecModel,
     SunSpecModels,
     scan,
 )
+from .trio import StringCombiner, TrioCommBoard, TrioFuseBoard
 from .vendor import AbbVendor
 
 _LOGGER = logging.getLogger(__name__)
@@ -108,6 +112,9 @@ class FimerModbusInverter:
         self.settings: Settings | None = None
         self.controls: Controls | None = None
         self.storage: Storage | None = None
+        self.combiners: list[StringCombiner] = []
+        self.comm_board: TrioCommBoard | None = None
+        self.fuse_board: TrioFuseBoard | None = None
         self.vendor: AbbVendor | None = None
         self.vendor_model_length: int | None = None
         self._extras: list[FixedComponent] = []
@@ -166,6 +173,14 @@ class FimerModbusInverter:
         self.controls = Controls(unit, controls) if controls else None
         storage = self._models.first(STORAGE_MODEL_ID)
         self.storage = Storage(unit, storage) if storage else None
+        self.combiners = [
+            StringCombiner(unit, model, number=number)
+            for number, model in enumerate(self._models.get(STRING_COMBINER_MODEL_ID, []), start=1)
+        ]
+        comm_board = self._models.first(TRIO_COMM_BOARD_MODEL_ID)
+        self.comm_board = TrioCommBoard(unit, comm_board) if comm_board else None
+        fuse_board = self._models.first(TRIO_FUSE_BOARD_MODEL_ID)
+        self.fuse_board = TrioFuseBoard(unit, fuse_board) if fuse_board else None
         vendor = self._models.first(ABB_VENDOR_MODEL_ID)
         self.vendor_model_length = vendor.length if vendor else None
         if vendor is not None and vendor.length != ABB_VENDOR_MODEL_LENGTH:
@@ -206,6 +221,9 @@ class FimerModbusInverter:
                 self.settings,
                 self.controls,
                 self.storage,
+                *self.combiners,
+                self.comm_board,
+                self.fuse_board,
                 self.vendor,
             )
             if component is not None

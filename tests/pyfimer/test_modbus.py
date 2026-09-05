@@ -27,6 +27,7 @@ from custom_components.fimer.pyfimer.modbus import (
     SunSpecMapShiftError,
 )
 from custom_components.fimer.pyfimer.modbus.testing import (
+    CombinerSpec,
     InverterSpec,
     MpptInputSpec,
     StorageSpec,
@@ -539,3 +540,44 @@ async def test_event_names(unit: MockModbusUnit) -> None:
         unit, float_models=True, inverter=replace(INVERTER_SPEC, events=1 << 0)
     )
     assert inverter.values()["Events"] == ["ground_fault"]
+
+
+async def test_trio_models(unit: MockModbusUnit) -> None:
+    """A TRIO adds two string combiners and its two boards to the chain."""
+    inverter = await discovered(
+        unit,
+        combiners=[
+            CombinerSpec(
+                [3.5, 3.4, None, None, None], total_current=6.9, voltage=550.0, temperature=31
+            ),
+            CombinerSpec([2.0, 2.1, 2.2, None, None], total_current=6.3, voltage=548.0),
+        ],
+        trio_boards=True,
+    )
+    assert [m.model_id for m in inverter.model_chain][-4:] == [64062, 403, 403, 64063]
+    assert len(inverter.combiners) == 2
+    assert inverter.comm_board is not None
+    assert inverter.fuse_board is not None
+    values = inverter.values()
+    assert values["DCA_C1"] == 6.9
+    assert values["DCV_C1"] == 550.0
+    assert values["Tmp_C1"] == 31
+    assert values["N_C1"] == 5
+    assert values["InDCA_C1_1"] == 3.5
+    assert values["InDCA_C1_3"] is None
+    assert values["InDCA_C2_3"] == 2.2
+    assert values["DCAhr_C2"] is None
+    assert values["InEvt_C1_1"] == 0
+    assert values["CommBoard_SN"] == "CB-SERIAL"
+    assert values["PT100"] == 21.5
+    assert values["PT1000"] is None
+    assert values["CommBoard_Tmp"] == 38.0
+    assert values["FuseBoard_SN"] == "FB-SERIAL"
+    assert values["FuseBoard_FwVersion"] == "2.0"
+    assert values["FuseBoard_St"] == [0, 0, 0, 0, 0, 0]
+    assert set(values) <= set(POINTS_BY_NAME)
+
+    unit.holding.clear()
+    inverter = await discovered(unit)
+    assert inverter.combiners == []
+    assert inverter.comm_board is None

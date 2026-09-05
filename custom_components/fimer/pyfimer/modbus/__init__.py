@@ -50,6 +50,7 @@ from .sunspec import (
     SunSpecMapShiftError,
     SunSpecModel,
 )
+from .trio import StringCombiner, StringInput, TrioCommBoard, TrioFuseBoard
 from .vendor import AbbVendor, DevicePresence
 
 __all__ = [
@@ -91,7 +92,11 @@ __all__ = [
     "Settings",
     "Storage",
     "StorageControlMode",
+    "StringCombiner",
+    "StringInput",
     "SunSpecError",
     "SunSpecMapShiftError",
     "SunSpecModel",
+    "TrioCommBoard",
+    "TrioFuseBoard",
 ]

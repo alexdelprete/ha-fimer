@@ -64,9 +64,92 @@ MODEL_CONTROLS: Final = 123
 MODEL_STORAGE: Final = 124
 MODEL_MPPT: Final = 160
 MODEL_ABB_VENDOR: Final = 64061
+MODEL_STRING_COMBINER: Final = 403
+MODEL_TRIO_COMM_BOARD: Final = 64062
+MODEL_TRIO_FUSE_BOARD: Final = 64063
+
+STRING_COMBINERS: Final = 2
+"""DC inputs with a string combiner on a TRIO."""
+COMBINER_STRINGS: Final = 5
+"""Strings per combiner on a TRIO."""
 
 MPPT_INPUTS: Final = 3
 """Highest number of MPPT inputs any supported inverter reports (TRIO-TM)."""
+
+
+def _combiner_points() -> tuple[Point, ...]:
+    points: list[Point] = []
+    for number in range(1, STRING_COMBINERS + 1):
+        suffix = f"_C{number}"
+        points += [
+            Point(
+                f"DCAMax{suffix}",
+                PointKind.INFO,
+                "A",
+                MODEL_STRING_COMBINER,
+                f"Combiner {number} rated current",
+            ),
+            Point(
+                f"N{suffix}",
+                PointKind.INFO,
+                None,
+                MODEL_STRING_COMBINER,
+                f"Combiner {number} string count",
+            ),
+            Point(
+                f"DCA{suffix}",
+                PointKind.MEASUREMENT,
+                "A",
+                MODEL_STRING_COMBINER,
+                f"Combiner {number} current",
+            ),
+            Point(
+                f"DCAhr{suffix}",
+                PointKind.TOTAL,
+                "Ah",
+                MODEL_STRING_COMBINER,
+                f"Combiner {number} amp-hours",
+            ),
+            Point(
+                f"DCV{suffix}",
+                PointKind.MEASUREMENT,
+                "V",
+                MODEL_STRING_COMBINER,
+                f"Combiner {number} voltage",
+            ),
+            Point(
+                f"Tmp{suffix}",
+                PointKind.MEASUREMENT,
+                "°C",
+                MODEL_STRING_COMBINER,
+                f"Combiner {number} temperature",
+            ),
+        ]
+        for index in range(1, COMBINER_STRINGS + 1):
+            points += [
+                Point(
+                    f"InDCA{suffix}_{index}",
+                    PointKind.MEASUREMENT,
+                    "A",
+                    MODEL_STRING_COMBINER,
+                    f"Combiner {number} string {index} current",
+                ),
+                Point(
+                    f"InDCAhr{suffix}_{index}",
+                    PointKind.TOTAL,
+                    "Ah",
+                    MODEL_STRING_COMBINER,
+                    f"Combiner {number} string {index} amp-hours",
+                ),
+                Point(
+                    f"InEvt{suffix}_{index}",
+                    PointKind.BITFIELD,
+                    None,
+                    MODEL_STRING_COMBINER,
+                    f"Combiner {number} string {index} events",
+                ),
+            ]
+    return tuple(points)
 
 
 def _mppt_points() -> tuple[Point, ...]:
@@ -223,6 +306,34 @@ SUNSPEC_POINTS: Final[tuple[Point, ...]] = (
         "InOutWRte_RvrtTms", PointKind.MEASUREMENT, "s", MODEL_STORAGE, "Rate setpoint revert time"
     ),
     Point("ChaGriSet", PointKind.STATE, None, MODEL_STORAGE, "Charge source"),
+    # TRIO string combiners (403) and boards (64062, 64063)
+    *_combiner_points(),
+    Point(
+        "CommBoard_SN", PointKind.INFO, None, MODEL_TRIO_COMM_BOARD, "Communication board serial"
+    ),
+    Point(
+        "CommBoard_FwVersion",
+        PointKind.INFO,
+        None,
+        MODEL_TRIO_COMM_BOARD,
+        "Communication board firmware",
+    ),
+    Point("PT100", PointKind.MEASUREMENT, "°C", MODEL_TRIO_COMM_BOARD, "PT100 probe"),
+    Point("PT1000", PointKind.MEASUREMENT, "°C", MODEL_TRIO_COMM_BOARD, "PT1000 probe"),
+    Point("Analog1", PointKind.MEASUREMENT, None, MODEL_TRIO_COMM_BOARD, "Analogue input 1"),
+    Point("Analog2", PointKind.MEASUREMENT, None, MODEL_TRIO_COMM_BOARD, "Analogue input 2"),
+    Point(
+        "CommBoard_Tmp",
+        PointKind.MEASUREMENT,
+        "°C",
+        MODEL_TRIO_COMM_BOARD,
+        "Communication board temperature",
+    ),
+    Point("FuseBoard_SN", PointKind.INFO, None, MODEL_TRIO_FUSE_BOARD, "Fuse board serial"),
+    Point(
+        "FuseBoard_FwVersion", PointKind.INFO, None, MODEL_TRIO_FUSE_BOARD, "Fuse board firmware"
+    ),
+    Point("FuseBoard_St", PointKind.INFO, None, MODEL_TRIO_FUSE_BOARD, "Fuse board state bytes"),
     # ABB vendor model (64061)
     Point("HwVersion", PointKind.INFO, None, MODEL_ABB_VENDOR, "Hardware version"),
     Point("Parent", PointKind.INFO, None, MODEL_ABB_VENDOR, "Parent device"),

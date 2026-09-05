@@ -29,6 +29,9 @@ __all__ = [
     "NAMEPLATE_MODEL_ID",
     "SETTINGS_MODEL_ID",
     "STORAGE_MODEL_ID",
+    "STRING_COMBINER_MODEL_ID",
+    "TRIO_COMM_BOARD_MODEL_ID",
+    "TRIO_FUSE_BOARD_MODEL_ID",
     "SunSpecComponent",
     "SunSpecError",
     "SunSpecMapShiftError",
@@ -57,6 +60,9 @@ CONTROLS_MODEL_ID: Final = 123
 STORAGE_MODEL_ID: Final = 124
 MPPT_MODEL_ID: Final = 160
 ABB_VENDOR_MODEL_ID: Final = 64061
+TRIO_COMM_BOARD_MODEL_ID: Final = 64062
+TRIO_FUSE_BOARD_MODEL_ID: Final = 64063
+STRING_COMBINER_MODEL_ID: Final = 403
 ABB_VENDOR_MODEL_LENGTH: Final = 124
 """Length of the vendor model in the 2013 Power-One map this library implements.
 
