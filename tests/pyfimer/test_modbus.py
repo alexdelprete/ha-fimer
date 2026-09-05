@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 from pathlib import Path
 
 from modbus_connection import ModbusExceptionError
 from modbus_connection.mock import MockModbusConnection, MockModbusUnit
+from modbus_connection.model.sunspec import int16, uint16
 import pytest
 
 from custom_components.fimer.pyfimer import (
@@ -19,6 +21,7 @@ from custom_components.fimer.pyfimer.modbus import (
     ChargeState,
     Enabled,
     FimerModbusInverter,
+    FixedComponent,
     OperatingState,
     SunSpecError,
     SunSpecMapShiftError,
@@ -487,3 +490,52 @@ async def test_reactive_power_points(unit: MockModbusUnit) -> None:
     assert "VArPct_Ena" in values
     assert values["VArWMaxPct"] is None  # scale factor unimplemented on the PVI
     assert set(values) <= set(POINTS_BY_NAME)
+
+
+class LegacyMppt(FixedComponent):
+    """A register block outside the SunSpec map, as an old UNO-DM serves it."""
+
+    POINT_NAMES = ("DCV_3", "DCW_3")
+
+    DCV_3 = uint16(1104, scale_register=1103, unit="V")
+    DCW_3 = int16(1105, scale_register=1103, unit="W", writable=True)
+
+
+async def test_fixed_layout_component(unit: MockModbusUnit) -> None:
+    unit.holding.update({1103: 0xFFFF, 1104: 3450, 1105: 2000})  # scale factor -1
+    inverter = await discovered(unit)
+    assert "DCV_3" not in inverter.values()
+
+    inverter.add_component(LegacyMppt(unit))
+    assert len(inverter.extra_components) == 1
+    await inverter.async_update()
+    values = inverter.values()
+    assert values["DCV_3"] == 345.0
+    assert values["DCW_3"] == 200.0
+    assert values["W"] == 1500  # the SunSpec models are still polled
+
+    await inverter.async_write("DCW_3", 150)
+    assert unit.holding[1105] == 1500
+
+    # adding before discovery works too
+    unit.holding.clear()
+    unit.holding.update(build_register_map(inverter=INVERTER_SPEC))
+    unit.holding.update({1103: 0xFFFF, 1104: 3450, 1105: 2000})
+    inverter = FimerModbusInverter(unit)
+    inverter.add_component(LegacyMppt(unit))
+    await inverter.discover()
+    await inverter.async_update()
+    assert inverter.values()["DCV_3"] == 345.0
+
+
+async def test_event_names(unit: MockModbusUnit) -> None:
+    inverter = await discovered(unit)
+    assert inverter.values()["Events"] == []
+    unit.holding.clear()
+    inverter = await discovered(unit, inverter=replace(INVERTER_SPEC, events=(1 << 4) | (1 << 7)))
+    assert inverter.values()["Events"] == ["grid_disconnect", "over_temp"]
+    unit.holding.clear()
+    inverter = await discovered(
+        unit, float_models=True, inverter=replace(INVERTER_SPEC, events=1 << 0)
+    )
+    assert inverter.values()["Events"] == ["ground_fault"]

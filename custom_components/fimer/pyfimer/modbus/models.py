@@ -104,6 +104,33 @@ class FimerComponent(SunSpecComponent):
         return {name: getattr(self, name) for name in self.POINT_NAMES}
 
 
+class FixedComponent(Component):
+    """A register layout at absolute addresses, outside any SunSpec model.
+
+    Declare fields at their absolute register addresses (or pass
+    ``base_offset`` at construction to place a relative layout), name the
+    attributes after vocabulary points, and hand an instance to
+    :meth:`FimerModbusInverter.add_component` to have it polled with the
+    SunSpec models::
+
+        class UnoDmMppt(FixedComponent):
+            POINT_NAMES = ("DCV_1",)
+            DCV_1 = uint16(1104, scale_register=1103, unit="V")
+
+
+        inverter.add_component(UnoDmMppt(unit))
+    """
+
+    max_span = MAX_READ_SPAN
+
+    POINT_NAMES: ClassVar[tuple[str, ...]] = ()
+    """The attributes :meth:`values` emits."""
+
+    def values(self) -> dict[str, Any]:
+        """Return the last readings keyed by point name."""
+        return {name: getattr(self, name) for name in self.POINT_NAMES}
+
+
 class Common(FimerComponent):
     """SunSpec model 1: device identification.
 
@@ -199,7 +226,16 @@ class Inverter(FimerComponent):
         tmp_cab = values["TmpCab"]
         if tmp_cab is not None and tmp_cab > TMP_CAB_PLAUSIBLE_MAX:
             values["TmpCab"] = tmp_cab / 10
+        values["Events"] = event_names(values["Evt1"])
         return values
+
+
+def event_names(events: Any) -> list[str]:
+    """Return the names of the SunSpec events set in an ``Evt1`` bitfield."""
+    if not events:
+        return []
+    bits = int(events)
+    return [flag.name.lower() for flag in Event1 if flag.name and bits & flag]
 
 
 class InverterFloat(FimerComponent):
@@ -245,10 +281,12 @@ class InverterFloat(FimerComponent):
 
     def values(self) -> dict[str, Any]:
         """Return the readings trimmed to the seven significant digits of a float32."""
-        return {
+        values = {
             name: float(f"{value:.7g}") if isinstance(value, float) else value
             for name, value in super().values().items()
         }
+        values["Events"] = event_names(values["Evt1"])
+        return values
 
 
 class MpptInput(Component):

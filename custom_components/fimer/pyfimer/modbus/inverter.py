@@ -17,6 +17,7 @@ from .models import (
     Common,
     Controls,
     FimerComponent,
+    FixedComponent,
     Inverter,
     InverterFloat,
     Mppt,
@@ -82,8 +83,10 @@ class FimerModbusInverter:
         inverter.values()["W"]
 
     The power limit is set through ``controls.set_power_limit()``. Any
-    writable point goes through :meth:`async_write`, and anything outside
-    the SunSpec map through :attr:`registers`.
+    writable point goes through :meth:`async_write`. Register layouts
+    outside the SunSpec map are polled alongside through
+    :meth:`add_component`, and ad hoc reads and writes go through
+    :attr:`registers`.
 
     Every component verifies its model header on each read and raises
     ``SunSpecMapShiftError`` when the map moved (a firmware update, a
@@ -107,6 +110,7 @@ class FimerModbusInverter:
         self.storage: Storage | None = None
         self.vendor: AbbVendor | None = None
         self.vendor_model_length: int | None = None
+        self._extras: list[FixedComponent] = []
         """The length the device reports for model 64061, for diagnostics."""
 
     @property
@@ -173,8 +177,21 @@ class FimerModbusInverter:
             )
             vendor = None
         self.vendor = AbbVendor(unit, vendor) if vendor else None
-        self._group = ComponentGroup(unit, list(self.components))
+        self._rebuild_group()
         await self.common.async_update()
+
+    def add_component(self, component: FixedComponent) -> None:
+        """Poll a register layout outside the SunSpec map along with the models.
+
+        Usable before or after :meth:`discover`; the component is read on
+        every :meth:`async_update` and its points appear in :meth:`values`.
+        """
+        self._extras.append(component)
+        if self._group is not None:
+            self._rebuild_group()
+
+    def _rebuild_group(self) -> None:
+        self._group = ComponentGroup(self._unit, [*self.components, *self._extras])
 
     @property
     def components(self) -> tuple[FimerComponent, ...]:
@@ -209,7 +226,7 @@ class FimerModbusInverter:
         """
         if self._group is None:
             raise FimerNotDiscoveredError("No models discovered; call discover() first")
-        for component in self.components:
+        for component in (*self.components, *self._extras):
             if point in component.declared_fields:
                 await component.write(point, value)
                 return
@@ -263,9 +280,14 @@ class FimerModbusInverter:
             inverter_model=inverter_model_from_options(options),
         )
 
+    @property
+    def extra_components(self) -> tuple[FixedComponent, ...]:
+        """The register layouts added with :meth:`add_component`."""
+        return tuple(self._extras)
+
     def values(self) -> dict[str, Any]:
-        """Return the last readings of every model keyed by point name."""
+        """Return the last readings of every model and extra layout keyed by point name."""
         values: dict[str, Any] = {}
-        for component in self.components:
+        for component in (*self.components, *self._extras):
             values.update(component.values())
         return values

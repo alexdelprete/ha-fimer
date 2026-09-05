@@ -137,6 +137,7 @@ SUNSPEC_POINTS: Final[tuple[Point, ...]] = (
     Point("St", PointKind.STATE, None, MODEL_INVERTER, "SunSpec operating state"),
     Point("StVnd", PointKind.STATE, None, MODEL_INVERTER, "Vendor operating state"),
     Point("Evt1", PointKind.BITFIELD, None, MODEL_INVERTER, "SunSpec events"),
+    Point("Events", PointKind.INFO, None, MODEL_INVERTER, "Active SunSpec event names"),
     Point("EvtVnd1", PointKind.BITFIELD, None, MODEL_INVERTER, "Vendor events 1"),
     Point("EvtVnd2", PointKind.BITFIELD, None, MODEL_INVERTER, "Vendor events 2"),
     Point("EvtVnd3", PointKind.BITFIELD, None, MODEL_INVERTER, "Vendor events 3"),
