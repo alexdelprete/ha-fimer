@@ -60,9 +60,7 @@ rules:
   exception-translations: done
   icon-translations: done
   reconfiguration-flow: done
-  repair-issues:
-    status: exempt
-    comment: No situation needs the user's intervention beyond reconfiguring.
+  repair-issues: done
   stale-devices:
     status: exempt
     comment: One config entry addresses exactly one inverter; removing it removes the device.

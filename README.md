@@ -140,6 +140,10 @@ Open the integration's **Options** to change:
 | ----------------------------------- | ------- | ------------------------------------------------------------------ |
 | Update interval                     | `30` s  | Seconds between polls, 10 to 600, for both sources.                |
 | Power limit control (experimental)  | off     | Expose the SunSpec power limit as a number and a switch, see below. |
+| Repair issue when unreachable       | on      | Raise a repair issue when a source keeps failing, see below.       |
+| Failed polls before the issue       | `3`     | Consecutive failed polls in daylight before the issue is raised.   |
+| Notify when a source recovers       | on      | Post a persistent notification when the source answers again.      |
+| Recovery script                     | none    | A script run once when the issue is raised, e.g. to reboot the card. |
 
 The entry reloads when options are saved.
 
@@ -344,6 +348,29 @@ Details about Modbus registers can be found in the device documentation or on th
 Some data is only provided by the inverter when it is producing. When the integration is added at
 night, some entities may be added at sunrise when the inverter begins to answer. Meters, batteries
 and the datalogger's own sensors need the REST source enabled.
+
+### Repair issues
+
+Problems that need a hand from you show up under **Settings** > **System** > **Repairs**. Each
+one names the entry and clears by itself once the cause is gone.
+
+- **No Modbus answer** and **datalogger REST API not answering**: a source has failed the
+  configured number of consecutive polls while the sun was up. Failures at night do not count,
+  since an inverter without grid power answers nothing until sunrise. Both can be switched off in
+  the options, where a recovery script can also be set, for example one that power-cycles the
+  datalogger through a smart plug. When the source answers again, the issue disappears and a
+  notification reports the recovery.
+- **Datalogger firmware not supported**: a VSN300 on firmware 2.0.0 cannot serve live data. The
+  issue carries the update steps; the entry stays in error until the card is updated and reloaded.
+- **Datalogger not reporting on itself**: the card delivers inverter readings but its own readings
+  (uptime, WiFi link, memory) have been missing for half an hour, typically after a reboot without
+  a working clock. Power-cycling the card usually fixes it.
+- **Devices missing from the datalogger**: a meter, battery or inverter the card reported before is
+  no longer in its device list. The issue lists them; submit it to forget devices that are gone
+  for good, which removes them and their entities.
+- **Legacy sensors not carried over**: after taking over an entry of the earlier REST integration,
+  the sensors that have no counterpart here are listed once, so automations and dashboards can be
+  repointed.
 
 ### Entities are unavailable
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -10,13 +10,16 @@ from modbus_connection import ModbusError
 
 from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
-from homeassistant.helpers import device_registry as dr
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryError, HomeAssistantError
+from homeassistant.helpers import device_registry as dr, issue_registry as ir
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_KNOWN_DEVICES,
+    DATALOGGER_SILENT_THRESHOLD,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     ERROR_SCAN_INTERVAL,
@@ -24,9 +27,20 @@ from .const import (
     MAX_FAILED_UPDATES,
     SETTINGS_SCAN_INTERVAL,
 )
-from .pyfimer import FimerAuthenticationError, FimerError
+from .issues import (
+    ISSUE_DATALOGGER_SILENT,
+    ISSUE_PARTIAL_DISCOVERY,
+    ISSUE_UNSUPPORTED_FIRMWARE,
+    SOURCE_MODBUS,
+    SOURCE_REST,
+    OutageMonitor,
+    async_create_entry_issue,
+    async_delete_entry_issue,
+    format_device_list,
+)
+from .pyfimer import FimerAuthenticationError, FimerError, FimerUnsupportedFirmwareError
 from .pyfimer.modbus import Controls, FimerModbusInverter, SunSpecError, SunSpecMapShiftError
-from .pyfimer.rest import FimerRestLogger
+from .pyfimer.rest import DEVICE_TYPE_DATALOGGER as REST_DATALOGGER, FimerRestLogger
 
 if TYPE_CHECKING:
     from . import FimerConfigEntry
@@ -58,6 +72,7 @@ class FimerCoordinator(DataUpdateCoordinator[FimerData]):
         )
         self.inverter = inverter
         self._failed_update_count = 0
+        self.outage = OutageMonitor(hass, entry, SOURCE_MODBUS)
 
     @property
     def device_unique_id(self) -> str:
@@ -87,6 +102,7 @@ class FimerCoordinator(DataUpdateCoordinator[FimerData]):
                 # an inverter without grid power at night answers nothing:
                 # poll gently until it comes back
                 self.update_interval = timedelta(seconds=ERROR_SCAN_INTERVAL)
+            await self.outage.async_failure(str(err))
             raise UpdateFailed(
                 translation_domain=DOMAIN,
                 translation_key="update_failed",
@@ -96,6 +112,7 @@ class FimerCoordinator(DataUpdateCoordinator[FimerData]):
         if self._failed_update_count:
             self._failed_update_count = 0
             self.update_interval = self._default_interval
+        await self.outage.async_success()
         return self.inverter.values()
 
     async def _refresh(self) -> None:
@@ -207,8 +224,12 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
         )
         self.rest_logger = logger
         self._failed_update_count = 0
+        self.outage = OutageMonitor(hass, entry, SOURCE_REST)
         self.known_device_ids: set[str] = set()
         """REST device IDs that already have a Home Assistant device; set after setup."""
+        self.datalogger_device_id: str | None = None
+        """The datalogger's own REST device ID, once it has reported itself."""
+        self._silent_since: datetime | None = None
 
     async def _async_update_data(self) -> FimerRestData:
         """Discover on first use, then refresh every device's readings.
@@ -217,9 +238,11 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
         battery or meter added later, gets its Home Assistant device and
         entities right away.
         """
+        entry = self.config_entry
         try:
             if not self.rest_logger.discovered:
                 await self.rest_logger.discover()
+                async_delete_entry_issue(self.hass, entry.entry_id, ISSUE_UNSUPPORTED_FIRMWARE)
             else:
                 await self.rest_logger.async_update()
         except FimerAuthenticationError as err:
@@ -228,10 +251,25 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
                 translation_key="invalid_auth",
                 translation_placeholders={"error": str(err)},
             ) from err
+        except FimerUnsupportedFirmwareError as err:
+            # the card needs a firmware update; retrying will not help
+            async_create_entry_issue(
+                self.hass,
+                entry,
+                ISSUE_UNSUPPORTED_FIRMWARE,
+                severity=ir.IssueSeverity.ERROR,
+                placeholders={"firmware_version": err.firmware_version or "?"},
+            )
+            raise ConfigEntryError(
+                translation_domain=DOMAIN,
+                translation_key="unsupported_firmware",
+                translation_placeholders={"firmware_version": err.firmware_version or "?"},
+            ) from err
         except FimerError as err:
             self._failed_update_count += 1
             if self._failed_update_count == MAX_FAILED_UPDATES:
                 self.update_interval = timedelta(seconds=ERROR_SCAN_INTERVAL)
+            await self.outage.async_failure(str(err))
             raise UpdateFailed(
                 translation_domain=DOMAIN,
                 translation_key="update_failed",
@@ -241,11 +279,87 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
         if self._failed_update_count:
             self._failed_update_count = 0
             self.update_interval = self._default_interval
+        await self.outage.async_success()
         values = self.rest_logger.values()
-        if self.known_device_ids and (new_ids := set(values) - self.known_device_ids):
-            self.known_device_ids |= new_ids
-            self._async_add_devices(new_ids)
+        self._async_check_datalogger(values)
+        if self.known_device_ids:
+            if new_ids := set(values) - self.known_device_ids - {self.datalogger_device_id}:
+                self.known_device_ids |= new_ids
+                self._async_persist_known_devices()
+                self._async_add_devices(new_ids)
+            self._async_check_known_devices(values)
         return values
+
+    @callback
+    def async_seed_known_devices(self) -> None:
+        """After setup, remember the devices seen now and before; report any missing."""
+        entry = self.config_entry
+        self.datalogger_device_id = next(
+            (
+                device_id
+                for device_id, readings in self.rest_logger.devices.items()
+                if readings.device_type == REST_DATALOGGER
+            ),
+            None,
+        )
+        stored = set(entry.data.get(CONF_KNOWN_DEVICES, []))
+        self.known_device_ids = (stored | set(self.data or {})) - {self.datalogger_device_id}
+        if self.known_device_ids != stored:
+            self._async_persist_known_devices()
+        self._async_check_known_devices(self.data or {})
+
+    @callback
+    def _async_persist_known_devices(self) -> None:
+        entry = self.config_entry
+        self.hass.config_entries.async_update_entry(
+            entry, data={**entry.data, CONF_KNOWN_DEVICES: sorted(self.known_device_ids)}
+        )
+
+    @callback
+    def _async_check_known_devices(self, values: FimerRestData) -> None:
+        """Raise the partial discovery issue while a known device is not reported."""
+        entry = self.config_entry
+        missing = sorted(self.known_device_ids - set(values))
+        if not missing:
+            async_delete_entry_issue(self.hass, entry.entry_id, ISSUE_PARTIAL_DISCOVERY)
+            return
+        async_create_entry_issue(
+            self.hass,
+            entry,
+            ISSUE_PARTIAL_DISCOVERY,
+            severity=ir.IssueSeverity.WARNING,
+            is_fixable=True,
+            placeholders={
+                "missing_devices": format_device_list(self.hass, entry.entry_id, missing)
+            },
+            data={"missing": missing},
+        )
+
+    @callback
+    def _async_check_datalogger(self, values: FimerRestData) -> None:
+        """Raise the silent datalogger issue when the card stops reporting on itself."""
+        entry = self.config_entry
+        reported = any(
+            readings.device_type == REST_DATALOGGER
+            for readings in self.rest_logger.devices.values()
+        )
+        if reported:
+            self._silent_since = None
+            async_delete_entry_issue(self.hass, entry.entry_id, ISSUE_DATALOGGER_SILENT)
+            return
+        now = dt_util.utcnow()
+        if self._silent_since is None:
+            self._silent_since = now
+            return
+        if (now - self._silent_since).total_seconds() < DATALOGGER_SILENT_THRESHOLD:
+            return
+        async_create_entry_issue(
+            self.hass,
+            entry,
+            ISSUE_DATALOGGER_SILENT,
+            severity=ir.IssueSeverity.WARNING,
+            placeholders={"minutes": str(DATALOGGER_SILENT_THRESHOLD // 60)},
+        )
 
     @callback
     def _async_add_devices(self, device_ids: set[str]) -> None:
@@ -261,8 +375,8 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
             (device for device in runtime.devices if device.device_type == "datalogger"), None
         )
         if datalogger is not None:
-            logger_entry = registry.async_get_device(
-                identifiers=datalogger.device_info["identifiers"]
+            logger_entry = registry.async_get_device_by_identifier(
+                next(iter(datalogger.device_info["identifiers"])), self.config_entry.entry_id
             )
             if logger_entry is not None:
                 for device in new_devices:

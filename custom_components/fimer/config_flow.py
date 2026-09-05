@@ -31,6 +31,8 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     BooleanSelector,
+    EntitySelector,
+    EntitySelectorConfig,
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
@@ -44,9 +46,13 @@ from homeassistant.helpers.selector import (
 
 from .const import (
     CONF_BASE_ADDRESS,
+    CONF_CONNECTION_ISSUES,
+    CONF_FAILURES_THRESHOLD,
     CONF_MIGRATE_FROM,
     CONF_MODBUS_SECTION,
+    CONF_NOTIFY_RECOVERY,
     CONF_POWER_CONTROL,
+    CONF_RECOVERY_SCRIPT,
     CONF_REST_MODEL,
     CONF_REST_REQUIRES_AUTH,
     CONF_REST_SECTION,
@@ -54,6 +60,9 @@ from .const import (
     CONF_USE_MODBUS,
     CONF_USE_REST,
     DEFAULT_BASE_ADDRESS,
+    DEFAULT_CONNECTION_ISSUES,
+    DEFAULT_FAILURES_THRESHOLD,
+    DEFAULT_NOTIFY_RECOVERY,
     DEFAULT_PORT,
     DEFAULT_POWER_CONTROL,
     DEFAULT_REST_USERNAME,
@@ -62,8 +71,10 @@ from .const import (
     DOMAIN,
     LEGACY_REST_DOMAIN,
     MAX_BASE_ADDRESS,
+    MAX_FAILURES_THRESHOLD,
     MAX_SCAN_INTERVAL,
     MAX_UNIT_ID,
+    MIN_FAILURES_THRESHOLD,
     MIN_SCAN_INTERVAL,
     MIN_UNIT_ID,
 )
@@ -130,6 +141,20 @@ OPTIONS_SCHEMA = vol.Schema(
             vol.Coerce(int),
         ),
         vol.Required(CONF_POWER_CONTROL, default=DEFAULT_POWER_CONTROL): BooleanSelector(),
+        vol.Required(CONF_CONNECTION_ISSUES, default=DEFAULT_CONNECTION_ISSUES): BooleanSelector(),
+        vol.Required(CONF_FAILURES_THRESHOLD, default=DEFAULT_FAILURES_THRESHOLD): vol.All(
+            NumberSelector(
+                NumberSelectorConfig(
+                    min=MIN_FAILURES_THRESHOLD,
+                    max=MAX_FAILURES_THRESHOLD,
+                    step=1,
+                    mode=NumberSelectorMode.BOX,
+                )
+            ),
+            vol.Coerce(int),
+        ),
+        vol.Required(CONF_NOTIFY_RECOVERY, default=DEFAULT_NOTIFY_RECOVERY): BooleanSelector(),
+        vol.Optional(CONF_RECOVERY_SCRIPT): EntitySelector(EntitySelectorConfig(domain="script")),
     }
 )
 

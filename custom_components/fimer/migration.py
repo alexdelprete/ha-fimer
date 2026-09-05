@@ -17,9 +17,10 @@ from typing import TYPE_CHECKING
 
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import entity_registry as er, issue_registry as ir
 
 from .const import CONF_MIGRATE_FROM, DOMAIN, LEGACY_REST_DOMAIN
+from .issues import ISSUE_TAKEOVER_INCOMPLETE, async_create_entry_issue
 from .pyfimer.rest import REST_POINTS
 from .pyfimer.rest.mapping import SHARED_NAME_ALIASES
 
@@ -80,12 +81,14 @@ async def async_take_over_legacy_entities(hass: HomeAssistant, entry: FimerConfi
     registry = er.async_get(hass)
     legacy_entry = hass.config_entries.async_get_entry(legacy_id)
     plan: list[tuple[str, LegacySensor]] = []
+    left_behind: list[str] = []
     if legacy_entry is not None:
         for old in er.async_entries_for_config_entry(registry, legacy_id):
             if old.domain != SENSOR_DOMAIN:
                 continue
             target = legacy_unique_id_to_new(old.unique_id, entry.runtime_data.devices)
             if target is None:
+                left_behind.append(old.entity_id)
                 continue
             plan.append(
                 (
@@ -103,6 +106,8 @@ async def async_take_over_legacy_entities(hass: HomeAssistant, entry: FimerConfi
             )
         await hass.config_entries.async_remove(legacy_id)
         _LOGGER.info("Removed legacy entry %s; taking over %d of its sensors", legacy_id, len(plan))
+        if left_behind:
+            _async_report_left_behind(hass, entry, sorted(left_behind))
 
     for target, old in plan:
         if registry.async_get_entity_id(SENSOR_DOMAIN, DOMAIN, target):
@@ -125,3 +130,23 @@ async def async_take_over_legacy_entities(hass: HomeAssistant, entry: FimerConfi
 
     data = {key: value for key, value in entry.data.items() if key != CONF_MIGRATE_FROM}
     hass.config_entries.async_update_entry(entry, data=data)
+
+
+_LISTED_LEFT_BEHIND = 25
+
+
+def _async_report_left_behind(
+    hass: HomeAssistant, entry: FimerConfigEntry, entity_ids: list[str]
+) -> None:
+    """Tell the user which legacy sensors have no counterpart here."""
+    listed = [f"- `{entity_id}`" for entity_id in entity_ids[:_LISTED_LEFT_BEHIND]]
+    if len(entity_ids) > _LISTED_LEFT_BEHIND:
+        listed.append(f"- … and {len(entity_ids) - _LISTED_LEFT_BEHIND} more")
+    async_create_entry_issue(
+        hass,
+        entry,
+        ISSUE_TAKEOVER_INCOMPLETE,
+        severity=ir.IssueSeverity.WARNING,
+        is_fixable=True,
+        placeholders={"count": str(len(entity_ids)), "entities": "\n".join(listed)},
+    )

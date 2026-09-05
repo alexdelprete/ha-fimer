@@ -47,3 +47,24 @@ DEVICE_TYPE_INVERTER: Final = "inverter"
 DEVICE_TYPE_DATALOGGER: Final = "datalogger"
 DEVICE_TYPE_METER: Final = "meter"
 DEVICE_TYPE_BATTERY: Final = "battery"
+
+CONF_CONNECTION_ISSUES: Final = "connection_issues"
+"""Option: raise a repair issue when a source stays unreachable."""
+DEFAULT_CONNECTION_ISSUES: Final = True
+CONF_FAILURES_THRESHOLD: Final = "failures_threshold"
+"""Option: consecutive failed polls in daylight before the issue is raised."""
+DEFAULT_FAILURES_THRESHOLD: Final = 3
+MIN_FAILURES_THRESHOLD: Final = 1
+MAX_FAILURES_THRESHOLD: Final = 100
+CONF_NOTIFY_RECOVERY: Final = "notify_recovery"
+"""Option: post a notification when a source recovers after an issue was raised."""
+DEFAULT_NOTIFY_RECOVERY: Final = True
+CONF_RECOVERY_SCRIPT: Final = "recovery_script"
+"""Option: a script to run once when the issue is raised, e.g. to power-cycle the card."""
+CONF_KNOWN_DEVICES: Final = "known_devices"
+"""Entry data: REST device IDs seen so far, so a vanished device can be reported."""
+
+DATALOGGER_SILENT_THRESHOLD: Final = 1800
+"""Seconds without the datalogger's own readings before its repair issue is raised."""
+SUN_ENTITY_ID: Final = "sun.sun"
+STATE_BELOW_HORIZON: Final = "below_horizon"

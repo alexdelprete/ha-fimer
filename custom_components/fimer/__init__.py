@@ -30,6 +30,7 @@ from .const import (
 )
 from .coordinator import FimerCoordinator, FimerRestCoordinator, FimerSettingsCoordinator
 from .devices import FimerDevice, build_devices
+from .issues import async_delete_entry_issues
 from .migration import async_take_over_legacy_entities
 from .pyfimer.modbus import FimerModbusInverter
 from .pyfimer.rest import FimerRestLogger, VsnModel
@@ -102,7 +103,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> boo
     )
     _async_link_devices(hass, entry, runtime.devices)
     if runtime.rest_coordinator is not None:
-        runtime.rest_coordinator.known_device_ids = set(runtime.rest_coordinator.data)
+        runtime.rest_coordinator.async_seed_known_devices()
 
     if (
         entry.options.get(CONF_POWER_CONTROL)
@@ -141,3 +142,8 @@ def _async_link_devices(
 async def async_unload_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> bool:
     """Unload a config entry; the shared Modbus connection closes with its last holder."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> None:
+    """Clear the entry's repair issues along with the entry."""
+    async_delete_entry_issues(hass, entry.entry_id)
