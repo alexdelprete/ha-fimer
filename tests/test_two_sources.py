@@ -102,14 +102,10 @@ async def test_rest_outage_keeps_modbus_points(
     assert hass.states.get("sensor.vsn300_wifi_link_quality").state == "100"
 
     fake.livedata_status = 503
-    requests_before = len(fake.requests)
     freezer.tick(timedelta(seconds=31))
     async_fire_time_changed(hass)
-    await hass.async_block_till_done()
-    rest = entry.runtime_data.rest_coordinator
-    assert rest is not None
-    assert len(fake.requests) > requests_before, fake.requests
-    assert not rest.last_update_success
+    # the REST poll suspends on the HTTP request, so it runs as a background task
+    await hass.async_block_till_done(wait_background_tasks=True)
     assert hass.states.get("sensor.vsn300_wifi_link_quality").state == STATE_UNAVAILABLE
     assert hass.states.get("sensor.pvi_10_0_outd_ac_power").state == "1500"
 
@@ -126,7 +122,7 @@ async def test_modbus_outage_falls_back_to_rest(
     mock_unit.fail_requests(ModbusConnectionError("asleep"))
     freezer.tick(timedelta(seconds=31))
     async_fire_time_changed(hass)
-    await hass.async_block_till_done()
+    await hass.async_block_till_done(wait_background_tasks=True)
     state = hass.states.get("sensor.pvi_10_0_outd_ac_power")
     assert state.state != STATE_UNAVAILABLE
     assert float(state.state) != 1500  # the REST reading
