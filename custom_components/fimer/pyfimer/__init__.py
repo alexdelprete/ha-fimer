@@ -15,6 +15,8 @@ The Aurora protocol state tables shared by both transports live in
 :mod:`pyfimer.aurora`.
 """
 
+__version__ = "0.1.0"
+
 from .aurora import (
     ALARM_CODES,
     AURORA_EPOCH_OFFSET,
@@ -56,6 +58,7 @@ __all__ = [
     "FimerWriteError",
     "Point",
     "PointKind",
+    "__version__",
     "decode_alarms",
     "inverter_model_from_options",
 ]

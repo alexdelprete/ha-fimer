@@ -293,7 +293,8 @@ class MpptInput(Component):
     """One input block of SunSpec model 160, declared at the first block.
 
     The scale factors are shared by every input and sit in the model's
-    fixed block.
+    fixed block. ``Tms``, ``Tmp`` and ``DCEvt`` are read but not emitted:
+    no supported inverter implements them.
     """
 
     ID = uint16(10)
