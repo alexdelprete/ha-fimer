@@ -19,6 +19,8 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Final
 
+from ._rest_points import rest_point_rows
+
 
 class PointKind(StrEnum):
     """What a point's value represents."""
@@ -99,7 +101,7 @@ def _mppt_points() -> tuple[Point, ...]:
     return tuple(points)
 
 
-POINTS: Final[tuple[Point, ...]] = (
+SUNSPEC_POINTS: Final[tuple[Point, ...]] = (
     # SunSpec common model (1)
     Point("Mn", PointKind.INFO, None, MODEL_COMMON, "Manufacturer"),
     Point("Md", PointKind.INFO, None, MODEL_COMMON, "Model"),
@@ -173,6 +175,7 @@ POINTS: Final[tuple[Point, ...]] = (
     Point("InverterSt", PointKind.STATE, None, MODEL_ABB_VENDOR, "Aurora inverter state"),
     Point("DcSt1", PointKind.STATE, None, MODEL_ABB_VENDOR, "Aurora DC/DC 1 state"),
     Point("DcSt2", PointKind.STATE, None, MODEL_ABB_VENDOR, "Aurora DC/DC 2 state"),
+    Point("DcSt3", PointKind.STATE, None, MODEL_ABB_VENDOR, "Aurora DC/DC 3 state"),
     Point("SysTime", PointKind.TIMESTAMP, "s", MODEL_ABB_VENDOR, "Inverter clock"),
     Point("Alarm1", PointKind.BITFIELD, None, MODEL_ABB_VENDOR, "Aurora alarms 0-30"),
     Point("Alarm2", PointKind.BITFIELD, None, MODEL_ABB_VENDOR, "Aurora alarms 31-61"),
@@ -231,5 +234,28 @@ POINTS: Final[tuple[Point, ...]] = (
         "PF_Dynamic", PointKind.MEASUREMENT, None, MODEL_ABB_VENDOR, "Dynamic power factor setpoint"
     ),
 )
+
+
+def _rest_only_points() -> tuple[Point, ...]:
+    """Points the VSN REST feeds add on top of the SunSpec ones.
+
+    Where a REST point shares a name with a SunSpec point, the SunSpec
+    definition above is the one that counts.
+    """
+    known = {point.name for point in SUNSPEC_POINTS}
+    points: list[Point] = []
+    for name, unit, kind, models, description in rest_point_rows():
+        if name in known:
+            continue
+        model = MODEL_ABB_VENDOR if "M64061" in models else None
+        points.append(Point(name, PointKind(kind), unit, model, description))
+    return tuple(points)
+
+
+REST_POINTS: Final[tuple[Point, ...]] = _rest_only_points()
+"""Points only the REST feeds provide: datalogger, meter, battery, energy counters."""
+
+POINTS: Final[tuple[Point, ...]] = SUNSPEC_POINTS + REST_POINTS
+"""Every point any transport can report."""
 
 POINTS_BY_NAME: Final[dict[str, Point]] = {point.name: point for point in POINTS}

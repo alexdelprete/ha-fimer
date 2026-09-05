@@ -26,9 +26,13 @@ from .aurora import (
     inverter_model_from_options,
 )
 from .exceptions import (
+    FimerAuthenticationError,
+    FimerConnectionError,
+    FimerDetectionError,
     FimerError,
     FimerNotDiscoveredError,
     FimerUnsupportedDeviceError,
+    FimerUnsupportedFirmwareError,
     FimerWriteError,
 )
 from .points import POINTS, POINTS_BY_NAME, Point, PointKind
@@ -42,9 +46,13 @@ __all__ = [
     "INVERTER_STATES",
     "POINTS",
     "POINTS_BY_NAME",
+    "FimerAuthenticationError",
+    "FimerConnectionError",
+    "FimerDetectionError",
     "FimerError",
     "FimerNotDiscoveredError",
     "FimerUnsupportedDeviceError",
+    "FimerUnsupportedFirmwareError",
     "FimerWriteError",
     "Point",
     "PointKind",
