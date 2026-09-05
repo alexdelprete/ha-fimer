@@ -99,6 +99,18 @@
             }
           }
         }
+      },
+      "reauth_confirm": {
+        "title": "Datalogger credentials",
+        "description": "The datalogger at {host} rejected the stored credentials. Enter the current ones.",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        },
+        "data_description": {
+          "username": "The card's user, usually guest.",
+          "password": "The password set on the card."
+        }
       }
     },
     "error": {
@@ -115,7 +127,8 @@
     "abort": {
       "already_configured": "This inverter is already configured.",
       "reconfigure_successful": "The connection settings were updated.",
-      "unique_id_mismatch": "The device at the new address is a different inverter."
+      "unique_id_mismatch": "The device at the new address is a different inverter.",
+      "reauth_successful": "The credentials were updated."
     }
   },
   "options": {
@@ -1133,6 +1146,9 @@
     },
     "device_not_found": {
       "message": "No device {device} in this entry."
+    },
+    "invalid_auth": {
+      "message": "The datalogger rejected the credentials: {error}"
     }
   },
   "services": {

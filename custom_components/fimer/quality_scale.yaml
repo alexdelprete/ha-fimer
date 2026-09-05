@@ -30,9 +30,7 @@ rules:
   log-when-unavailable: done
   entity-unavailable: done
   action-exceptions: done
-  reauthentication-flow:
-    status: exempt
-    comment: Modbus TCP has no authentication.
+  reauthentication-flow: done
   parallel-updates: done
   test-coverage: done
 

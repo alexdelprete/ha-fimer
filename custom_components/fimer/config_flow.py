@@ -354,6 +354,42 @@ class FimerConfigFlow(ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> ConfigFlowResult:
+        """The datalogger rejected the credentials; ask for new ones."""
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Validate new REST credentials against the card and store them."""
+        entry = self._get_reauth_entry()
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            data = {
+                **entry.data,
+                CONF_USERNAME: user_input[CONF_USERNAME].strip() or DEFAULT_REST_USERNAME,
+                CONF_PASSWORD: user_input[CONF_PASSWORD],
+            }
+            validated = Validated(unique_id=entry.unique_id, title=entry.title)
+            if await self._async_validate_rest(data, errors, validated):
+                return self.async_update_reload_and_abort(
+                    entry,
+                    data_updates={
+                        CONF_USERNAME: data[CONF_USERNAME],
+                        CONF_PASSWORD: data[CONF_PASSWORD],
+                        CONF_REST_MODEL: validated.rest_model,
+                        CONF_REST_REQUIRES_AUTH: validated.rest_requires_auth,
+                    },
+                )
+        return self.async_show_form(
+            step_id="reauth_confirm",
+            data_schema=self.add_suggested_values_to_schema(
+                REAUTH_SCHEMA, user_input or {CONF_USERNAME: entry.data.get(CONF_USERNAME)}
+            ),
+            description_placeholders={"host": entry.data[CONF_HOST]},
+            errors=errors,
+        )
+
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
@@ -376,6 +412,16 @@ class FimerConfigFlow(ConfigFlow, domain=DOMAIN):
             ),
             errors=errors,
         )
+
+
+REAUTH_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_USERNAME, default=DEFAULT_REST_USERNAME): str,
+        vol.Required(CONF_PASSWORD): TextSelector(
+            TextSelectorConfig(type=TextSelectorType.PASSWORD)
+        ),
+    }
+)
 
 
 class FimerOptionsFlow(OptionsFlowWithReload):

@@ -10,7 +10,7 @@ from modbus_connection import ModbusError
 
 from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -22,7 +22,7 @@ from .const import (
     MAX_FAILED_UPDATES,
     SETTINGS_SCAN_INTERVAL,
 )
-from .pyfimer import FimerError
+from .pyfimer import FimerAuthenticationError, FimerError
 from .pyfimer.modbus import Controls, FimerModbusInverter, SunSpecError, SunSpecMapShiftError
 from .pyfimer.rest import FimerRestLogger
 
@@ -213,6 +213,12 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
                 await self.rest_logger.discover()
             else:
                 await self.rest_logger.async_update()
+        except FimerAuthenticationError as err:
+            raise ConfigEntryAuthFailed(
+                translation_domain=DOMAIN,
+                translation_key="invalid_auth",
+                translation_placeholders={"error": str(err)},
+            ) from err
         except FimerError as err:
             self._failed_update_count += 1
             if self._failed_update_count == MAX_FAILED_UPDATES:
