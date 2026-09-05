@@ -35,12 +35,8 @@ rules:
   # Gold
   devices: done
   diagnostics: done
-  discovery:
-    status: exempt
-    comment: The inverters and datalogger cards announce nothing on the network.
-  discovery-update-info:
-    status: exempt
-    comment: No discovery, so no discovered address to update.
+  discovery: done
+  discovery-update-info: done
   docs-data-update: done
   docs-examples: done
   docs-known-limitations: done

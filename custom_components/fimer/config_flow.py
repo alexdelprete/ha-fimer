@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from ipaddress import ip_address
 import logging
+import re
 from typing import Any
 
 from modbus_connection import ModbusError, ModbusTcpParams
@@ -41,6 +43,7 @@ from homeassistant.helpers.selector import (
     TextSelectorConfig,
     TextSelectorType,
 )
+from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 
 from .const import (
     CONF_BASE_ADDRESS,
@@ -178,6 +181,24 @@ def _nest(data: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+# A VSN card registers itself as ``ABB-<inverter serial>``, e.g. ``ABB-077909-3G82-3112``.
+_CARD_HOSTNAME = re.compile(r"^abb-(\d{6}-[0-9a-z]{4}-[0-9a-z]{4})", re.IGNORECASE)
+
+
+def serial_from_hostname(hostname: str) -> str | None:
+    """Return the inverter serial number a VSN card's host name carries, if any."""
+    match = _CARD_HOSTNAME.match(hostname.strip())
+    return match.group(1).upper() if match else None
+
+
+def _is_ip_literal(host: str | None) -> bool:
+    try:
+        ip_address(host or "")
+    except ValueError:
+        return False
+    return True
+
+
 class FimerConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle the config flow: connect over the chosen sources and identify."""
 
@@ -291,6 +312,25 @@ class FimerConfigFlow(ConfigFlow, domain=DOMAIN):
         if self._legacy_entries():
             return self.async_show_menu(step_id="user", menu_options=["manual", "legacy"])
         return await self.async_step_manual()
+
+    async def async_step_dhcp(self, discovery_info: DhcpServiceInfo) -> ConfigFlowResult:
+        """A VSN card asked for a DHCP lease; offer to set up its inverter."""
+        host = discovery_info.ip
+        if (serial := serial_from_hostname(discovery_info.hostname)) is None:
+            self._async_abort_entries_match({CONF_HOST: host})
+        else:
+            await self.async_set_unique_id(serial)
+            entry = self.hass.config_entries.async_entry_for_domain_unique_id(DOMAIN, serial)
+            # Follow the card to its new address, but keep a DNS name the user chose.
+            updates = (
+                {CONF_HOST: host} if entry and _is_ip_literal(entry.data.get(CONF_HOST)) else None
+            )
+            self._abort_if_unique_id_configured(updates=updates)
+        self.context["title_placeholders"] = {
+            "serial": serial or discovery_info.hostname,
+            "host": host,
+        }
+        return await self.async_step_manual(suggested_values=_nest({CONF_HOST: host}))
 
     def _legacy_entries(self) -> list[ConfigEntry]:
         return [

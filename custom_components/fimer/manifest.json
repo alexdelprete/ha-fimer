@@ -4,6 +4,7 @@
   "codeowners": ["@alexdelprete"],
   "config_flow": true,
   "dependencies": ["modbus"],
+  "dhcp": [{ "hostname": "abb-??????-????-????*" }],
   "documentation": "https://github.com/alexdelprete/ha-fimer",
   "integration_type": "device",
   "iot_class": "local_polling",
