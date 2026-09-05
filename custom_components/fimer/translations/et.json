@@ -1,0 +1,1356 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "FIMER (ABB / Power-One)",
+        "description": "Varasema ABB/FIMER PVI VSN REST sidumise kirje on juba olemas. Võta üle selle seaded ja olemid või seadista uus inverter.",
+        "menu_options": {
+          "manual": "Seadista uus inverter",
+          "legacy": "Võta üle olemasolev REST-kirje"
+        }
+      },
+      "reconfigure": {
+        "title": "Muuda ühendust",
+        "description": "Uuenda, kuidas Home Assistant selle inverterini jõuab. See peab jääma samaks inverteriks.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "Inverteri või andmelogeri IP-aadress või hostinimi.",
+          "port": "Modbus TCP port, 502, kui seda pole seadmes muudetud."
+        },
+        "sections": {
+          "modbus": {
+            "name": "Modbus TCP (SunSpec)",
+            "description": "Vaikeväärtused sobivad VSN300 või VSN700 andmelogerile. Natiivselt Modbusi kasutav inverter, näiteks REACT2, vajab tavaliselt üksuse ID-d 1 ja baasaadressi 40000.",
+            "data": {
+              "use_modbus": "Loe Modbus TCP kaudu",
+              "unit_id": "Modbusi üksuse ID",
+              "base_address": "SunSpeci baasaadress"
+            },
+            "data_description": {
+              "use_modbus": "Kiired ja autentimiseta SunSpeci mudelite lugemid. Vajab seadmes lubatud Modbus TCP-d.",
+              "unit_id": "Modbusi üksuse (slave) ID, millele inverter vastab. VSN-kaardid kasutavad 2, mõned püsivarad 247.",
+              "base_address": "Register, millest SunSpeci kaart algab: 0 VSN-kaardi taga, 40000 natiivselt Modbusi kasutaval inverteril."
+            }
+          },
+          "rest": {
+            "name": "Andmelogeri REST API",
+            "description": "VSN300 / VSN700 kaardi enda API lisab andmelogeri, arvestid, akud ja perioodilised energialoendurid.",
+            "data": {
+              "use_rest": "Loe andmelogeri REST API-t",
+              "username": "Kasutajanimi",
+              "password": "Parool"
+            },
+            "data_description": {
+              "use_rest": "Küsi ka kaardi REST API-t. VSN300 taga valikuline; VSN700 taga ainus allikas arvestitele ja akudele.",
+              "username": "Kaardi kasutaja, tavaliselt guest.",
+              "password": "Kaardile seatud parool, kui see on olemas."
+            }
+          }
+        }
+      },
+      "legacy": {
+        "title": "Võta REST-kirje üle",
+        "description": "Valitud kirje eemaldatakse ja selle andurid säilitavad oma olemi ID-d ja ajaloo selle sidumise all.",
+        "data": {
+          "legacy_entry": "Ülevõetav kirje"
+        }
+      },
+      "manual": {
+        "title": "Ühenda inverteriga",
+        "description": "Sisesta inverteri või selle VSN300 / VSN700 andmelogeri kaardi aadress ja vali loetavad allikad. Inverter peab olema ärkvel: võrgupingeta PVI öösel ei vasta.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "Inverteri või andmelogeri IP-aadress või hostinimi.",
+          "port": "Modbus TCP port, 502, kui seda pole seadmes muudetud."
+        },
+        "sections": {
+          "modbus": {
+            "name": "Modbus TCP (SunSpec)",
+            "description": "Vaikeväärtused sobivad VSN300 või VSN700 andmelogerile. Natiivselt Modbusi kasutav inverter, näiteks REACT2, vajab tavaliselt üksuse ID-d 1 ja baasaadressi 40000.",
+            "data": {
+              "use_modbus": "Loe Modbus TCP kaudu",
+              "unit_id": "Modbusi üksuse ID",
+              "base_address": "SunSpeci baasaadress"
+            },
+            "data_description": {
+              "use_modbus": "Kiired ja autentimiseta SunSpeci mudelite lugemid. Vajab seadmes lubatud Modbus TCP-d.",
+              "unit_id": "Modbusi üksuse (slave) ID, millele inverter vastab. VSN-kaardid kasutavad 2, mõned püsivarad 247.",
+              "base_address": "Register, millest SunSpeci kaart algab: 0 VSN-kaardi taga, 40000 natiivselt Modbusi kasutaval inverteril."
+            }
+          },
+          "rest": {
+            "name": "Andmelogeri REST API",
+            "description": "VSN300 / VSN700 kaardi enda API lisab andmelogeri, arvestid, akud ja perioodilised energialoendurid.",
+            "data": {
+              "use_rest": "Loe andmelogeri REST API-t",
+              "username": "Kasutajanimi",
+              "password": "Parool"
+            },
+            "data_description": {
+              "use_rest": "Küsi ka kaardi REST API-t. VSN300 taga valikuline; VSN700 taga ainus allikas arvestitele ja akudele.",
+              "username": "Kaardi kasutaja, tavaliselt guest.",
+              "password": "Kaardile seatud parool, kui see on olemas."
+            }
+          }
+        }
+      },
+      "reauth_confirm": {
+        "title": "Andmelogeri mandaat",
+        "description": "Andmeloger aadressil {host} lükkas salvestatud mandaadi tagasi. Sisesta praegune.",
+        "data": {
+          "username": "Kasutajanimi",
+          "password": "Parool"
+        },
+        "data_description": {
+          "username": "Kaardi kasutaja, tavaliselt guest.",
+          "password": "Kaardile seatud parool."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Ühendamine nurjus. Kontrolli hosti ja porti ning seda, et inverter on ärkvel.",
+      "no_sunspec": "Baasaadressilt ei leitud SunSpeci kaarti. Proovi 0 VSN-kaardi taga või 40000 natiivselt Modbusi kasutaval inverteril ja kontrolli üksuse ID-d.",
+      "unsupported_device": "SunSpeci seade vastas, kuid see ei ole inverter.",
+      "link_conflict": "Teine sidumine kasutab seda hosti juba teiste Modbusi ühenduse seadetega.",
+      "unknown": "Ootamatu viga",
+      "no_source": "Luba vähemalt üks allikas.",
+      "invalid_auth": "Andmeloger lükkas kasutajanime või parooli tagasi.",
+      "no_rest_api": "Sellel hostil ei vastanud ükski VSN300 / VSN700 REST API.",
+      "unsupported_firmware": "Sellel VSN300-l on püsivara 2.0.0, mis ei suuda reaalajas andmeid pakkuda. Uuenda andmeloger püsivarale 2.0.1 või uuemale; uuendus on kohustuslik."
+    },
+    "abort": {
+      "already_configured": "See inverter on juba seadistatud.",
+      "reconfigure_successful": "Ühenduse seaded uuendati.",
+      "unique_id_mismatch": "Uuel aadressil olev seade on teine inverter.",
+      "reauth_successful": "Mandaat uuendati."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Küsitlemine ja parandused",
+        "data": {
+          "scan_interval": "Uuendusintervall",
+          "power_control": "Võimsuspiirangu juhtimine (katseline)",
+          "connection_issues": "Parandus, kui allikas ei vasta",
+          "failures_threshold": "Nurjunud päringud enne parandust",
+          "notify_recovery": "Teavita, kui allikas taas vastab",
+          "recovery_script": "Taasteskript"
+        },
+        "data_description": {
+          "scan_interval": "Sekundid inverteri päringute vahel.",
+          "power_control": "Näitab SunSpeci aktiivvõimsuse piirangut numbri ja lülitina. Andmeloger võtab kirjutused vastu igal inverteril, kuid ainult mõned inverterid järgivad neid; kontrolli dokumentatsioonis kirjeldatud testiga, enne kui sellele lootma jääd.",
+          "connection_issues": "Loo parandus, kui Modbus või andmelogeri REST API päikese ajal korduvalt nurjub. Öised nurjumised jäetakse tähelepanuta: magav inverter ei ole rike.",
+          "failures_threshold": "Järjestikused nurjunud päringud päevavalguses enne paranduse loomist. Pärast kolmandat nurjumist aeglustuvad päringud iga 5 minuti tagant toimuvaks.",
+          "notify_recovery": "Loo püsiv teavitus, kui allikas pärast paranduse loomist taas vastab.",
+          "recovery_script": "Skript, mis käivitatakse üks kord paranduse loomisel, näiteks selline, mis taaskäivitab andmelogeri nutipistiku kaudu."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ac_power": {
+        "name": "AC-võimsus"
+      },
+      "ac_current": {
+        "name": "AC-vool"
+      },
+      "ac_current_phase_a": {
+        "name": "AC-vool faas A"
+      },
+      "ac_current_phase_b": {
+        "name": "AC-vool faas B"
+      },
+      "ac_current_phase_c": {
+        "name": "AC-vool faas C"
+      },
+      "ac_voltage_phase_a": {
+        "name": "AC-pinge faas A"
+      },
+      "ac_voltage_phase_b": {
+        "name": "AC-pinge faas B"
+      },
+      "ac_voltage_phase_c": {
+        "name": "AC-pinge faas C"
+      },
+      "ac_voltage_phase_ab": {
+        "name": "AC-pinge faas A-B"
+      },
+      "ac_voltage_phase_bc": {
+        "name": "AC-pinge faas B-C"
+      },
+      "ac_voltage_phase_ca": {
+        "name": "AC-pinge faas C-A"
+      },
+      "ac_frequency": {
+        "name": "AC-sagedus"
+      },
+      "apparent_power": {
+        "name": "Näivvõimsus"
+      },
+      "reactive_power": {
+        "name": "Reaktiivvõimsus"
+      },
+      "power_factor": {
+        "name": "Võimsustegur"
+      },
+      "ac_energy_total": {
+        "name": "Koguenergia"
+      },
+      "dc_current": {
+        "name": "DC-vool"
+      },
+      "dc_voltage": {
+        "name": "DC-pinge"
+      },
+      "dc_power": {
+        "name": "DC-võimsus"
+      },
+      "cabinet_temperature": {
+        "name": "Korpuse temperatuur"
+      },
+      "heat_sink_temperature": {
+        "name": "Jahutusradiaatori temperatuur"
+      },
+      "transformer_temperature": {
+        "name": "Trafo temperatuur"
+      },
+      "other_temperature": {
+        "name": "Muu temperatuur"
+      },
+      "operating_state": {
+        "name": "Tööolek",
+        "state": {
+          "off": "Off",
+          "sleeping": "Sleeping",
+          "starting": "Starting",
+          "mppt": "Producing (MPPT)",
+          "throttled": "Throttled",
+          "shutting_down": "Shutting down",
+          "fault": "Fault",
+          "standby": "Standby"
+        }
+      },
+      "vendor_operating_state": {
+        "name": "Tööolek (tootja)"
+      },
+      "dc_current_input_1": {
+        "name": "DC-vool sisend 1"
+      },
+      "dc_voltage_input_1": {
+        "name": "DC-pinge sisend 1"
+      },
+      "dc_power_input_1": {
+        "name": "DC-võimsus sisend 1"
+      },
+      "dc_energy_input_1": {
+        "name": "DC-energia sisend 1"
+      },
+      "dc_current_input_2": {
+        "name": "DC-vool sisend 2"
+      },
+      "dc_voltage_input_2": {
+        "name": "DC-pinge sisend 2"
+      },
+      "dc_power_input_2": {
+        "name": "DC-võimsus sisend 2"
+      },
+      "dc_energy_input_2": {
+        "name": "DC-energia sisend 2"
+      },
+      "dc_current_input_3": {
+        "name": "DC-vool sisend 3"
+      },
+      "dc_voltage_input_3": {
+        "name": "DC-pinge sisend 3"
+      },
+      "dc_power_input_3": {
+        "name": "DC-võimsus sisend 3"
+      },
+      "dc_energy_input_3": {
+        "name": "DC-energia sisend 3"
+      },
+      "global_state": {
+        "name": "Üldolek"
+      },
+      "inverter_state": {
+        "name": "Inverteri olek"
+      },
+      "dc_input_1_state": {
+        "name": "DC-sisendi 1 olek"
+      },
+      "dc_input_2_state": {
+        "name": "DC-sisendi 2 olek"
+      },
+      "alarms": {
+        "name": "Häired"
+      },
+      "system_time": {
+        "name": "Süsteemi aeg"
+      },
+      "energy_today": {
+        "name": "Energia täna"
+      },
+      "energy_this_week": {
+        "name": "Energia sel nädalal"
+      },
+      "energy_this_month": {
+        "name": "Energia sel kuul"
+      },
+      "energy_this_year": {
+        "name": "Energia sel aastal"
+      },
+      "energy_total_vendor": {
+        "name": "Koguenergia (tootja mudel)"
+      },
+      "energy_partial": {
+        "name": "Osaline energia"
+      },
+      "inverter_temperature": {
+        "name": "Inverteri temperatuur"
+      },
+      "booster_temperature": {
+        "name": "Boosteri temperatuur"
+      },
+      "isolation_resistance_input_1": {
+        "name": "Isolatsioonitakistus sisend 1"
+      },
+      "isolation_resistance_input_2": {
+        "name": "Isolatsioonitakistus sisend 2"
+      },
+      "cos_phi": {
+        "name": "Cos phi"
+      },
+      "power_limit_permanent": {
+        "name": "Võimsuspiirang (püsiv)"
+      },
+      "power_limit_dynamic": {
+        "name": "Võimsuspiirang (dünaamiline)"
+      },
+      "rated_power": {
+        "name": "Nimivõimsus"
+      },
+      "power_limit": {
+        "name": "Võimsuspiirang"
+      },
+      "power_limit_enabled": {
+        "name": "Võimsuspiirang aktiivne",
+        "state": {
+          "disabled": "No",
+          "enabled": "Yes"
+        }
+      },
+      "watts": {
+        "name": "Võimsus AC"
+      },
+      "var": {
+        "name": "Reaktiivvõimsus - Võrguühendus"
+      },
+      "hz": {
+        "name": "Sagedus AC - Võrk"
+      },
+      "amps": {
+        "name": "Vool AC"
+      },
+      "phase_voltage_an": {
+        "name": "Pinge AC - Faas A-N"
+      },
+      "phase_voltage_bn": {
+        "name": "Pinge AC - Faas B-N"
+      },
+      "phase_voltage_cn": {
+        "name": "Pinge AC - Faas C-N"
+      },
+      "ph_vph_a_b": {
+        "name": "Pinge AC - Faas A-B"
+      },
+      "ph_vph_b_c": {
+        "name": "Pinge AC - Faas B-C"
+      },
+      "ph_vph_c_a": {
+        "name": "Pinge AC - Faas C-A"
+      },
+      "amps_phasea": {
+        "name": "Vool AC - Faas A"
+      },
+      "amps_phaseb": {
+        "name": "Vool AC - Faas B"
+      },
+      "amps_phasec": {
+        "name": "Vool AC - Faas C"
+      },
+      "manufacturer": {
+        "name": "Tootja"
+      },
+      "model": {
+        "name": "Mudeli identifikaator"
+      },
+      "options": {
+        "name": "Seadistusvalikud"
+      },
+      "version": {
+        "name": "Püsivara versioon"
+      },
+      "serial_number": {
+        "name": "Seerianumber"
+      },
+      "device_address": {
+        "name": "Modbusi aadress"
+      },
+      "battery_mode": {
+        "name": "Aku Režiim"
+      },
+      "e_charge": {
+        "name": "Energia - Aku Laadimine (Kokku)"
+      },
+      "e_discharge": {
+        "name": "Energia - Aku Tühjendamine (Kokku)"
+      },
+      "alarm_state": {
+        "name": "Olek - Häire"
+      },
+      "house_igrid_l1": {
+        "name": "Vool AC - Maja Faas A"
+      },
+      "state_of_charge": {
+        "name": "Laadimisseisund"
+      },
+      "batt_num": {
+        "name": "Module Arv"
+      },
+      "house_igrid_l3": {
+        "name": "Vool AC - Maja Faas C"
+      },
+      "dhc": {
+        "name": "Tühjenemistsüklid"
+      },
+      "house_pgrid_l1": {
+        "name": "Võimsus AC - Maja Faas A"
+      },
+      "split_phase": {
+        "name": "Jagatud faas"
+      },
+      "chc": {
+        "name": "Laadimistsüklid"
+      },
+      "country_std": {
+        "name": "Arvry Standard"
+      },
+      "sys_time": {
+        "name": "Süsteemi Aeg"
+      },
+      "state_of_health": {
+        "name": "Terviseseisund"
+      },
+      "house_igrid_l2": {
+        "name": "Vool AC - Maja Faas B"
+      },
+      "house_pgrid_l3": {
+        "name": "Võimsus AC - Maja Faas C"
+      },
+      "house_pgrid_l2": {
+        "name": "Võimsus AC - Maja Faas B"
+      },
+      "hz_c": {
+        "name": "Sagedus AC - Faas C"
+      },
+      "power_peak_abs": {
+        "name": "Võimsus - Tipp (Kokku)"
+      },
+      "pf": {
+        "name": "Võimsustegur"
+      },
+      "isolation_ohm1": {
+        "name": "Takistus - Isolatsioon"
+      },
+      "dc_st2": {
+        "name": "Olek - DC Sisend 2"
+      },
+      "sn": {
+        "name": "Seerianumber"
+      },
+      "hz_b": {
+        "name": "Sagedus AC - Faas B"
+      },
+      "dc_st1": {
+        "name": "Olek - DC Sisend 1"
+      },
+      "power_peak_today": {
+        "name": "Võimsus - Tipp (Täna)"
+      },
+      "storage_size": {
+        "name": "Kasutatud välkmälu"
+      },
+      "wlan0_ipaddr_local": {
+        "name": "WiFi - Kohalik IP"
+      },
+      "year_wh": {
+        "name": "Energia AC - Toodetud (jooksev aasta)"
+      },
+      "day_wh": {
+        "name": "Energia AC - Toodetud (Täna)"
+      },
+      "wlan0_mode": {
+        "name": "WiFi - Režiim"
+      },
+      "i_leak_dc_ac": {
+        "name": "Vool DC - Leke DC-AC"
+      },
+      "watthours": {
+        "name": "Energia AC - Toodetud (Kokku)"
+      },
+      "v_gnd": {
+        "name": "Pinge - Maandus"
+      },
+      "week_wh": {
+        "name": "Energia AC - Toodetud (jooksev nädal)"
+      },
+      "system_load": {
+        "name": "Keskmine koormus"
+      },
+      "alarm_st": {
+        "name": "Olek - Häire"
+      },
+      "dc_current_2": {
+        "name": "Vool DC - Ahel 2"
+      },
+      "i_leak_dc_dc": {
+        "name": "Vool DC - Leke DC-DC"
+      },
+      "inverter_st": {
+        "name": "Inverteri olek"
+      },
+      "pn": {
+        "name": "Tootenumber"
+      },
+      "system_uptime": {
+        "name": "Tööaeg"
+      },
+      "wlan0_link_quality": {
+        "name": "WiFi - Ühenduse kvaliteet"
+      },
+      "dc_voltage_1": {
+        "name": "Pinge DC - Ahel 1"
+      },
+      "global_st": {
+        "name": "Olek - Üldine"
+      },
+      "wlan0_essid": {
+        "name": "WiFi - SSID"
+      },
+      "booster_tmp": {
+        "name": "Temperatuur - Booster"
+      },
+      "dc_power_1": {
+        "name": "Võimsus DC - Ahel 1"
+      },
+      "dc_voltage_2": {
+        "name": "Pinge DC - Ahel 2"
+      },
+      "dc_voltage_3": {
+        "name": "Pinge DC - String 3"
+      },
+      "v_bulk": {
+        "name": "Pinge DC - Bulk Kondensaator"
+      },
+      "type": {
+        "name": "Tüüp"
+      },
+      "firmware_version": {
+        "name": "Püsivara versioon"
+      },
+      "dc_watts": {
+        "name": "Võimsus DC"
+      },
+      "dc_power_3": {
+        "name": "Võimsus DC - String 3"
+      },
+      "free_ram": {
+        "name": "Saadaval RAM"
+      },
+      "dc_current_3": {
+        "name": "Vool DC - String 3"
+      },
+      "dc_power_2": {
+        "name": "Võimsus DC - Ahel 2"
+      },
+      "hz_a": {
+        "name": "Sagedus AC - Faas A"
+      },
+      "v_bulk_mid": {
+        "name": "Pinge DC - Siini Keskpunkt"
+      },
+      "month_wh": {
+        "name": "Energia AC - Toodetud (jooksev kuu)"
+      },
+      "flash_memory_free": {
+        "name": "Vaba välkmälu"
+      },
+      "dc_current_1": {
+        "name": "Vool DC - Ahel 1"
+      },
+      "e_total": {
+        "name": "Energia AC - Toodetud (Kokku)"
+      },
+      "meter_igrid_l1": {
+        "name": "Vool AC - Arvesti Faas A"
+      },
+      "e_grid_export": {
+        "name": "Energia AC - Võrk Eksport (Kokku)"
+      },
+      "e_charge_since_restart": {
+        "name": "Energia - Aku Laadimine (Alates Taaskäivitusest)"
+      },
+      "grid_ext_ctrl_ena": {
+        "name": "External Control Lubatud"
+      },
+      "tc_max": {
+        "name": "Temperatuur - Kapp Max"
+      },
+      "meter_igrid_l2": {
+        "name": "Vool AC - Arvesti Faas B"
+      },
+      "e3_last_week": {
+        "name": "Energia AC - Võrk Eksport (jooksev nädal)"
+      },
+      "e_grid_import": {
+        "name": "Energia AC - Võrk Import (Kokku)"
+      },
+      "pin": {
+        "name": "Võimsus DC - Sisend Kokku"
+      },
+      "ppeak": {
+        "name": "Võimsus - Tipp"
+      },
+      "e0_last_week": {
+        "name": "Energia AC - Toodetud (jooksev nädal)"
+      },
+      "ein1": {
+        "name": "Energia DC - Ahel 1 (Kokku)"
+      },
+      "energy_policy": {
+        "name": "Energiapoliitika"
+      },
+      "e4_since_restart": {
+        "name": "Energia - Omatarbitud (Alates Taaskäivitusest)"
+      },
+      "e5_since_restart": {
+        "name": "Energia - Aku Laadimine (Alates Taaskäivitusest)"
+      },
+      "meter_pgrid_tot": {
+        "name": "Võimsus AC - Arvesti kokku"
+      },
+      "iba": {
+        "name": "Vool - Aku"
+      },
+      "tc_min": {
+        "name": "Temperatuur - Kapp Min"
+      },
+      "e3_last_month": {
+        "name": "Energia AC - Võrk Eksport (jooksev kuu)"
+      },
+      "vin2": {
+        "name": "Pinge DC - Sisend 2"
+      },
+      "vgrid_l1_n": {
+        "name": "Pinge AC - Võrk L1-N"
+      },
+      "ein_last_week": {
+        "name": "Energia DC - PV (jooksev nädal)"
+      },
+      "vc_max": {
+        "name": "Pinge - Aku Element Max"
+      },
+      "e_tot_charge_last_month": {
+        "name": "Energia - Aku Laadimine kokku (jooksev kuu)"
+      },
+      "vba": {
+        "name": "Pinge - Aku"
+      },
+      "grid_ext_ctrl_state": {
+        "name": "Olek - Võrk External Control"
+      },
+      "pac_derating_flags": {
+        "name": "Võimsus AC - Derating Lipud"
+      },
+      "frt_state": {
+        "name": "Olek - Fault Ride Through (FRT)"
+      },
+      "e1_since_restart": {
+        "name": "Energia AC - Neeldunud (Alates Taaskäivitusest)"
+      },
+      "ein_since_restart": {
+        "name": "Energia DC - PV (Alates Taaskäivitusest)"
+      },
+      "e_backup": {
+        "name": "Energia AC - Varundus Väljund (Kokku)"
+      },
+      "m132_mod_ena": {
+        "name": "Mudel 132 Lubatud"
+      },
+      "dynamic_feed_in_ctrl": {
+        "name": "Dünaamiline võrku andmise juhtimine"
+      },
+      "e5_last_month": {
+        "name": "Energia - Aku Laadimine (jooksev kuu)"
+      },
+      "e4_last_week": {
+        "name": "Energia - Omatarbitud (jooksev nädal)"
+      },
+      "meter_qgrid_l3": {
+        "name": "Reaktiivvõimsus AC - Arvesti Faas C"
+      },
+      "e8_since_restart": {
+        "name": "Energia AC - Võrk Import (Alates Taaskäivitusest)"
+      },
+      "di_status": {
+        "name": "Olek - Digitaalsisend"
+      },
+      "e_tot_discharge_last_month": {
+        "name": "Energia - Aku Tühjendamine kokku (jooksev kuu)"
+      },
+      "house_pgrid_tot": {
+        "name": "Võimsus AC - Maja Koormus Kokku"
+      },
+      "tba": {
+        "name": "Temperatuur - Aku"
+      },
+      "batt_ext_ctrl_state": {
+        "name": "Control Seisund"
+      },
+      "m126_mod_ena": {
+        "name": "Mudel 126 Lubatud"
+      },
+      "e2_since_restart": {
+        "name": "Energia AC - Näiv (Alates Taaskäivitusest)"
+      },
+      "e_tot_discharge_last_week": {
+        "name": "Energia - Aku Tühjendamine kokku (jooksev nädal)"
+      },
+      "meter_pgrid_l1": {
+        "name": "Võimsus AC - Arvesti Faas A"
+      },
+      "vin3": {
+        "name": "Pinge DC - Sisend 3"
+      },
+      "e7_last_month": {
+        "name": "Energia - Maja Tarbimine (jooksev kuu)"
+      },
+      "e8_last_month": {
+        "name": "Energia AC - Võrk Import (jooksev kuu)"
+      },
+      "pac_togrid": {
+        "name": "Võimsus AC - Eksport to Võrk"
+      },
+      "pac_stand_alone": {
+        "name": "Võimsus AC - Autonoomne Režiim"
+      },
+      "meter_fgrid": {
+        "name": "Sagedus AC - Arvesti"
+      },
+      "e0_1_year": {
+        "name": "Energia AC - Toodetud (jooksev aasta)"
+      },
+      "p_ch": {
+        "name": "Võimsus - Aku Laadimine"
+      },
+      "meter_vgrid_l2": {
+        "name": "Pinge AC - Arvesti Faas B"
+      },
+      "e_tot_charge_last_week": {
+        "name": "Energia - Aku Laadimine kokku (jooksev nädal)"
+      },
+      "sh_u": {
+        "name": "Pinge - Shunt"
+      },
+      "e2_last_month": {
+        "name": "Energia AC - Näiv (jooksev kuu)"
+      },
+      "meter_pgrid_l2": {
+        "name": "Võimsus AC - Arvesti Faas B"
+      },
+      "e15_last_month": {
+        "name": "Energia AC - Varundus Väljund (jooksev kuu)"
+      },
+      "ein": {
+        "name": "Energia DC - PV (Kokku)"
+      },
+      "meter_qgrid_l1": {
+        "name": "Reaktiivvõimsus AC - Arvesti Faas A"
+      },
+      "temp_int": {
+        "name": "Temperatuur - Internal"
+      },
+      "meter_qgrid_tot": {
+        "name": "Reaktiivvõimsus AC - Arvesti kokku"
+      },
+      "e_charge_last_month": {
+        "name": "Energia - Aku Laadimine (jooksev kuu)"
+      },
+      "cycle_num": {
+        "name": "Tsüklid"
+      },
+      "meter_qgrid_l2": {
+        "name": "Reaktiivvõimsus AC - Arvesti Faas B"
+      },
+      "vgrid_l2_n": {
+        "name": "Pinge AC - Võrk L2-N"
+      },
+      "ein_last_month": {
+        "name": "Energia DC - PV (jooksev kuu)"
+      },
+      "e_tot_charge": {
+        "name": "Energia - Aku Laadimine kokku"
+      },
+      "e_total_apparent": {
+        "name": "Energia AC - Näiv (Kokku)"
+      },
+      "e_discharge_since_restart": {
+        "name": "Energia - Aku Tühjendamine (Alates Taaskäivitusest)"
+      },
+      "e7_since_restart": {
+        "name": "Energia - Maja Tarbimine (Alates Taaskäivitusest)"
+      },
+      "ein2": {
+        "name": "Energia DC - Ahel 2 (Kokku)"
+      },
+      "e_discharge_last_month": {
+        "name": "Energia - Aku Tühjendamine (jooksev kuu)"
+      },
+      "pba": {
+        "name": "Võimsus - Aku Kokku"
+      },
+      "e0_since_restart": {
+        "name": "Energia AC - Toodetud (Alates Taaskäivitusest)"
+      },
+      "e15_last_week": {
+        "name": "Energia AC - Varundus Väljund (jooksev nädal)"
+      },
+      "e4_last_month": {
+        "name": "Energia - Omatarbitud (jooksev kuu)"
+      },
+      "inv_state": {
+        "name": "Olek - Inverter"
+      },
+      "sac_derating_flags": {
+        "name": "Võimsus AC - Näiv Derating Lipud"
+      },
+      "e2_last_week": {
+        "name": "Energia AC - Näiv (jooksev nädal)"
+      },
+      "e_tot_charge_since_restart": {
+        "name": "Energia - Aku Laadimine kokku (Alates Taaskäivitusest)"
+      },
+      "e0_last_month": {
+        "name": "Energia AC - Toodetud (jooksev kuu)"
+      },
+      "e_charge_last_week": {
+        "name": "Energia - Aku Laadimine (jooksev nädal)"
+      },
+      "e_discharge_last_week": {
+        "name": "Energia - Aku Tühjendamine (jooksev nädal)"
+      },
+      "e_tot_discharge": {
+        "name": "Energia - Aku Tühjendamine kokku"
+      },
+      "e5_last_week": {
+        "name": "Energia - Aku Laadimine (jooksev nädal)"
+      },
+      "e3_since_restart": {
+        "name": "Energia AC - Võrk Eksport (Alates Taaskäivitusest)"
+      },
+      "ein3": {
+        "name": "Energia DC - String 3 (Kokku)"
+      },
+      "meter_vgrid_l3": {
+        "name": "Pinge AC - Arvesti Faas C"
+      },
+      "input_mode": {
+        "name": "Sisendi Režiim"
+      },
+      "iin3": {
+        "name": "Vool DC - String 3"
+      },
+      "warning_flags": {
+        "name": "Olek - Hoiatuslipud"
+      },
+      "pin1": {
+        "name": "Võimsus DC - Ahel 1"
+      },
+      "e7_total": {
+        "name": "Energia - Maja Tarbimine (Kokku)"
+      },
+      "meter_pgrid_l3": {
+        "name": "Võimsus AC - Arvesti Faas C"
+      },
+      "e6_since_restart": {
+        "name": "Energia - Maja inverterist (Alates Taaskäivitusest)"
+      },
+      "e_ct": {
+        "name": "Energia - Vool Transformer (CT) (Kokku)"
+      },
+      "d_c2_state": {
+        "name": "Olek - DC Sisend 2"
+      },
+      "batt_ext_ctrl_ena": {
+        "name": "Control Lubatud"
+      },
+      "iin2": {
+        "name": "Vool DC - Ahel 2"
+      },
+      "iin1": {
+        "name": "Vool DC - Ahel 1"
+      },
+      "house_p_inverter": {
+        "name": "Võimsus - PV Kodu"
+      },
+      "fan1rpm": {
+        "name": "Kiirus - Ventilaator 1"
+      },
+      "e6_total": {
+        "name": "Energia - Maja inverterist (Kokku)"
+      },
+      "pin2": {
+        "name": "Võimsus DC - Ahel 2"
+      },
+      "e_total_absorbed": {
+        "name": "Energia AC - Neeldunud (Kokku)"
+      },
+      "meter_igrid_l3": {
+        "name": "Vool AC - Arvesti Faas C"
+      },
+      "e_tot_discharge_since_restart": {
+        "name": "Energia - Aku Tühjendamine kokku (Alates Taaskäivitusest)"
+      },
+      "e6_last_week": {
+        "name": "Energia - Maja inverterist (jooksev nädal)"
+      },
+      "e6_last_month": {
+        "name": "Energia - Maja inverterist (jooksev kuu)"
+      },
+      "commissioning_freeze": {
+        "name": "Kasutuselevõtu Külmutamine"
+      },
+      "num_of_mppt": {
+        "name": "MPPT Channel Arv"
+      },
+      "e8_last_week": {
+        "name": "Energia AC - Võrk Import (jooksev nädal)"
+      },
+      "temp_inv": {
+        "name": "Temperatuur - Inverter"
+      },
+      "temp_bst": {
+        "name": "Temperatuur - Booster"
+      },
+      "d_c1_state": {
+        "name": "Olek - DC Sisend 1"
+      },
+      "di1_mode": {
+        "name": "Digitaalsisend - Režiim 1"
+      },
+      "e15_since_restart": {
+        "name": "Energia AC - Varundus Väljund (Alates Taaskäivitusest)"
+      },
+      "di0_mode": {
+        "name": "Digitaalsisend - Režiim 0"
+      },
+      "vin1": {
+        "name": "Pinge DC - Sisend 1"
+      },
+      "pin3": {
+        "name": "Võimsus DC - String 3"
+      },
+      "fcc": {
+        "name": "Sagedus - Central Controller"
+      },
+      "e_dt": {
+        "name": "Energia - Direct Transducer (DT) (Kokku)"
+      },
+      "fan2rpm": {
+        "name": "Kiirus - Ventilaator 2"
+      },
+      "d_c3_state": {
+        "name": "Olek - DC-sisend 3"
+      },
+      "qac_derating_flags": {
+        "name": "Reaktiivne Võimsus - Derating Lipud"
+      },
+      "w_rtg": {
+        "name": "Võimsus - Nimivõimsus"
+      },
+      "clock_state": {
+        "name": "Olek - Kell"
+      },
+      "temp1": {
+        "name": "Temperatuur - Andur 1"
+      },
+      "meter_vgrid_l1": {
+        "name": "Pinge AC - Arvesti Faas A"
+      },
+      "e1_last_month": {
+        "name": "Energia AC - Neeldunud (jooksev kuu)"
+      },
+      "detected_battery_number": {
+        "name": "Tuvastatud arv"
+      },
+      "pba_t": {
+        "name": "Võimsus - Aku Aggregate"
+      },
+      "vc_min": {
+        "name": "Pinge - Aku Element Min"
+      },
+      "glob_state": {
+        "name": "Olek - Üldine"
+      },
+      "e7_last_week": {
+        "name": "Energia - Maja Tarbimine (jooksev nädal)"
+      },
+      "e1_last_week": {
+        "name": "Energia AC - Neeldunud (jooksev nädal)"
+      },
+      "p_dh": {
+        "name": "Võimsus - Aku Tühjendamine"
+      },
+      "mfg_part_number": {
+        "name": "Osanumber"
+      },
+      "mfg_serial_number": {
+        "name": "Seerianumber"
+      },
+      "mfg_week_year": {
+        "name": "Tootmisnädal/Aasta"
+      },
+      "logger_sn": {
+        "name": "Logger Seerianumber"
+      },
+      "fw_build_date": {
+        "name": "Firmware Build Kuupäev"
+      },
+      "fw_release_number": {
+        "name": "Püsivara versioon"
+      },
+      "fw_build_number": {
+        "name": "Püsivara järgu räsi"
+      },
+      "fw_revision": {
+        "name": "Püsivara redaktsioon"
+      },
+      "logger_board_model": {
+        "name": "Logger Kaardi Mudel"
+      },
+      "device_name": {
+        "name": "Nimi 0"
+      },
+      "device_type": {
+        "name": "Tüüp 0"
+      },
+      "fw_version": {
+        "name": "Püsivara versioon"
+      },
+      "logger_hostname": {
+        "name": "Hostinimi"
+      },
+      "model_type": {
+        "name": "Mudeli Tüüp"
+      },
+      "inverter_id": {
+        "name": "Inverteri ID"
+      },
+      "communication_protocol": {
+        "name": "Kommunikatsiooniprotokoll"
+      },
+      "model_description": {
+        "name": "Mudeli Kirjeldus"
+      },
+      "wlan_fsm_status": {
+        "name": "WiFi - FSM olek"
+      },
+      "wlan_0_status": {
+        "name": "WiFi - Olek"
+      },
+      "inverter_time": {
+        "name": "Inverter Aeg"
+      },
+      "wlan_ap_status": {
+        "name": "WiFi - AP olek"
+      },
+      "wlan_0_dhcp_state": {
+        "name": "WiFi - DHCP Seisund"
+      },
+      "wlan_0_ipaddr": {
+        "name": "WiFi - IP-aadress"
+      },
+      "wlan_0_netmask": {
+        "name": "WiFi Võrgumask"
+      },
+      "wlan_0_broadcast": {
+        "name": "WiFi - Broadcast"
+      },
+      "wlan_0_gateway": {
+        "name": "WiFi - Lüüs"
+      },
+      "wlan_0_dns": {
+        "name": "WiFi - DNS-server"
+      },
+      "logger_logger_id": {
+        "name": "Logeri ID"
+      },
+      "events": {
+        "name": "Sündmused"
+      },
+      "dc_input_3_state": {
+        "name": "DC-sisendi 3 olek"
+      }
+    },
+    "number": {
+      "power_limit": {
+        "name": "Võimsuspiirang"
+      }
+    },
+    "switch": {
+      "power_limit_enabled": {
+        "name": "Võimsuspiirang"
+      }
+    }
+  },
+  "exceptions": {
+    "update_failed": {
+      "message": "Viga inverteri lugemisel: {error}"
+    },
+    "modbus_link_conflict": {
+      "message": "Teine sidumine kasutab hosti {host} juba teiste Modbusi ühenduse seadetega: {error}"
+    },
+    "write_failed": {
+      "message": "Inverterisse kirjutamine nurjus: {error}"
+    },
+    "entry_not_found": {
+      "message": "FIMERi seadistuskirjet {entry_id} pole."
+    },
+    "entry_not_loaded": {
+      "message": "Kirje {title} ei ole laaditud."
+    },
+    "modbus_not_enabled": {
+      "message": "See kirje ei loe Modbusi kaudu, seega ei pääse see registritele ligi."
+    },
+    "no_controls": {
+      "message": "Inverter ei paku vahetu juhtimise mudelit."
+    },
+    "unknown_point": {
+      "message": "Punkti {point} ei saa kirjutada: {error}"
+    },
+    "invalid_value": {
+      "message": "Vigane väärtus: {error}"
+    },
+    "value_required": {
+      "message": "Anna kas väärtus või toorregistrite loend."
+    },
+    "device_not_found": {
+      "message": "Selles kirjes pole seadet {device}."
+    },
+    "invalid_auth": {
+      "message": "Andmeloger lükkas mandaadi tagasi: {error}"
+    },
+    "unsupported_firmware": {
+      "message": "VSN300-l on püsivara {firmware_version}, mis ei suuda reaalajas andmeid pakkuda. Uuenda andmeloger püsivarale 2.0.1 või uuemale; uuendus on kohustuslik."
+    }
+  },
+  "services": {
+    "read_registers": {
+      "name": "Loe registreid",
+      "description": "Loeb registreid absoluutselt Modbusi aadressilt ja dekodeerib need. Tagastab toorregistrid ja dekodeeritud väärtuse.",
+      "fields": {
+        "config_entry": {
+          "name": "Seadistuskirje",
+          "description": "Inverter, mille poole pöörduda."
+        },
+        "address": {
+          "name": "Aadress",
+          "description": "Esimese registri aadress."
+        },
+        "count": {
+          "name": "Arv",
+          "description": "Mitu registrit lugeda; fikseeritud suurusega andmetüüpide puhul jäetakse tähelepanuta."
+        },
+        "register_type": {
+          "name": "Registri tüüp",
+          "description": "Holding- või input-registrid."
+        },
+        "data_type": {
+          "name": "Andmetüüp",
+          "description": "Kuidas registreid dekodeerida; raw tagastab need dekodeerimata."
+        },
+        "word_order": {
+          "name": "Sõnade järjekord",
+          "description": "Milline register sisaldab 32-bitise väärtuse kõrget sõna."
+        }
+      }
+    },
+    "write_registers": {
+      "name": "Kirjuta registreid",
+      "description": "Kirjutab ühe antud tüübis kodeeritud väärtuse või toorregistrite loendi absoluutsele Modbusi aadressile.",
+      "fields": {
+        "config_entry": {
+          "name": "Seadistuskirje",
+          "description": "Inverter, mille poole pöörduda."
+        },
+        "address": {
+          "name": "Aadress",
+          "description": "Esimese registri aadress."
+        },
+        "value": {
+          "name": "Väärtus",
+          "description": "Kodeeritav ja kirjutatav väärtus."
+        },
+        "values": {
+          "name": "Toorregistrid",
+          "description": "16-bitiste registriväärtuste loend, mis kirjutatakse väärtuse asemel muutmata kujul."
+        },
+        "data_type": {
+          "name": "Andmetüüp",
+          "description": "Kuidas väärtust kodeerida."
+        },
+        "word_order": {
+          "name": "Sõnade järjekord",
+          "description": "Milline register saab 32-bitise väärtuse kõrge sõna."
+        },
+        "count": {
+          "name": "Pikkus",
+          "description": "Registrid, mida sõne hõlmab; vaikimisi nii palju, kui sõne vajab."
+        }
+      }
+    },
+    "write_point": {
+      "name": "Kirjuta punkt",
+      "description": "Kirjutab kirjutatava SunSpeci punkti selle nime järgi, näiteks WMaxLimPct või OutPFSet, ja värskendab lugemid.",
+      "fields": {
+        "config_entry": {
+          "name": "Seadistuskirje",
+          "description": "Inverter, mille poole pöörduda."
+        },
+        "point": {
+          "name": "Punkt",
+          "description": "Punkti nimi."
+        },
+        "value": {
+          "name": "Väärtus",
+          "description": "Väärtus punkti tehnilises ühikus."
+        }
+      }
+    },
+    "set_power_limit": {
+      "name": "Sea võimsuspiirang",
+      "description": "Seab aktiivvõimsuse piirangu ja selle, kas seda rakendatakse, kontrollides tagasilugemisega. Jäta väli välja, et säilitada selle praegune väärtus.",
+      "fields": {
+        "config_entry": {
+          "name": "Seadistuskirje",
+          "description": "Inverter, mille poole pöörduda."
+        },
+        "percent": {
+          "name": "Piirang",
+          "description": "Piirang protsendina nimivõimsusest."
+        },
+        "enabled": {
+          "name": "Lubatud",
+          "description": "Kas piirangut rakendatakse."
+        }
+      }
+    },
+    "get_readings": {
+      "name": "Hangi lugemid",
+      "description": "Tagastab iga punkti, mida kirje iga seade praegu teatab.",
+      "fields": {
+        "config_entry": {
+          "name": "Seadistuskirje",
+          "description": "Inverter, mille poole pöörduda."
+        },
+        "device": {
+          "name": "Seade",
+          "description": "Ainult see seade, seerianumbri või identifikaatori järgi."
+        }
+      }
+    },
+    "rediscover": {
+      "name": "Avasta uuesti",
+      "description": "Käib SunSpeci mudeliahela ja andmelogeri seadmed uuesti läbi ilma uuesti laadimata ja värskendab lugemid. Seadmed, mida andmeloger esimest korda teatab, saavad oma olemid.",
+      "fields": {
+        "config_entry": {
+          "name": "Seadistuskirje",
+          "description": "Inverter, mille poole pöörduda."
+        }
+      }
+    }
+  },
+  "selector": {
+    "register_type": {
+      "options": {
+        "holding": "Holding-registrid",
+        "input": "Input-registrid"
+      }
+    },
+    "data_type": {
+      "options": {
+        "raw": "Toorregistrid",
+        "uint16": "16-bitine märgita",
+        "int16": "16-bitine märgiga",
+        "uint32": "32-bitine märgita",
+        "int32": "32-bitine märgiga",
+        "float32": "Ujukoma (32-bitine)",
+        "string": "Sõne"
+      }
+    },
+    "word_order": {
+      "options": {
+        "big": "Kõrge sõna enne",
+        "little": "Madal sõna enne"
+      }
+    }
+  },
+  "issues": {
+    "connection_failed_modbus": {
+      "title": "{title}: Modbus ei vasta",
+      "description": "Home Assistant ei ole suutnud lugeda seadet {title} Modbus TCP kaudu aadressil {host} {failures} järjestikuse päringu jooksul päevavalguses.\n\nViimane viga: `{error}`\n\n**Võimalikud põhjused**\n- Inverter või selle andmeloger on välja lülitatud või kaotanud võrguühenduse\n- Seadme aadress on muutunud\n- Teine Modbusi klient on andmelogeri hõivanud; see teenindab korraga ainult ühte ühendust\n- SunSpeci seaded (üksuse ID, baasaadress) muutusid pärast püsivara uuendust\n\n**Mida kontrollida**\n1. Ava andmelogeri veebileht aadressil http://{host}\n2. Otsi seadme praegune aadress ruuteri DHCP-tabelist\n3. Kui aadress muutus, kasuta sidumise lehel toimingut **Seadista uuesti**\n\nSee parandus kaob iseenesest niipea, kui päring õnnestub."
+    },
+    "connection_failed_rest": {
+      "title": "{title}: andmelogeri REST API ei vasta",
+      "description": "Home Assistant ei ole suutnud lugeda seadme {title} VSN-andmelogerit aadressil {host} {failures} järjestikuse päringu jooksul päevavalguses.\n\nViimane viga: `{error}`\n\n**Võimalikud põhjused**\n- Andmeloger on välja lülitatud või kaotanud võrguühenduse\n- Andmelogeri aadress on muutunud\n- Kaart on kinni jooksnud; VSN300 vajab pärast WiFi-ühenduse kadumist mõnikord toite katkestamist\n\n**Mida kontrollida**\n1. Ava andmelogeri veebileht aadressil http://{host}\n2. Otsi selle praegune aadress ruuteri DHCP-tabelist\n3. Kui aadress muutus, kasuta sidumise lehel toimingut **Seadista uuesti**\n4. Katkesta korraks kaardi toide, kui leht ei laadi\n\nSee parandus kaob iseenesest niipea, kui päring õnnestub."
+    },
+    "unsupported_firmware": {
+      "title": "{title}: andmelogeri püsivara {firmware_version} ei toetata",
+      "description": "Seadme {title} VSN300 andmeloger aadressil {host} kasutab püsivara {firmware_version}. Sellel versioonil on teadaolev viga: selle reaalajas andmete API katkestab iga ühenduse, nii et midagi ei saa lugeda.\n\n**Uuenda andmeloger püsivarale 2.0.1 või uuemale. Uuendus on kohustuslik: sidumine ei saa versiooniga 2.0.0 töötada.** See on saadaval kaardi enda veebilehelt:\n\n1. Ava http://{host} ja mine vahekaardile **FW UPDATE**\n2. Klõpsa jaotises **Remote Update** nuppu **Check for FW update**; see peaks pakkuma versiooni 2.0.1 või uuemat\n3. Klõpsa **Download & Update** ja oota, kuni kaart uueneb ja taaskäivitub\n4. Laadi sidumine uuesti selle lehelt jaotises Seaded > Seadmed ja teenused\n\nKui uuendust ei pakuta, võta ühendust FIMERi toega. See parandus kaob iseenesest, kui sidumine käivitub."
+    },
+    "datalogger_silent": {
+      "title": "{title}: andmeloger ei teata enda andmeid",
+      "description": "Seadme {title} VSN-andmeloger aadressil {host} vastab ja edastab inverteri lugemid, kuid selle enda lugemid (tööaeg, WiFi-ühendus, mälu) on puudunud üle {minutes} minuti. Andmelogeri andurid jäävad kättesaamatuks, kuni need naasevad.\n\n**Kõige tõenäolisem põhjus**\nPärast taaskäivitust ei suutnud kaart oma kella seada (NTP või internetiühendus puudub) ja lõpetas enda andmete avaldamise. See on VSN300 püsivara teadaolev omapära.\n\n**Mida teha**\n- Kontrolli, et kaart pääseb internetti, näiteks selle veebilehelt aadressil http://{host}\n- Katkesta korraks kaardi toide\n\nSee parandus kaob iseenesest niipea, kui kaart taas enda andmeid teatab."
+    },
+    "partial_discovery": {
+      "title": "{title}: andmelogeris puuduvad seadmed",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Unusta puuduvad seadmed",
+            "description": "Seadme {title} andmeloger aadressil {host} teatas varem neid seadmeid, kuid ei teata neid praegu:\n\n{missing_devices}\n\nNende olemid on vahepeal kättesaamatud. Võimalikud põhjused: seade on välja lülitatud (inverter öösel), andmelogerist lahti ühendatud või jaamast eemaldatud. Parandus kaob iseenesest, kui kõik seadmed on taas teatatud.\n\nEsita ainult siis, kui seadmed on jäädavalt kadunud: need ja nende olemid eemaldatakse Home Assistantist. Seade, mida andmeloger hiljem uuesti teatab, lisatakse uuena."
+          }
+        }
+      }
+    },
+    "takeover_incomplete": {
+      "title": "{title}: {count} varasemat andurit ei võetud üle",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Võta teadmiseks",
+            "description": "Varasema ABB/FIMER PVI VSN REST sidumise kirje eemaldati ja selle andurid registreeriti siin uuesti, välja arvatud need, millel pole selles sidumises vastet:\n\n{entities}\n\nNende ajalugu jääb recorderisse vanade olemi ID-de all, kuid ükski olem ei paku neid enam. Kui kasutasid neid automaatikates või töölaudadel, suuna need selle sidumise olemitele.\n\nEsita, et see teade sulgeda; loetletud andureid ei taastata."
+          }
+        }
+      }
+    }
+  }
+}

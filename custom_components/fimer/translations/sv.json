@@ -1,0 +1,1356 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "FIMER (ABB / Power-One)",
+        "description": "Det finns redan en post från den tidigare integrationen ABB/FIMER PVI VSN REST. Ta över dess inställningar och entiteter, eller konfigurera en ny växelriktare.",
+        "menu_options": {
+          "manual": "Konfigurera en ny växelriktare",
+          "legacy": "Ta över en befintlig REST-post"
+        }
+      },
+      "reconfigure": {
+        "title": "Ändra anslutningen",
+        "description": "Uppdatera hur Home Assistant når den här växelriktaren. Det måste fortfarande vara samma växelriktare.",
+        "data": {
+          "host": "Värd",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "IP-adress eller värdnamn för växelriktaren eller dataloggern.",
+          "port": "Modbus TCP-port, 502 om den inte ändrats på enheten."
+        },
+        "sections": {
+          "modbus": {
+            "name": "Modbus TCP (SunSpec)",
+            "description": "Standardvärdena passar en datalogger VSN300 eller VSN700. En växelriktare med inbyggd Modbus, som en REACT2, behöver oftast enhets-ID 1 och basadress 40000.",
+            "data": {
+              "use_modbus": "Läs via Modbus TCP",
+              "unit_id": "Modbus enhets-ID",
+              "base_address": "SunSpec-basadress"
+            },
+            "data_description": {
+              "use_modbus": "Snabba avläsningar av SunSpec-modellerna utan inloggning. Kräver att Modbus TCP är aktiverat på enheten.",
+              "unit_id": "Det Modbus enhets-ID (slav-ID) som växelriktaren svarar på. VSN-kort använder 2, vissa firmware 247.",
+              "base_address": "Registret där SunSpec-kartan börjar: 0 bakom ett VSN-kort, 40000 på en växelriktare med inbyggd Modbus."
+            }
+          },
+          "rest": {
+            "name": "Dataloggerns REST-API",
+            "description": "VSN300-/VSN700-kortets eget API lägger till dataloggern, mätare, batterier och de periodiska energiräknarna.",
+            "data": {
+              "use_rest": "Läs dataloggerns REST-API",
+              "username": "Användarnamn",
+              "password": "Lösenord"
+            },
+            "data_description": {
+              "use_rest": "Läs även kortets REST-API. Valfritt bakom en VSN300; den enda källan för mätare och batterier bakom en VSN700.",
+              "username": "Kortets användare, oftast guest.",
+              "password": "Lösenordet som satts på kortet, om något."
+            }
+          }
+        }
+      },
+      "legacy": {
+        "title": "Ta över en REST-post",
+        "description": "Den valda posten tas bort och dess sensorer behåller sina entitets-ID:n och sin historik under den här integrationen.",
+        "data": {
+          "legacy_entry": "Post att ta över"
+        }
+      },
+      "manual": {
+        "title": "Anslut till växelriktaren",
+        "description": "Ange adressen till växelriktaren eller dess dataloggerkort VSN300 / VSN700 och välj vilka källor som ska läsas. Växelriktaren måste vara vaken: en PVI utan nätspänning svarar inte på natten.",
+        "data": {
+          "host": "Värd",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "IP-adress eller värdnamn för växelriktaren eller dataloggern.",
+          "port": "Modbus TCP-port, 502 om den inte ändrats på enheten."
+        },
+        "sections": {
+          "modbus": {
+            "name": "Modbus TCP (SunSpec)",
+            "description": "Standardvärdena passar en datalogger VSN300 eller VSN700. En växelriktare med inbyggd Modbus, som en REACT2, behöver oftast enhets-ID 1 och basadress 40000.",
+            "data": {
+              "use_modbus": "Läs via Modbus TCP",
+              "unit_id": "Modbus enhets-ID",
+              "base_address": "SunSpec-basadress"
+            },
+            "data_description": {
+              "use_modbus": "Snabba avläsningar av SunSpec-modellerna utan inloggning. Kräver att Modbus TCP är aktiverat på enheten.",
+              "unit_id": "Det Modbus enhets-ID (slav-ID) som växelriktaren svarar på. VSN-kort använder 2, vissa firmware 247.",
+              "base_address": "Registret där SunSpec-kartan börjar: 0 bakom ett VSN-kort, 40000 på en växelriktare med inbyggd Modbus."
+            }
+          },
+          "rest": {
+            "name": "Dataloggerns REST-API",
+            "description": "VSN300-/VSN700-kortets eget API lägger till dataloggern, mätare, batterier och de periodiska energiräknarna.",
+            "data": {
+              "use_rest": "Läs dataloggerns REST-API",
+              "username": "Användarnamn",
+              "password": "Lösenord"
+            },
+            "data_description": {
+              "use_rest": "Läs även kortets REST-API. Valfritt bakom en VSN300; den enda källan för mätare och batterier bakom en VSN700.",
+              "username": "Kortets användare, oftast guest.",
+              "password": "Lösenordet som satts på kortet, om något."
+            }
+          }
+        }
+      },
+      "reauth_confirm": {
+        "title": "Dataloggerns inloggningsuppgifter",
+        "description": "Dataloggern på {host} avvisade de sparade inloggningsuppgifterna. Ange de aktuella.",
+        "data": {
+          "username": "Användarnamn",
+          "password": "Lösenord"
+        },
+        "data_description": {
+          "username": "Kortets användare, oftast guest.",
+          "password": "Lösenordet som satts på kortet."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Anslutningen misslyckades. Kontrollera värd och port, och att växelriktaren är vaken.",
+      "no_sunspec": "Ingen SunSpec-karta hittades på basadressen. Prova 0 bakom ett VSN-kort eller 40000 på en växelriktare med inbyggd Modbus, och kontrollera enhets-ID.",
+      "unsupported_device": "En SunSpec-enhet svarade men den är inte en växelriktare.",
+      "link_conflict": "En annan integration använder redan den här värden med andra Modbus-länkinställningar.",
+      "unknown": "Oväntat fel",
+      "no_source": "Aktivera minst en källa.",
+      "invalid_auth": "Dataloggern avvisade användarnamnet eller lösenordet.",
+      "no_rest_api": "Inget REST-API från en VSN300 / VSN700 svarade på den här värden.",
+      "unsupported_firmware": "Den här VSN300 kör firmware 2.0.0, som inte kan leverera realtidsdata. Uppgradera dataloggern till firmware 2.0.1 eller senare; uppgraderingen är obligatorisk."
+    },
+    "abort": {
+      "already_configured": "Den här växelriktaren är redan konfigurerad.",
+      "reconfigure_successful": "Anslutningsinställningarna har uppdaterats.",
+      "unique_id_mismatch": "Enheten på den nya adressen är en annan växelriktare.",
+      "reauth_successful": "Inloggningsuppgifterna har uppdaterats."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Avläsning och reparationer",
+        "data": {
+          "scan_interval": "Uppdateringsintervall",
+          "power_control": "Styrning av effektbegränsning (experimentell)",
+          "connection_issues": "Reparation när en källa inte kan nås",
+          "failures_threshold": "Misslyckade avläsningar före reparationen",
+          "notify_recovery": "Meddela när en källa svarar igen",
+          "recovery_script": "Återställningsskript"
+        },
+        "data_description": {
+          "scan_interval": "Sekunder mellan avläsningar av växelriktaren.",
+          "power_control": "Visar SunSpec-begränsningen av aktiv effekt som ett tal och en strömbrytare. Dataloggern tar emot skrivningarna på alla växelriktare, men bara vissa växelriktare följer dem; kontrollera med testet som beskrivs i dokumentationen innan du litar på det.",
+          "connection_issues": "Skapa en reparation när Modbus eller dataloggerns REST-API fortsätter att misslyckas medan solen är uppe. Fel på natten ignoreras: en sovande växelriktare är inget fel.",
+          "failures_threshold": "Misslyckade avläsningar i följd i dagsljus innan reparationen skapas. Efter det tredje felet saktar avläsningarna ner till var 5:e minut.",
+          "notify_recovery": "Skapa en beständig avisering när en källa svarar igen efter att en reparation skapats.",
+          "recovery_script": "Ett skript som körs en gång när reparationen skapas, till exempel ett som startar om dataloggern via ett smart uttag."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ac_power": {
+        "name": "AC-effekt"
+      },
+      "ac_current": {
+        "name": "AC-ström"
+      },
+      "ac_current_phase_a": {
+        "name": "AC-ström fas A"
+      },
+      "ac_current_phase_b": {
+        "name": "AC-ström fas B"
+      },
+      "ac_current_phase_c": {
+        "name": "AC-ström fas C"
+      },
+      "ac_voltage_phase_a": {
+        "name": "AC-spänning fas A"
+      },
+      "ac_voltage_phase_b": {
+        "name": "AC-spänning fas B"
+      },
+      "ac_voltage_phase_c": {
+        "name": "AC-spänning fas C"
+      },
+      "ac_voltage_phase_ab": {
+        "name": "AC-spänning fas A-B"
+      },
+      "ac_voltage_phase_bc": {
+        "name": "AC-spänning fas B-C"
+      },
+      "ac_voltage_phase_ca": {
+        "name": "AC-spänning fas C-A"
+      },
+      "ac_frequency": {
+        "name": "AC-frekvens"
+      },
+      "apparent_power": {
+        "name": "Skenbar effekt"
+      },
+      "reactive_power": {
+        "name": "Reaktiv effekt"
+      },
+      "power_factor": {
+        "name": "Effektfaktor"
+      },
+      "ac_energy_total": {
+        "name": "Total energi"
+      },
+      "dc_current": {
+        "name": "DC-ström"
+      },
+      "dc_voltage": {
+        "name": "DC-spänning"
+      },
+      "dc_power": {
+        "name": "DC-effekt"
+      },
+      "cabinet_temperature": {
+        "name": "Skåptemperatur"
+      },
+      "heat_sink_temperature": {
+        "name": "Kylflänstemperatur"
+      },
+      "transformer_temperature": {
+        "name": "Transformatortemperatur"
+      },
+      "other_temperature": {
+        "name": "Övrig temperatur"
+      },
+      "operating_state": {
+        "name": "Driftläge",
+        "state": {
+          "off": "Off",
+          "sleeping": "Sleeping",
+          "starting": "Starting",
+          "mppt": "Producing (MPPT)",
+          "throttled": "Throttled",
+          "shutting_down": "Shutting down",
+          "fault": "Fault",
+          "standby": "Standby"
+        }
+      },
+      "vendor_operating_state": {
+        "name": "Driftläge (tillverkare)"
+      },
+      "dc_current_input_1": {
+        "name": "DC-ström ingång 1"
+      },
+      "dc_voltage_input_1": {
+        "name": "DC-spänning ingång 1"
+      },
+      "dc_power_input_1": {
+        "name": "DC-effekt ingång 1"
+      },
+      "dc_energy_input_1": {
+        "name": "DC-energi ingång 1"
+      },
+      "dc_current_input_2": {
+        "name": "DC-ström ingång 2"
+      },
+      "dc_voltage_input_2": {
+        "name": "DC-spänning ingång 2"
+      },
+      "dc_power_input_2": {
+        "name": "DC-effekt ingång 2"
+      },
+      "dc_energy_input_2": {
+        "name": "DC-energi ingång 2"
+      },
+      "dc_current_input_3": {
+        "name": "DC-ström ingång 3"
+      },
+      "dc_voltage_input_3": {
+        "name": "DC-spänning ingång 3"
+      },
+      "dc_power_input_3": {
+        "name": "DC-effekt ingång 3"
+      },
+      "dc_energy_input_3": {
+        "name": "DC-energi ingång 3"
+      },
+      "global_state": {
+        "name": "Globalt läge"
+      },
+      "inverter_state": {
+        "name": "Växelriktarläge"
+      },
+      "dc_input_1_state": {
+        "name": "Läge DC-ingång 1"
+      },
+      "dc_input_2_state": {
+        "name": "Läge DC-ingång 2"
+      },
+      "alarms": {
+        "name": "Larm"
+      },
+      "system_time": {
+        "name": "Systemtid"
+      },
+      "energy_today": {
+        "name": "Energi idag"
+      },
+      "energy_this_week": {
+        "name": "Energi denna vecka"
+      },
+      "energy_this_month": {
+        "name": "Energi denna månad"
+      },
+      "energy_this_year": {
+        "name": "Energi i år"
+      },
+      "energy_total_vendor": {
+        "name": "Total energi (tillverkarmodell)"
+      },
+      "energy_partial": {
+        "name": "Delenergi"
+      },
+      "inverter_temperature": {
+        "name": "Växelriktartemperatur"
+      },
+      "booster_temperature": {
+        "name": "Boostertemperatur"
+      },
+      "isolation_resistance_input_1": {
+        "name": "Isolationsresistans ingång 1"
+      },
+      "isolation_resistance_input_2": {
+        "name": "Isolationsresistans ingång 2"
+      },
+      "cos_phi": {
+        "name": "Cos phi"
+      },
+      "power_limit_permanent": {
+        "name": "Effektbegränsning (permanent)"
+      },
+      "power_limit_dynamic": {
+        "name": "Effektbegränsning (dynamisk)"
+      },
+      "rated_power": {
+        "name": "Märkeffekt"
+      },
+      "power_limit": {
+        "name": "Effektbegränsning"
+      },
+      "power_limit_enabled": {
+        "name": "Effektbegränsning aktiv",
+        "state": {
+          "disabled": "No",
+          "enabled": "Yes"
+        }
+      },
+      "watts": {
+        "name": "Effekt AC"
+      },
+      "var": {
+        "name": "Reaktiv effekt - Nätanslutning"
+      },
+      "hz": {
+        "name": "Frekvens AC - Nät"
+      },
+      "amps": {
+        "name": "Ström AC"
+      },
+      "phase_voltage_an": {
+        "name": "Spänning AC - Fas A-N"
+      },
+      "phase_voltage_bn": {
+        "name": "Spänning AC - Fas B-N"
+      },
+      "phase_voltage_cn": {
+        "name": "Spänning AC - Fas C-N"
+      },
+      "ph_vph_a_b": {
+        "name": "Spänning AC - Fas A-B"
+      },
+      "ph_vph_b_c": {
+        "name": "Spänning AC - Fas B-C"
+      },
+      "ph_vph_c_a": {
+        "name": "Spänning AC - Fas C-A"
+      },
+      "amps_phasea": {
+        "name": "Ström AC - Fas A"
+      },
+      "amps_phaseb": {
+        "name": "Ström AC - Fas B"
+      },
+      "amps_phasec": {
+        "name": "Ström AC - Fas C"
+      },
+      "manufacturer": {
+        "name": "Tillverkare"
+      },
+      "model": {
+        "name": "Modellbeteckning"
+      },
+      "options": {
+        "name": "Konfigurationsalternativ"
+      },
+      "version": {
+        "name": "Firmwareversion"
+      },
+      "serial_number": {
+        "name": "Serienummer"
+      },
+      "device_address": {
+        "name": "Modbus-adress"
+      },
+      "battery_mode": {
+        "name": "Batteriläge"
+      },
+      "e_charge": {
+        "name": "Energi - Batteriladdning (Totalt)"
+      },
+      "e_discharge": {
+        "name": "Energi - Batteriurladdning (Totalt)"
+      },
+      "alarm_state": {
+        "name": "Status - Larm"
+      },
+      "house_igrid_l1": {
+        "name": "Ström AC - Hus Fas A"
+      },
+      "state_of_charge": {
+        "name": "Laddningstillstånd"
+      },
+      "batt_num": {
+        "name": "Module Antal"
+      },
+      "house_igrid_l3": {
+        "name": "Ström AC - Hus Fas C"
+      },
+      "dhc": {
+        "name": "Urladdningscykler"
+      },
+      "house_pgrid_l1": {
+        "name": "Effekt AC - Hus Fas A"
+      },
+      "split_phase": {
+        "name": "Delad fas"
+      },
+      "chc": {
+        "name": "Laddningscykler"
+      },
+      "country_std": {
+        "name": "Antalry Standard"
+      },
+      "sys_time": {
+        "name": "Systemtid"
+      },
+      "state_of_health": {
+        "name": "Hälsotillstånd"
+      },
+      "house_igrid_l2": {
+        "name": "Ström AC - Hus Fas B"
+      },
+      "house_pgrid_l3": {
+        "name": "Effekt AC - Hus Fas C"
+      },
+      "house_pgrid_l2": {
+        "name": "Effekt AC - Hus Fas B"
+      },
+      "hz_c": {
+        "name": "Frekvens AC - Fas C"
+      },
+      "power_peak_abs": {
+        "name": "Effekt - Topp (Totalt)"
+      },
+      "pf": {
+        "name": "Effektfaktor"
+      },
+      "isolation_ohm1": {
+        "name": "Motstånd - Isolering"
+      },
+      "dc_st2": {
+        "name": "Status - DC Ingång 2"
+      },
+      "sn": {
+        "name": "Serienummer"
+      },
+      "hz_b": {
+        "name": "Frekvens AC - Fas B"
+      },
+      "dc_st1": {
+        "name": "Status - DC Ingång 1"
+      },
+      "power_peak_today": {
+        "name": "Effekt - Topp (Idag)"
+      },
+      "storage_size": {
+        "name": "Använt flashminne"
+      },
+      "wlan0_ipaddr_local": {
+        "name": "WiFi - Lokal IP"
+      },
+      "year_wh": {
+        "name": "Energi AC - Producerad (innevarande år)"
+      },
+      "day_wh": {
+        "name": "Energi AC - Producerad (Idag)"
+      },
+      "wlan0_mode": {
+        "name": "WiFi - Läge"
+      },
+      "i_leak_dc_ac": {
+        "name": "Ström DC - Läckage DC-AC"
+      },
+      "watthours": {
+        "name": "Energi AC - Producerad (Totalt)"
+      },
+      "v_gnd": {
+        "name": "Spänning - Jord"
+      },
+      "week_wh": {
+        "name": "Energi AC - Producerad (innevarande vecka)"
+      },
+      "system_load": {
+        "name": "Genomsnittlig last"
+      },
+      "alarm_st": {
+        "name": "Status - Larm"
+      },
+      "dc_current_2": {
+        "name": "Ström DC - Sträng 2"
+      },
+      "i_leak_dc_dc": {
+        "name": "Ström DC - Läckage DC-DC"
+      },
+      "inverter_st": {
+        "name": "Växelriktare Status"
+      },
+      "pn": {
+        "name": "Produktnummer"
+      },
+      "system_uptime": {
+        "name": "Drifttid"
+      },
+      "wlan0_link_quality": {
+        "name": "WiFi - Länkkvalitet"
+      },
+      "dc_voltage_1": {
+        "name": "Spänning DC - Sträng 1"
+      },
+      "global_st": {
+        "name": "Status - Global"
+      },
+      "wlan0_essid": {
+        "name": "WiFi - SSID"
+      },
+      "booster_tmp": {
+        "name": "Temperatur - Booster"
+      },
+      "dc_power_1": {
+        "name": "Effekt DC - Sträng 1"
+      },
+      "dc_voltage_2": {
+        "name": "Spänning DC - Sträng 2"
+      },
+      "dc_voltage_3": {
+        "name": "Spänning DC - Sträng 3"
+      },
+      "v_bulk": {
+        "name": "Spänning DC - Bulk Kondensator"
+      },
+      "type": {
+        "name": "Typ"
+      },
+      "firmware_version": {
+        "name": "Firmwareversion"
+      },
+      "dc_watts": {
+        "name": "Effekt DC"
+      },
+      "dc_power_3": {
+        "name": "Effekt DC - Sträng 3"
+      },
+      "free_ram": {
+        "name": "Tillgängligt RAM"
+      },
+      "dc_current_3": {
+        "name": "Ström DC - Sträng 3"
+      },
+      "dc_power_2": {
+        "name": "Effekt DC - Sträng 2"
+      },
+      "hz_a": {
+        "name": "Frekvens AC - Fas A"
+      },
+      "v_bulk_mid": {
+        "name": "Spänning DC - Buss Mittpunkt"
+      },
+      "month_wh": {
+        "name": "Energi AC - Producerad (innevarande månad)"
+      },
+      "flash_memory_free": {
+        "name": "Ledigt flashminne"
+      },
+      "dc_current_1": {
+        "name": "Ström DC - Sträng 1"
+      },
+      "e_total": {
+        "name": "Energi AC - Producerad (Totalt)"
+      },
+      "meter_igrid_l1": {
+        "name": "Ström AC - Mätare Fas A"
+      },
+      "e_grid_export": {
+        "name": "Energi AC - Nät Export (Totalt)"
+      },
+      "e_charge_since_restart": {
+        "name": "Energi - Batteriladdning (Sedan Omstart)"
+      },
+      "grid_ext_ctrl_ena": {
+        "name": "External Control Aktiverad"
+      },
+      "tc_max": {
+        "name": "Temperatur - Skåp Max"
+      },
+      "meter_igrid_l2": {
+        "name": "Ström AC - Mätare Fas B"
+      },
+      "e3_last_week": {
+        "name": "Energi AC - Nät Export (innevarande vecka)"
+      },
+      "e_grid_import": {
+        "name": "Energi AC - Nät Import (Totalt)"
+      },
+      "pin": {
+        "name": "Effekt DC - Ingång totalt"
+      },
+      "ppeak": {
+        "name": "Effekt - Topp"
+      },
+      "e0_last_week": {
+        "name": "Energi AC - Producerad (innevarande vecka)"
+      },
+      "ein1": {
+        "name": "Energi DC - Sträng 1 (Totalt)"
+      },
+      "energy_policy": {
+        "name": "Energipolicy"
+      },
+      "e4_since_restart": {
+        "name": "Energi - Egenförbrukad (Sedan Omstart)"
+      },
+      "e5_since_restart": {
+        "name": "Energi - Batteriladdning (Sedan Omstart)"
+      },
+      "meter_pgrid_tot": {
+        "name": "Effekt AC - Mätare totalt"
+      },
+      "iba": {
+        "name": "Ström - Batteri"
+      },
+      "tc_min": {
+        "name": "Temperatur - Skåp Min"
+      },
+      "e3_last_month": {
+        "name": "Energi AC - Nät Export (innevarande månad)"
+      },
+      "vin2": {
+        "name": "Spänning DC - Ingång 2"
+      },
+      "vgrid_l1_n": {
+        "name": "Spänning AC - Nät L1-N"
+      },
+      "ein_last_week": {
+        "name": "Energi DC - PV (innevarande vecka)"
+      },
+      "vc_max": {
+        "name": "Spänning - Battericell Max"
+      },
+      "e_tot_charge_last_month": {
+        "name": "Energi - Batteriladdning totalt (innevarande månad)"
+      },
+      "vba": {
+        "name": "Spänning - Batteri"
+      },
+      "grid_ext_ctrl_state": {
+        "name": "Status - Nät External Control"
+      },
+      "pac_derating_flags": {
+        "name": "Effekt AC - Derating Flaggor"
+      },
+      "frt_state": {
+        "name": "Status - Fault Ride Through (FRT)"
+      },
+      "e1_since_restart": {
+        "name": "Energi AC - Absorberad (Sedan Omstart)"
+      },
+      "ein_since_restart": {
+        "name": "Energi DC - PV (Sedan Omstart)"
+      },
+      "e_backup": {
+        "name": "Energi AC - Backup Utgång (Totalt)"
+      },
+      "m132_mod_ena": {
+        "name": "Lägell 132 Aktiverad"
+      },
+      "dynamic_feed_in_ctrl": {
+        "name": "Dynamisk inmatningsstyrning"
+      },
+      "e5_last_month": {
+        "name": "Energi - Batteriladdning (innevarande månad)"
+      },
+      "e4_last_week": {
+        "name": "Energi - Egenförbrukad (innevarande vecka)"
+      },
+      "meter_qgrid_l3": {
+        "name": "Reaktiv Effekt AC - Mätare Fas C"
+      },
+      "e8_since_restart": {
+        "name": "Energi AC - Nät Import (Sedan Omstart)"
+      },
+      "di_status": {
+        "name": "Status - Digital ingång"
+      },
+      "e_tot_discharge_last_month": {
+        "name": "Energi - Batteriurladdning totalt (innevarande månad)"
+      },
+      "house_pgrid_tot": {
+        "name": "Effekt AC - Huslast totalt"
+      },
+      "tba": {
+        "name": "Temperatur - Batteri"
+      },
+      "batt_ext_ctrl_state": {
+        "name": "Control Tillstånd"
+      },
+      "m126_mod_ena": {
+        "name": "Lägell 126 Aktiverad"
+      },
+      "e2_since_restart": {
+        "name": "Energi AC - Skenbar (Sedan Omstart)"
+      },
+      "e_tot_discharge_last_week": {
+        "name": "Energi - Batteriurladdning totalt (innevarande vecka)"
+      },
+      "meter_pgrid_l1": {
+        "name": "Effekt AC - Mätare Fas A"
+      },
+      "vin3": {
+        "name": "Spänning DC - Ingång 3"
+      },
+      "e7_last_month": {
+        "name": "Energi - Hus Förbrukning (innevarande månad)"
+      },
+      "e8_last_month": {
+        "name": "Energi AC - Nät Import (innevarande månad)"
+      },
+      "pac_togrid": {
+        "name": "Effekt AC - Export to Nät"
+      },
+      "pac_stand_alone": {
+        "name": "Effekt AC - Fristående Läge"
+      },
+      "meter_fgrid": {
+        "name": "Frekvens AC - Mätare"
+      },
+      "e0_1_year": {
+        "name": "Energi AC - Producerad (innevarande år)"
+      },
+      "p_ch": {
+        "name": "Effekt - Batteriladdning"
+      },
+      "meter_vgrid_l2": {
+        "name": "Spänning AC - Mätare Fas B"
+      },
+      "e_tot_charge_last_week": {
+        "name": "Energi - Batteriladdning totalt (innevarande vecka)"
+      },
+      "sh_u": {
+        "name": "Spänning - Shunt"
+      },
+      "e2_last_month": {
+        "name": "Energi AC - Skenbar (innevarande månad)"
+      },
+      "meter_pgrid_l2": {
+        "name": "Effekt AC - Mätare Fas B"
+      },
+      "e15_last_month": {
+        "name": "Energi AC - Backup Utgång (innevarande månad)"
+      },
+      "ein": {
+        "name": "Energi DC - PV (Totalt)"
+      },
+      "meter_qgrid_l1": {
+        "name": "Reaktiv Effekt AC - Mätare Fas A"
+      },
+      "temp_int": {
+        "name": "Temperatur - Internal"
+      },
+      "meter_qgrid_tot": {
+        "name": "Reaktiv Effekt AC - Mätare totalt"
+      },
+      "e_charge_last_month": {
+        "name": "Energi - Batteriladdning (innevarande månad)"
+      },
+      "cycle_num": {
+        "name": "Cykler"
+      },
+      "meter_qgrid_l2": {
+        "name": "Reaktiv Effekt AC - Mätare Fas B"
+      },
+      "vgrid_l2_n": {
+        "name": "Spänning AC - Nät L2-N"
+      },
+      "ein_last_month": {
+        "name": "Energi DC - PV (innevarande månad)"
+      },
+      "e_tot_charge": {
+        "name": "Energi - Batteriladdning totalt"
+      },
+      "e_total_apparent": {
+        "name": "Energi AC - Skenbar (Totalt)"
+      },
+      "e_discharge_since_restart": {
+        "name": "Energi - Batteriurladdning (Sedan Omstart)"
+      },
+      "e7_since_restart": {
+        "name": "Energi - Hus Förbrukning (Sedan Omstart)"
+      },
+      "ein2": {
+        "name": "Energi DC - Sträng 2 (Totalt)"
+      },
+      "e_discharge_last_month": {
+        "name": "Energi - Batteriurladdning (innevarande månad)"
+      },
+      "pba": {
+        "name": "Effekt - Batteri totalt"
+      },
+      "e0_since_restart": {
+        "name": "Energi AC - Producerad (Sedan Omstart)"
+      },
+      "e15_last_week": {
+        "name": "Energi AC - Backup Utgång (innevarande vecka)"
+      },
+      "e4_last_month": {
+        "name": "Energi - Egenförbrukad (innevarande månad)"
+      },
+      "inv_state": {
+        "name": "Status - Växelriktare"
+      },
+      "sac_derating_flags": {
+        "name": "Effekt AC - Skenbar Derating Flaggor"
+      },
+      "e2_last_week": {
+        "name": "Energi AC - Skenbar (innevarande vecka)"
+      },
+      "e_tot_charge_since_restart": {
+        "name": "Energi - Batteriladdning totalt (Sedan Omstart)"
+      },
+      "e0_last_month": {
+        "name": "Energi AC - Producerad (innevarande månad)"
+      },
+      "e_charge_last_week": {
+        "name": "Energi - Batteriladdning (innevarande vecka)"
+      },
+      "e_discharge_last_week": {
+        "name": "Energi - Batteriurladdning (innevarande vecka)"
+      },
+      "e_tot_discharge": {
+        "name": "Energi - Batteriurladdning totalt"
+      },
+      "e5_last_week": {
+        "name": "Energi - Batteriladdning (innevarande vecka)"
+      },
+      "e3_since_restart": {
+        "name": "Energi AC - Nät Export (Sedan Omstart)"
+      },
+      "ein3": {
+        "name": "Energi DC - Sträng 3 (Totalt)"
+      },
+      "meter_vgrid_l3": {
+        "name": "Spänning AC - Mätare Fas C"
+      },
+      "input_mode": {
+        "name": "Ingångsläge"
+      },
+      "iin3": {
+        "name": "Ström DC - Sträng 3"
+      },
+      "warning_flags": {
+        "name": "Status - Varningsflaggor"
+      },
+      "pin1": {
+        "name": "Effekt DC - Sträng 1"
+      },
+      "e7_total": {
+        "name": "Energi - Hus Förbrukning (Totalt)"
+      },
+      "meter_pgrid_l3": {
+        "name": "Effekt AC - Mätare Fas C"
+      },
+      "e6_since_restart": {
+        "name": "Energi - Hus från Växelriktare (Sedan Omstart)"
+      },
+      "e_ct": {
+        "name": "Energi - Ström Transformer (CT) (Totalt)"
+      },
+      "d_c2_state": {
+        "name": "Status - DC Ingång 2"
+      },
+      "batt_ext_ctrl_ena": {
+        "name": "Control Aktiverad"
+      },
+      "iin2": {
+        "name": "Ström DC - Sträng 2"
+      },
+      "iin1": {
+        "name": "Ström DC - Sträng 1"
+      },
+      "house_p_inverter": {
+        "name": "Effekt - PV Hem"
+      },
+      "fan1rpm": {
+        "name": "Hastighet - Fläkt 1"
+      },
+      "e6_total": {
+        "name": "Energi - Hus från Växelriktare (Totalt)"
+      },
+      "pin2": {
+        "name": "Effekt DC - Sträng 2"
+      },
+      "e_total_absorbed": {
+        "name": "Energi AC - Absorberad (Totalt)"
+      },
+      "meter_igrid_l3": {
+        "name": "Ström AC - Mätare Fas C"
+      },
+      "e_tot_discharge_since_restart": {
+        "name": "Energi - Batteriurladdning totalt (Sedan Omstart)"
+      },
+      "e6_last_week": {
+        "name": "Energi - Hus från Växelriktare (innevarande vecka)"
+      },
+      "e6_last_month": {
+        "name": "Energi - Hus från Växelriktare (innevarande månad)"
+      },
+      "commissioning_freeze": {
+        "name": "Driftsättning Frys"
+      },
+      "num_of_mppt": {
+        "name": "MPPT Channel Antal"
+      },
+      "e8_last_week": {
+        "name": "Energi AC - Nät Import (innevarande vecka)"
+      },
+      "temp_inv": {
+        "name": "Temperatur - Växelriktare"
+      },
+      "temp_bst": {
+        "name": "Temperatur - Booster"
+      },
+      "d_c1_state": {
+        "name": "Status - DC Ingång 1"
+      },
+      "di1_mode": {
+        "name": "Digital ingång - Läge 1"
+      },
+      "e15_since_restart": {
+        "name": "Energi AC - Backup Utgång (Sedan Omstart)"
+      },
+      "di0_mode": {
+        "name": "Digital ingång - Läge 0"
+      },
+      "vin1": {
+        "name": "Spänning DC - Ingång 1"
+      },
+      "pin3": {
+        "name": "Effekt DC - Sträng 3"
+      },
+      "fcc": {
+        "name": "Frekvens - Central Controller"
+      },
+      "e_dt": {
+        "name": "Energi - Direct Transducer (DT) (Totalt)"
+      },
+      "fan2rpm": {
+        "name": "Hastighet - Fläkt 2"
+      },
+      "d_c3_state": {
+        "name": "Status - DC-ingång 3"
+      },
+      "qac_derating_flags": {
+        "name": "Reaktiv Effekt - Derating Flaggor"
+      },
+      "w_rtg": {
+        "name": "Effekt - Märkvärde"
+      },
+      "clock_state": {
+        "name": "Status - Klocka"
+      },
+      "temp1": {
+        "name": "Temperatur - Sensor 1"
+      },
+      "meter_vgrid_l1": {
+        "name": "Spänning AC - Mätare Fas A"
+      },
+      "e1_last_month": {
+        "name": "Energi AC - Absorberad (innevarande månad)"
+      },
+      "detected_battery_number": {
+        "name": "Upptäckt antal"
+      },
+      "pba_t": {
+        "name": "Effekt - Batteri Aggregate"
+      },
+      "vc_min": {
+        "name": "Spänning - Battericell Min"
+      },
+      "glob_state": {
+        "name": "Status - Global"
+      },
+      "e7_last_week": {
+        "name": "Energi - Hus Förbrukning (innevarande vecka)"
+      },
+      "e1_last_week": {
+        "name": "Energi AC - Absorberad (innevarande vecka)"
+      },
+      "p_dh": {
+        "name": "Effekt - Batteriurladdning"
+      },
+      "mfg_part_number": {
+        "name": "Delnummer"
+      },
+      "mfg_serial_number": {
+        "name": "Serienummer"
+      },
+      "mfg_week_year": {
+        "name": "Tillverkningsvecka/År"
+      },
+      "logger_sn": {
+        "name": "Logger Serienummer"
+      },
+      "fw_build_date": {
+        "name": "Firmware Build Datum"
+      },
+      "fw_release_number": {
+        "name": "Firmwareversion"
+      },
+      "fw_build_number": {
+        "name": "Firmware-bygghash"
+      },
+      "fw_revision": {
+        "name": "Firmwarerevision"
+      },
+      "logger_board_model": {
+        "name": "Logger Kort Lägell"
+      },
+      "device_name": {
+        "name": "Namn 0"
+      },
+      "device_type": {
+        "name": "Typ 0"
+      },
+      "fw_version": {
+        "name": "Firmwareversion"
+      },
+      "logger_hostname": {
+        "name": "Värdnamn"
+      },
+      "model_type": {
+        "name": "Lägelltyp"
+      },
+      "inverter_id": {
+        "name": "Växelriktar-ID"
+      },
+      "communication_protocol": {
+        "name": "Kommunikationsprotokoll"
+      },
+      "model_description": {
+        "name": "Lägellbeskrivning"
+      },
+      "wlan_fsm_status": {
+        "name": "WiFi - FSM-status"
+      },
+      "wlan_0_status": {
+        "name": "WiFi - Status"
+      },
+      "inverter_time": {
+        "name": "Växelriktare Tid"
+      },
+      "wlan_ap_status": {
+        "name": "WiFi - AP-status"
+      },
+      "wlan_0_dhcp_state": {
+        "name": "WiFi - DHCP Tillstånd"
+      },
+      "wlan_0_ipaddr": {
+        "name": "WiFi - IP-adress"
+      },
+      "wlan_0_netmask": {
+        "name": "WiFi Nätmask"
+      },
+      "wlan_0_broadcast": {
+        "name": "WiFi - Broadcast"
+      },
+      "wlan_0_gateway": {
+        "name": "WiFi - Gateway"
+      },
+      "wlan_0_dns": {
+        "name": "WiFi - DNS-server"
+      },
+      "logger_logger_id": {
+        "name": "Logger-ID"
+      },
+      "events": {
+        "name": "Händelser"
+      },
+      "dc_input_3_state": {
+        "name": "Läge DC-ingång 3"
+      }
+    },
+    "number": {
+      "power_limit": {
+        "name": "Effektbegränsning"
+      }
+    },
+    "switch": {
+      "power_limit_enabled": {
+        "name": "Effektbegränsning"
+      }
+    }
+  },
+  "exceptions": {
+    "update_failed": {
+      "message": "Fel vid läsning av växelriktaren: {error}"
+    },
+    "modbus_link_conflict": {
+      "message": "En annan integration använder redan {host} med andra Modbus-länkinställningar: {error}"
+    },
+    "write_failed": {
+      "message": "Skrivning till växelriktaren misslyckades: {error}"
+    },
+    "entry_not_found": {
+      "message": "Ingen FIMER-konfigurationspost {entry_id}."
+    },
+    "entry_not_loaded": {
+      "message": "Posten {title} är inte laddad."
+    },
+    "modbus_not_enabled": {
+      "message": "Den här posten läser inte via Modbus och kan därför inte komma åt register."
+    },
+    "no_controls": {
+      "message": "Växelriktaren tillhandahåller inte modellen för direktstyrning."
+    },
+    "unknown_point": {
+      "message": "Kan inte skriva punkten {point}: {error}"
+    },
+    "invalid_value": {
+      "message": "Ogiltigt värde: {error}"
+    },
+    "value_required": {
+      "message": "Ange antingen ett värde eller en lista med råa register."
+    },
+    "device_not_found": {
+      "message": "Ingen enhet {device} i den här posten."
+    },
+    "invalid_auth": {
+      "message": "Dataloggern avvisade inloggningsuppgifterna: {error}"
+    },
+    "unsupported_firmware": {
+      "message": "VSN300 kör firmware {firmware_version}, som inte kan leverera realtidsdata. Uppgradera dataloggern till firmware 2.0.1 eller senare; uppgraderingen är obligatorisk."
+    }
+  },
+  "services": {
+    "read_registers": {
+      "name": "Läs register",
+      "description": "Läser register på en absolut Modbus-adress och avkodar dem. Returnerar de råa registren och det avkodade värdet.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationspost",
+          "description": "Växelriktaren som ska adresseras."
+        },
+        "address": {
+          "name": "Adress",
+          "description": "Det första registrets adress."
+        },
+        "count": {
+          "name": "Antal",
+          "description": "Hur många register som ska läsas; ignoreras för datatyper med fast storlek."
+        },
+        "register_type": {
+          "name": "Registertyp",
+          "description": "Holding- eller input-register."
+        },
+        "data_type": {
+          "name": "Datatyp",
+          "description": "Hur registren ska avkodas; raw returnerar dem oavkodade."
+        },
+        "word_order": {
+          "name": "Ordordning",
+          "description": "Vilket register som innehåller det höga ordet i ett 32-bitarsvärde."
+        }
+      }
+    },
+    "write_registers": {
+      "name": "Skriv register",
+      "description": "Skriver ett värde kodat som den angivna typen, eller en lista med råa register, på en absolut Modbus-adress.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationspost",
+          "description": "Växelriktaren som ska adresseras."
+        },
+        "address": {
+          "name": "Adress",
+          "description": "Det första registrets adress."
+        },
+        "value": {
+          "name": "Värde",
+          "description": "Värdet som ska kodas och skrivas."
+        },
+        "values": {
+          "name": "Råa register",
+          "description": "En lista med 16-bitars registervärden som skrivs som de är, i stället för ett värde."
+        },
+        "data_type": {
+          "name": "Datatyp",
+          "description": "Hur värdet ska kodas."
+        },
+        "word_order": {
+          "name": "Ordordning",
+          "description": "Vilket register som får det höga ordet i ett 32-bitarsvärde."
+        },
+        "count": {
+          "name": "Längd",
+          "description": "Register som en sträng upptar; som standard så många som strängen behöver."
+        }
+      }
+    },
+    "write_point": {
+      "name": "Skriv punkt",
+      "description": "Skriver en skrivbar SunSpec-punkt via dess namn, till exempel WMaxLimPct eller OutPFSet, och uppdaterar avläsningarna.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationspost",
+          "description": "Växelriktaren som ska adresseras."
+        },
+        "point": {
+          "name": "Punkt",
+          "description": "Punktens namn."
+        },
+        "value": {
+          "name": "Värde",
+          "description": "Värdet i punktens tekniska enhet."
+        }
+      }
+    },
+    "set_power_limit": {
+      "name": "Ställ in effektbegränsning",
+      "description": "Ställer in begränsningen av aktiv effekt och om den tillämpas, verifierat genom återläsning. Utelämna ett fält för att behålla dess nuvarande värde.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationspost",
+          "description": "Växelriktaren som ska adresseras."
+        },
+        "percent": {
+          "name": "Begränsning",
+          "description": "Begränsningen i procent av märkeffekten."
+        },
+        "enabled": {
+          "name": "Aktiverad",
+          "description": "Om begränsningen tillämpas."
+        }
+      }
+    },
+    "get_readings": {
+      "name": "Hämta avläsningar",
+      "description": "Returnerar varje punkt som varje enhet i posten rapporterar just nu.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationspost",
+          "description": "Växelriktaren som ska adresseras."
+        },
+        "device": {
+          "name": "Enhet",
+          "description": "Endast den här enheten, via dess serienummer eller identifierare."
+        }
+      }
+    },
+    "rediscover": {
+      "name": "Upptäck igen",
+      "description": "Går igenom SunSpec-modellkedjan och dataloggerns enheter på nytt utan att ladda om, och uppdaterar avläsningarna. Enheter som dataloggern rapporterar för första gången får sina entiteter.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationspost",
+          "description": "Växelriktaren som ska adresseras."
+        }
+      }
+    }
+  },
+  "selector": {
+    "register_type": {
+      "options": {
+        "holding": "Holding-register",
+        "input": "Input-register"
+      }
+    },
+    "data_type": {
+      "options": {
+        "raw": "Råa register",
+        "uint16": "16 bitar utan tecken",
+        "int16": "16 bitar med tecken",
+        "uint32": "32 bitar utan tecken",
+        "int32": "32 bitar med tecken",
+        "float32": "Flyttal (32 bitar)",
+        "string": "Sträng"
+      }
+    },
+    "word_order": {
+      "options": {
+        "big": "Höga ordet först",
+        "little": "Låga ordet först"
+      }
+    }
+  },
+  "issues": {
+    "connection_failed_modbus": {
+      "title": "{title}: inget Modbus-svar",
+      "description": "Home Assistant har inte kunnat läsa {title} via Modbus TCP på {host} under {failures} avläsningar i följd i dagsljus.\n\nSenaste fel: `{error}`\n\n**Möjliga orsaker**\n- Växelriktaren eller dess datalogger är avstängd eller har tappat nätverket\n- Enhetens adress har ändrats\n- En annan Modbus-klient har tagit över dataloggern, som bara betjänar en anslutning åt gången\n- SunSpec-inställningarna (enhets-ID, basadress) ändrades efter en firmwareuppdatering\n\n**Att kontrollera**\n1. Öppna dataloggerns webbsida på http://{host}\n2. Slå upp enhetens aktuella adress i routerns DHCP-tabell\n3. Om adressen ändrats, använd **Konfigurera om** på integrationens sida\n\nDen här reparationen försvinner av sig själv så snart en avläsning lyckas."
+    },
+    "connection_failed_rest": {
+      "title": "{title}: dataloggerns REST-API svarar inte",
+      "description": "Home Assistant har inte kunnat läsa VSN-dataloggern för {title} på {host} under {failures} avläsningar i följd i dagsljus.\n\nSenaste fel: `{error}`\n\n**Möjliga orsaker**\n- Dataloggern är avstängd eller har tappat nätverket\n- Dataloggerns adress har ändrats\n- Kortet har hängt sig; en VSN300 behöver ibland strömmen brytas efter att WiFi-länken tappats\n\n**Att kontrollera**\n1. Öppna dataloggerns webbsida på http://{host}\n2. Slå upp dess aktuella adress i routerns DHCP-tabell\n3. Om adressen ändrats, använd **Konfigurera om** på integrationens sida\n4. Bryt strömmen till kortet om sidan inte laddas\n\nDen här reparationen försvinner av sig själv så snart en avläsning lyckas."
+    },
+    "unsupported_firmware": {
+      "title": "{title}: dataloggerns firmware {firmware_version} stöds inte",
+      "description": "VSN300-dataloggern för {title} på {host} kör firmware {firmware_version}. Den versionen har ett känt fel: dess API för realtidsdata bryter varje anslutning, så inget kan läsas.\n\n**Uppgradera dataloggern till firmware 2.0.1 eller senare. Uppgraderingen är obligatorisk: integrationen kan inte fungera med 2.0.0.** Den finns på kortets egen webbsida:\n\n1. Öppna http://{host} och gå till fliken **FW UPDATE**\n2. Under **Remote Update**, klicka på **Check for FW update**; den bör erbjuda 2.0.1 eller senare\n3. Klicka på **Download & Update** och vänta tills kortet uppdaterats och startat om\n4. Ladda om integrationen från dess sida under Inställningar > Enheter och tjänster\n\nOm ingen uppdatering erbjuds, kontakta FIMER:s support. Den här reparationen försvinner av sig själv när integrationen startar."
+    },
+    "datalogger_silent": {
+      "title": "{title}: dataloggern rapporterar inte sina egna data",
+      "description": "VSN-dataloggern för {title} på {host} svarar och levererar växelriktarens avläsningar, men dess egna avläsningar (drifttid, WiFi-länk, minne) har saknats i mer än {minutes} minuter. Dataloggerns sensorer förblir otillgängliga tills de kommer tillbaka.\n\n**Troligaste orsak**\nEfter en omstart kunde kortet inte ställa sin klocka (ingen NTP eller internetåtkomst) och slutade publicera sina egna data. Det är en känd egenhet i VSN300:s firmware.\n\n**Att göra**\n- Kontrollera att kortet når internet, till exempel från dess webbsida på http://{host}\n- Bryt strömmen till kortet och slå på den igen\n\nDen här reparationen försvinner av sig själv så snart kortet rapporterar sina egna data igen."
+    },
+    "partial_discovery": {
+      "title": "{title}: enheter saknas i dataloggern",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Glöm de saknade enheterna",
+            "description": "Dataloggern för {title} på {host} rapporterade tidigare de här enheterna men rapporterar dem inte nu:\n\n{missing_devices}\n\nDeras entiteter är otillgängliga under tiden. Möjliga orsaker: enheten är avstängd (en växelriktare på natten), frånkopplad från dataloggern eller borttagen från anläggningen. Reparationen försvinner av sig själv när alla enheter rapporteras igen.\n\nSkicka bara om enheterna är borta för gott: de och deras entiteter tas bort från Home Assistant. En enhet som dataloggern rapporterar igen senare läggs till som ny."
+          }
+        }
+      }
+    },
+    "takeover_incomplete": {
+      "title": "{title}: {count} tidigare sensorer togs inte över",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Bekräfta",
+            "description": "Posten från den tidigare integrationen ABB/FIMER PVI VSN REST togs bort och dess sensorer registrerades om här, utom de här, som saknar motsvarighet i den här integrationen:\n\n{entities}\n\nDeras historik finns kvar i recordern under de gamla entitets-ID:na, men ingen entitet levererar dem längre. Om du använde dem i automationer eller instrumentpaneler, peka om dessa till den här integrationens entiteter.\n\nSkicka för att stänga det här meddelandet; de listade sensorerna återställs inte."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1356 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "FIMER (ABB / Power-One)",
+        "description": "Aiemman ABB/FIMER PVI VSN REST -integraation merkintä on jo olemassa. Ota sen asetukset ja entiteetit haltuun tai määritä uusi invertteri.",
+        "menu_options": {
+          "manual": "Määritä uusi invertteri",
+          "legacy": "Ota olemassa oleva REST-merkintä haltuun"
+        }
+      },
+      "reconfigure": {
+        "title": "Muuta yhteyttä",
+        "description": "Päivitä, miten Home Assistant tavoittaa tämän invertterin. Sen on oltava edelleen sama invertteri.",
+        "data": {
+          "host": "Isäntä",
+          "port": "Portti"
+        },
+        "data_description": {
+          "host": "Invertterin tai dataloggerin IP-osoite tai isäntänimi.",
+          "port": "Modbus TCP -portti, 502 ellei sitä ole muutettu laitteessa."
+        },
+        "sections": {
+          "modbus": {
+            "name": "Modbus TCP (SunSpec)",
+            "description": "Oletusarvot sopivat VSN300- tai VSN700-dataloggerille. Natiivisti Modbusia käyttävä invertteri, kuten REACT2, tarvitsee yleensä yksikkötunnuksen 1 ja perusosoitteen 40000.",
+            "data": {
+              "use_modbus": "Lue Modbus TCP:n kautta",
+              "unit_id": "Modbus-yksikkötunnus",
+              "base_address": "SunSpec-perusosoite"
+            },
+            "data_description": {
+              "use_modbus": "Nopeat, todentamattomat SunSpec-mallien lukemat. Vaatii, että Modbus TCP on käytössä laitteessa.",
+              "unit_id": "Modbus-yksikkötunnus (orjatunnus), johon invertteri vastaa. VSN-kortit käyttävät arvoa 2, jotkin laiteohjelmistot arvoa 247.",
+              "base_address": "Rekisteri, josta SunSpec-kartta alkaa: 0 VSN-kortin takana, 40000 natiivisti Modbusia käyttävässä invertterissä."
+            }
+          },
+          "rest": {
+            "name": "Dataloggerin REST-rajapinta",
+            "description": "VSN300 / VSN700 -kortin oma rajapinta lisää dataloggerin, mittarit, akut ja jaksottaiset energialaskurit.",
+            "data": {
+              "use_rest": "Lue dataloggerin REST-rajapintaa",
+              "username": "Käyttäjätunnus",
+              "password": "Salasana"
+            },
+            "data_description": {
+              "use_rest": "Kysele myös kortin REST-rajapintaa. Valinnainen VSN300:n takana; ainoa lähde mittareille ja akuille VSN700:n takana.",
+              "username": "Kortin käyttäjä, yleensä guest.",
+              "password": "Korttiin asetettu salasana, jos sellainen on."
+            }
+          }
+        }
+      },
+      "legacy": {
+        "title": "Ota REST-merkintä haltuun",
+        "description": "Valittu merkintä poistetaan, ja sen anturit säilyttävät entiteettitunnuksensa ja historiansa tässä integraatiossa.",
+        "data": {
+          "legacy_entry": "Haltuun otettava merkintä"
+        }
+      },
+      "manual": {
+        "title": "Yhdistä invertteriin",
+        "description": "Anna invertterin tai sen VSN300 / VSN700 -dataloggerikortin osoite ja valitse luettavat lähteet. Invertterin on oltava hereillä: PVI ilman verkkojännitettä ei vastaa yöllä.",
+        "data": {
+          "host": "Isäntä",
+          "port": "Portti"
+        },
+        "data_description": {
+          "host": "Invertterin tai dataloggerin IP-osoite tai isäntänimi.",
+          "port": "Modbus TCP -portti, 502 ellei sitä ole muutettu laitteessa."
+        },
+        "sections": {
+          "modbus": {
+            "name": "Modbus TCP (SunSpec)",
+            "description": "Oletusarvot sopivat VSN300- tai VSN700-dataloggerille. Natiivisti Modbusia käyttävä invertteri, kuten REACT2, tarvitsee yleensä yksikkötunnuksen 1 ja perusosoitteen 40000.",
+            "data": {
+              "use_modbus": "Lue Modbus TCP:n kautta",
+              "unit_id": "Modbus-yksikkötunnus",
+              "base_address": "SunSpec-perusosoite"
+            },
+            "data_description": {
+              "use_modbus": "Nopeat, todentamattomat SunSpec-mallien lukemat. Vaatii, että Modbus TCP on käytössä laitteessa.",
+              "unit_id": "Modbus-yksikkötunnus (orjatunnus), johon invertteri vastaa. VSN-kortit käyttävät arvoa 2, jotkin laiteohjelmistot arvoa 247.",
+              "base_address": "Rekisteri, josta SunSpec-kartta alkaa: 0 VSN-kortin takana, 40000 natiivisti Modbusia käyttävässä invertterissä."
+            }
+          },
+          "rest": {
+            "name": "Dataloggerin REST-rajapinta",
+            "description": "VSN300 / VSN700 -kortin oma rajapinta lisää dataloggerin, mittarit, akut ja jaksottaiset energialaskurit.",
+            "data": {
+              "use_rest": "Lue dataloggerin REST-rajapintaa",
+              "username": "Käyttäjätunnus",
+              "password": "Salasana"
+            },
+            "data_description": {
+              "use_rest": "Kysele myös kortin REST-rajapintaa. Valinnainen VSN300:n takana; ainoa lähde mittareille ja akuille VSN700:n takana.",
+              "username": "Kortin käyttäjä, yleensä guest.",
+              "password": "Korttiin asetettu salasana, jos sellainen on."
+            }
+          }
+        }
+      },
+      "reauth_confirm": {
+        "title": "Dataloggerin tunnukset",
+        "description": "Datalogger osoitteessa {host} hylkäsi tallennetut tunnukset. Anna nykyiset tunnukset.",
+        "data": {
+          "username": "Käyttäjätunnus",
+          "password": "Salasana"
+        },
+        "data_description": {
+          "username": "Kortin käyttäjä, yleensä guest.",
+          "password": "Korttiin asetettu salasana."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Yhdistäminen epäonnistui. Tarkista isäntä ja portti sekä se, että invertteri on hereillä.",
+      "no_sunspec": "SunSpec-karttaa ei löytynyt perusosoitteesta. Kokeile arvoa 0 VSN-kortin takana tai 40000 natiivisti Modbusia käyttävässä invertterissä ja tarkista yksikkötunnus.",
+      "unsupported_device": "SunSpec-laite vastasi, mutta se ei ole invertteri.",
+      "link_conflict": "Toinen integraatio käyttää jo tätä isäntää eri Modbus-yhteysasetuksilla.",
+      "unknown": "Odottamaton virhe",
+      "no_source": "Ota käyttöön vähintään yksi lähde.",
+      "invalid_auth": "Datalogger hylkäsi käyttäjätunnuksen tai salasanan.",
+      "no_rest_api": "Mikään VSN300 / VSN700 REST-rajapinta ei vastannut tässä isännässä.",
+      "unsupported_firmware": "Tässä VSN300:ssa on laiteohjelmisto 2.0.0, joka ei pysty tarjoamaan reaaliaikaisia tietoja. Päivitä datalogger laiteohjelmistoon 2.0.1 tai uudempaan; päivitys on pakollinen."
+    },
+    "abort": {
+      "already_configured": "Tämä invertteri on jo määritetty.",
+      "reconfigure_successful": "Yhteysasetukset päivitettiin.",
+      "unique_id_mismatch": "Uudessa osoitteessa oleva laite on eri invertteri.",
+      "reauth_successful": "Tunnukset päivitettiin."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Kysely ja korjaukset",
+        "data": {
+          "scan_interval": "Päivitysväli",
+          "power_control": "Tehorajoituksen ohjaus (kokeellinen)",
+          "connection_issues": "Korjaus, kun lähde ei vastaa",
+          "failures_threshold": "Epäonnistuneet kyselyt ennen korjausta",
+          "notify_recovery": "Ilmoita, kun lähde vastaa taas",
+          "recovery_script": "Palautusskripti"
+        },
+        "data_description": {
+          "scan_interval": "Sekunteja invertterin kyselyjen välillä.",
+          "power_control": "Näyttää SunSpec-pätötehorajoituksen numerona ja kytkimenä. Datalogger hyväksyy kirjoitukset kaikilla inverttereillä, mutta vain osa inverttereistä noudattaa niitä; varmista asia dokumentaatiossa kuvatulla testillä ennen kuin luotat siihen.",
+          "connection_issues": "Luo korjaus, kun Modbus tai dataloggerin REST-rajapinta epäonnistuu toistuvasti auringon ollessa ylhäällä. Yöaikaiset epäonnistumiset ohitetaan: nukkuva invertteri ei ole vika.",
+          "failures_threshold": "Peräkkäiset epäonnistuneet kyselyt päivänvalossa ennen korjauksen luomista. Kolmannen epäonnistumisen jälkeen kyselyt harvenevat 5 minuutin välein tapahtuviksi.",
+          "notify_recovery": "Luo pysyvä ilmoitus, kun lähde vastaa taas korjauksen luomisen jälkeen.",
+          "recovery_script": "Skripti, joka suoritetaan kerran korjauksen luomisen yhteydessä, esimerkiksi sellainen, joka käynnistää dataloggerin uudelleen älypistorasian kautta."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ac_power": {
+        "name": "AC-teho"
+      },
+      "ac_current": {
+        "name": "AC-virta"
+      },
+      "ac_current_phase_a": {
+        "name": "AC-virta vaihe A"
+      },
+      "ac_current_phase_b": {
+        "name": "AC-virta vaihe B"
+      },
+      "ac_current_phase_c": {
+        "name": "AC-virta vaihe C"
+      },
+      "ac_voltage_phase_a": {
+        "name": "AC-jännite vaihe A"
+      },
+      "ac_voltage_phase_b": {
+        "name": "AC-jännite vaihe B"
+      },
+      "ac_voltage_phase_c": {
+        "name": "AC-jännite vaihe C"
+      },
+      "ac_voltage_phase_ab": {
+        "name": "AC-jännite vaihe A-B"
+      },
+      "ac_voltage_phase_bc": {
+        "name": "AC-jännite vaihe B-C"
+      },
+      "ac_voltage_phase_ca": {
+        "name": "AC-jännite vaihe C-A"
+      },
+      "ac_frequency": {
+        "name": "AC-taajuus"
+      },
+      "apparent_power": {
+        "name": "Näennäisteho"
+      },
+      "reactive_power": {
+        "name": "Loisteho"
+      },
+      "power_factor": {
+        "name": "Tehokerroin"
+      },
+      "ac_energy_total": {
+        "name": "Kokonaisenergia"
+      },
+      "dc_current": {
+        "name": "DC-virta"
+      },
+      "dc_voltage": {
+        "name": "DC-jännite"
+      },
+      "dc_power": {
+        "name": "DC-teho"
+      },
+      "cabinet_temperature": {
+        "name": "Kotelon lämpötila"
+      },
+      "heat_sink_temperature": {
+        "name": "Jäähdytyselementin lämpötila"
+      },
+      "transformer_temperature": {
+        "name": "Muuntajan lämpötila"
+      },
+      "other_temperature": {
+        "name": "Muu lämpötila"
+      },
+      "operating_state": {
+        "name": "Toimintatila",
+        "state": {
+          "off": "Off",
+          "sleeping": "Sleeping",
+          "starting": "Starting",
+          "mppt": "Producing (MPPT)",
+          "throttled": "Throttled",
+          "shutting_down": "Shutting down",
+          "fault": "Fault",
+          "standby": "Standby"
+        }
+      },
+      "vendor_operating_state": {
+        "name": "Toimintatila (valmistaja)"
+      },
+      "dc_current_input_1": {
+        "name": "DC-virta tulo 1"
+      },
+      "dc_voltage_input_1": {
+        "name": "DC-jännite tulo 1"
+      },
+      "dc_power_input_1": {
+        "name": "DC-teho tulo 1"
+      },
+      "dc_energy_input_1": {
+        "name": "DC-energia tulo 1"
+      },
+      "dc_current_input_2": {
+        "name": "DC-virta tulo 2"
+      },
+      "dc_voltage_input_2": {
+        "name": "DC-jännite tulo 2"
+      },
+      "dc_power_input_2": {
+        "name": "DC-teho tulo 2"
+      },
+      "dc_energy_input_2": {
+        "name": "DC-energia tulo 2"
+      },
+      "dc_current_input_3": {
+        "name": "DC-virta tulo 3"
+      },
+      "dc_voltage_input_3": {
+        "name": "DC-jännite tulo 3"
+      },
+      "dc_power_input_3": {
+        "name": "DC-teho tulo 3"
+      },
+      "dc_energy_input_3": {
+        "name": "DC-energia tulo 3"
+      },
+      "global_state": {
+        "name": "Yleistila"
+      },
+      "inverter_state": {
+        "name": "Invertterin tila"
+      },
+      "dc_input_1_state": {
+        "name": "DC-tulon 1 tila"
+      },
+      "dc_input_2_state": {
+        "name": "DC-tulon 2 tila"
+      },
+      "alarms": {
+        "name": "Hälytykset"
+      },
+      "system_time": {
+        "name": "Järjestelmän aika"
+      },
+      "energy_today": {
+        "name": "Energia tänään"
+      },
+      "energy_this_week": {
+        "name": "Energia tällä viikolla"
+      },
+      "energy_this_month": {
+        "name": "Energia tässä kuussa"
+      },
+      "energy_this_year": {
+        "name": "Energia tänä vuonna"
+      },
+      "energy_total_vendor": {
+        "name": "Kokonaisenergia (valmistajan malli)"
+      },
+      "energy_partial": {
+        "name": "Osittainen energia"
+      },
+      "inverter_temperature": {
+        "name": "Invertterin lämpötila"
+      },
+      "booster_temperature": {
+        "name": "Boosterin lämpötila"
+      },
+      "isolation_resistance_input_1": {
+        "name": "Eristysvastus tulo 1"
+      },
+      "isolation_resistance_input_2": {
+        "name": "Eristysvastus tulo 2"
+      },
+      "cos_phi": {
+        "name": "Cos phi"
+      },
+      "power_limit_permanent": {
+        "name": "Tehorajoitus (pysyvä)"
+      },
+      "power_limit_dynamic": {
+        "name": "Tehorajoitus (dynaaminen)"
+      },
+      "rated_power": {
+        "name": "Nimellisteho"
+      },
+      "power_limit": {
+        "name": "Tehorajoitus"
+      },
+      "power_limit_enabled": {
+        "name": "Tehorajoitus käytössä",
+        "state": {
+          "disabled": "No",
+          "enabled": "Yes"
+        }
+      },
+      "watts": {
+        "name": "Teho AC"
+      },
+      "var": {
+        "name": "Loisteho - Verkkoyhteys"
+      },
+      "hz": {
+        "name": "Taajuus AC - Verkko"
+      },
+      "amps": {
+        "name": "Virta AC"
+      },
+      "phase_voltage_an": {
+        "name": "Jännite AC - Vaihe A-N"
+      },
+      "phase_voltage_bn": {
+        "name": "Jännite AC - Vaihe B-N"
+      },
+      "phase_voltage_cn": {
+        "name": "Jännite AC - Vaihe C-N"
+      },
+      "ph_vph_a_b": {
+        "name": "Jännite AC - Vaihe A-B"
+      },
+      "ph_vph_b_c": {
+        "name": "Jännite AC - Vaihe B-C"
+      },
+      "ph_vph_c_a": {
+        "name": "Jännite AC - Vaihe C-A"
+      },
+      "amps_phasea": {
+        "name": "Virta AC - Vaihe A"
+      },
+      "amps_phaseb": {
+        "name": "Virta AC - Vaihe B"
+      },
+      "amps_phasec": {
+        "name": "Virta AC - Vaihe C"
+      },
+      "manufacturer": {
+        "name": "Valmistaja"
+      },
+      "model": {
+        "name": "Mallitunniste"
+      },
+      "options": {
+        "name": "Määritysasetukset"
+      },
+      "version": {
+        "name": "Laiteohjelmiston versio"
+      },
+      "serial_number": {
+        "name": "Sarjanumero"
+      },
+      "device_address": {
+        "name": "Modbus-osoite"
+      },
+      "battery_mode": {
+        "name": "Akkutila"
+      },
+      "e_charge": {
+        "name": "Energia - Akun Lataus (Yhteensä)"
+      },
+      "e_discharge": {
+        "name": "Energia - Akun Purkaus (Yhteensä)"
+      },
+      "alarm_state": {
+        "name": "Tila - Hälytys"
+      },
+      "house_igrid_l1": {
+        "name": "Virta AC - Talo Vaihe A"
+      },
+      "state_of_charge": {
+        "name": "Lataustila"
+      },
+      "batt_num": {
+        "name": "Module Lukumäärä"
+      },
+      "house_igrid_l3": {
+        "name": "Virta AC - Talo Vaihe C"
+      },
+      "dhc": {
+        "name": "Purkusyklit"
+      },
+      "house_pgrid_l1": {
+        "name": "Teho AC - Talo Vaihe A"
+      },
+      "split_phase": {
+        "name": "Jaettu vaihe"
+      },
+      "chc": {
+        "name": "Lataussyklit"
+      },
+      "country_std": {
+        "name": "Lukumääräry Standard"
+      },
+      "sys_time": {
+        "name": "Järjestelmäaika"
+      },
+      "state_of_health": {
+        "name": "Terveystila"
+      },
+      "house_igrid_l2": {
+        "name": "Virta AC - Talo Vaihe B"
+      },
+      "house_pgrid_l3": {
+        "name": "Teho AC - Talo Vaihe C"
+      },
+      "house_pgrid_l2": {
+        "name": "Teho AC - Talo Vaihe B"
+      },
+      "hz_c": {
+        "name": "Taajuus AC - Vaihe C"
+      },
+      "power_peak_abs": {
+        "name": "Teho - Huippu (Yhteensä)"
+      },
+      "pf": {
+        "name": "Tehokerroin"
+      },
+      "isolation_ohm1": {
+        "name": "Vastus - Eristys"
+      },
+      "dc_st2": {
+        "name": "Tila - DC Tulo 2"
+      },
+      "sn": {
+        "name": "Sarjanumero"
+      },
+      "hz_b": {
+        "name": "Taajuus AC - Vaihe B"
+      },
+      "dc_st1": {
+        "name": "Tila - DC Tulo 1"
+      },
+      "power_peak_today": {
+        "name": "Teho - Huippu (Tänään)"
+      },
+      "storage_size": {
+        "name": "Käytetty flash-muisti"
+      },
+      "wlan0_ipaddr_local": {
+        "name": "WiFi - Paikallinen IP"
+      },
+      "year_wh": {
+        "name": "Energia AC - Tuotettu (kuluva vuosi)"
+      },
+      "day_wh": {
+        "name": "Energia AC - Tuotettu (Tänään)"
+      },
+      "wlan0_mode": {
+        "name": "WiFi - Tila"
+      },
+      "i_leak_dc_ac": {
+        "name": "Virta DC - Vuoto DC-AC"
+      },
+      "watthours": {
+        "name": "Energia AC - Tuotettu (Yhteensä)"
+      },
+      "v_gnd": {
+        "name": "Jännite - Maa"
+      },
+      "week_wh": {
+        "name": "Energia AC - Tuotettu (kuluva viikko)"
+      },
+      "system_load": {
+        "name": "Keskikuorma"
+      },
+      "alarm_st": {
+        "name": "Tila - Hälytys"
+      },
+      "dc_current_2": {
+        "name": "Virta DC - Ketju 2"
+      },
+      "i_leak_dc_dc": {
+        "name": "Virta DC - Vuoto DC-DC"
+      },
+      "inverter_st": {
+        "name": "Invertteri Tila"
+      },
+      "pn": {
+        "name": "Tuotenumero"
+      },
+      "system_uptime": {
+        "name": "Käyntiaika"
+      },
+      "wlan0_link_quality": {
+        "name": "WiFi - Yhteyden laatu"
+      },
+      "dc_voltage_1": {
+        "name": "Jännite DC - Ketju 1"
+      },
+      "global_st": {
+        "name": "Tila - Yleinen"
+      },
+      "wlan0_essid": {
+        "name": "WiFi - SSID"
+      },
+      "booster_tmp": {
+        "name": "Lämpötila - Booster"
+      },
+      "dc_power_1": {
+        "name": "Teho DC - Ketju 1"
+      },
+      "dc_voltage_2": {
+        "name": "Jännite DC - Ketju 2"
+      },
+      "dc_voltage_3": {
+        "name": "Jännite DC - String 3"
+      },
+      "v_bulk": {
+        "name": "Jännite DC - Bulk Kondensaattori"
+      },
+      "type": {
+        "name": "Tyyppi"
+      },
+      "firmware_version": {
+        "name": "Laiteohjelmiston versio"
+      },
+      "dc_watts": {
+        "name": "Teho DC"
+      },
+      "dc_power_3": {
+        "name": "Teho DC - String 3"
+      },
+      "free_ram": {
+        "name": "Käytettävissä oleva RAM"
+      },
+      "dc_current_3": {
+        "name": "Virta DC - String 3"
+      },
+      "dc_power_2": {
+        "name": "Teho DC - Ketju 2"
+      },
+      "hz_a": {
+        "name": "Taajuus AC - Vaihe A"
+      },
+      "v_bulk_mid": {
+        "name": "Jännite DC - Väylän Keskipiste"
+      },
+      "month_wh": {
+        "name": "Energia AC - Tuotettu (kuluva kuukausi)"
+      },
+      "flash_memory_free": {
+        "name": "Vapaa flash-muisti"
+      },
+      "dc_current_1": {
+        "name": "Virta DC - Ketju 1"
+      },
+      "e_total": {
+        "name": "Energia AC - Tuotettu (Yhteensä)"
+      },
+      "meter_igrid_l1": {
+        "name": "Virta AC - Mittari Vaihe A"
+      },
+      "e_grid_export": {
+        "name": "Energia AC - Verkko Vienti (Yhteensä)"
+      },
+      "e_charge_since_restart": {
+        "name": "Energia - Akun Lataus (Uudelleenkäynnistyksestä)"
+      },
+      "grid_ext_ctrl_ena": {
+        "name": "External Control Käytössä"
+      },
+      "tc_max": {
+        "name": "Lämpötila - Kaappi Max"
+      },
+      "meter_igrid_l2": {
+        "name": "Virta AC - Mittari Vaihe B"
+      },
+      "e3_last_week": {
+        "name": "Energia AC - Verkko Vienti (kuluva viikko)"
+      },
+      "e_grid_import": {
+        "name": "Energia AC - Verkko Tuonti (Yhteensä)"
+      },
+      "pin": {
+        "name": "Teho DC - Tulo Yhteensä"
+      },
+      "ppeak": {
+        "name": "Teho - Huippu"
+      },
+      "e0_last_week": {
+        "name": "Energia AC - Tuotettu (kuluva viikko)"
+      },
+      "ein1": {
+        "name": "Energia DC - Ketju 1 (Yhteensä)"
+      },
+      "energy_policy": {
+        "name": "Energiapolitiikka"
+      },
+      "e4_since_restart": {
+        "name": "Energia - Itse kulutettu (Uudelleenkäynnistyksestä)"
+      },
+      "e5_since_restart": {
+        "name": "Energia - Akun Lataus (Uudelleenkäynnistyksestä)"
+      },
+      "meter_pgrid_tot": {
+        "name": "Teho AC - Mittari yhteensä"
+      },
+      "iba": {
+        "name": "Virta - Akku"
+      },
+      "tc_min": {
+        "name": "Lämpötila - Kaappi Min"
+      },
+      "e3_last_month": {
+        "name": "Energia AC - Verkko Vienti (kuluva kuukausi)"
+      },
+      "vin2": {
+        "name": "Jännite DC - Tulo 2"
+      },
+      "vgrid_l1_n": {
+        "name": "Jännite AC - Verkko L1-N"
+      },
+      "ein_last_week": {
+        "name": "Energia DC - PV (kuluva viikko)"
+      },
+      "vc_max": {
+        "name": "Jännite - Akkukenno Max"
+      },
+      "e_tot_charge_last_month": {
+        "name": "Energia - Akun Lataus yhteensä (kuluva kuukausi)"
+      },
+      "vba": {
+        "name": "Jännite - Akku"
+      },
+      "grid_ext_ctrl_state": {
+        "name": "Tila - Verkko External Control"
+      },
+      "pac_derating_flags": {
+        "name": "Teho AC - Derating Liput"
+      },
+      "frt_state": {
+        "name": "Tila - Fault Ride Through (FRT)"
+      },
+      "e1_since_restart": {
+        "name": "Energia AC - Absorboitu (Uudelleenkäynnistyksestä)"
+      },
+      "ein_since_restart": {
+        "name": "Energia DC - PV (Uudelleenkäynnistyksestä)"
+      },
+      "e_backup": {
+        "name": "Energia AC - Varmuuskopiointi Lähtö (Yhteensä)"
+      },
+      "m132_mod_ena": {
+        "name": "Malli 132 Käytössä"
+      },
+      "dynamic_feed_in_ctrl": {
+        "name": "Dynaaminen syötön ohjaus"
+      },
+      "e5_last_month": {
+        "name": "Energia - Akun Lataus (kuluva kuukausi)"
+      },
+      "e4_last_week": {
+        "name": "Energia - Itse kulutettu (kuluva viikko)"
+      },
+      "meter_qgrid_l3": {
+        "name": "Loisteho AC - Mittari Vaihe C"
+      },
+      "e8_since_restart": {
+        "name": "Energia AC - Verkko Tuonti (Uudelleenkäynnistyksestä)"
+      },
+      "di_status": {
+        "name": "Tila - Digitaalitulo"
+      },
+      "e_tot_discharge_last_month": {
+        "name": "Energia - Akun Purkaus yhteensä (kuluva kuukausi)"
+      },
+      "house_pgrid_tot": {
+        "name": "Teho AC - Talokuorma Yhteensä"
+      },
+      "tba": {
+        "name": "Lämpötila - Akku"
+      },
+      "batt_ext_ctrl_state": {
+        "name": "Control Tila"
+      },
+      "m126_mod_ena": {
+        "name": "Malli 126 Käytössä"
+      },
+      "e2_since_restart": {
+        "name": "Energia AC - Näennäinen (Uudelleenkäynnistyksestä)"
+      },
+      "e_tot_discharge_last_week": {
+        "name": "Energia - Akun Purkaus yhteensä (kuluva viikko)"
+      },
+      "meter_pgrid_l1": {
+        "name": "Teho AC - Mittari Vaihe A"
+      },
+      "vin3": {
+        "name": "Jännite DC - Tulo 3"
+      },
+      "e7_last_month": {
+        "name": "Energia - Talo Kulutus (kuluva kuukausi)"
+      },
+      "e8_last_month": {
+        "name": "Energia AC - Verkko Tuonti (kuluva kuukausi)"
+      },
+      "pac_togrid": {
+        "name": "Teho AC - Vienti to Verkko"
+      },
+      "pac_stand_alone": {
+        "name": "Teho AC - Itsenäinen Tila"
+      },
+      "meter_fgrid": {
+        "name": "Taajuus AC - Mittari"
+      },
+      "e0_1_year": {
+        "name": "Energia AC - Tuotettu (kuluva vuosi)"
+      },
+      "p_ch": {
+        "name": "Teho - Akun Lataus"
+      },
+      "meter_vgrid_l2": {
+        "name": "Jännite AC - Mittari Vaihe B"
+      },
+      "e_tot_charge_last_week": {
+        "name": "Energia - Akun Lataus yhteensä (kuluva viikko)"
+      },
+      "sh_u": {
+        "name": "Jännite - Shunt"
+      },
+      "e2_last_month": {
+        "name": "Energia AC - Näennäinen (kuluva kuukausi)"
+      },
+      "meter_pgrid_l2": {
+        "name": "Teho AC - Mittari Vaihe B"
+      },
+      "e15_last_month": {
+        "name": "Energia AC - Varmuuskopiointi Lähtö (kuluva kuukausi)"
+      },
+      "ein": {
+        "name": "Energia DC - PV (Yhteensä)"
+      },
+      "meter_qgrid_l1": {
+        "name": "Loisteho AC - Mittari Vaihe A"
+      },
+      "temp_int": {
+        "name": "Lämpötila - Internal"
+      },
+      "meter_qgrid_tot": {
+        "name": "Loisteho AC - Mittari yhteensä"
+      },
+      "e_charge_last_month": {
+        "name": "Energia - Akun Lataus (kuluva kuukausi)"
+      },
+      "cycle_num": {
+        "name": "Syklit"
+      },
+      "meter_qgrid_l2": {
+        "name": "Loisteho AC - Mittari Vaihe B"
+      },
+      "vgrid_l2_n": {
+        "name": "Jännite AC - Verkko L2-N"
+      },
+      "ein_last_month": {
+        "name": "Energia DC - PV (kuluva kuukausi)"
+      },
+      "e_tot_charge": {
+        "name": "Energia - Akun Lataus yhteensä"
+      },
+      "e_total_apparent": {
+        "name": "Energia AC - Näennäinen (Yhteensä)"
+      },
+      "e_discharge_since_restart": {
+        "name": "Energia - Akun Purkaus (Uudelleenkäynnistyksestä)"
+      },
+      "e7_since_restart": {
+        "name": "Energia - Talo Kulutus (Uudelleenkäynnistyksestä)"
+      },
+      "ein2": {
+        "name": "Energia DC - Ketju 2 (Yhteensä)"
+      },
+      "e_discharge_last_month": {
+        "name": "Energia - Akun Purkaus (kuluva kuukausi)"
+      },
+      "pba": {
+        "name": "Teho - Akku Yhteensä"
+      },
+      "e0_since_restart": {
+        "name": "Energia AC - Tuotettu (Uudelleenkäynnistyksestä)"
+      },
+      "e15_last_week": {
+        "name": "Energia AC - Varmuuskopiointi Lähtö (kuluva viikko)"
+      },
+      "e4_last_month": {
+        "name": "Energia - Itse kulutettu (kuluva kuukausi)"
+      },
+      "inv_state": {
+        "name": "Tila - Invertteri"
+      },
+      "sac_derating_flags": {
+        "name": "Teho AC - Näennäinen Derating Liput"
+      },
+      "e2_last_week": {
+        "name": "Energia AC - Näennäinen (kuluva viikko)"
+      },
+      "e_tot_charge_since_restart": {
+        "name": "Energia - Akun Lataus yhteensä (Uudelleenkäynnistyksestä)"
+      },
+      "e0_last_month": {
+        "name": "Energia AC - Tuotettu (kuluva kuukausi)"
+      },
+      "e_charge_last_week": {
+        "name": "Energia - Akun Lataus (kuluva viikko)"
+      },
+      "e_discharge_last_week": {
+        "name": "Energia - Akun Purkaus (kuluva viikko)"
+      },
+      "e_tot_discharge": {
+        "name": "Energia - Akun Purkaus yhteensä"
+      },
+      "e5_last_week": {
+        "name": "Energia - Akun Lataus (kuluva viikko)"
+      },
+      "e3_since_restart": {
+        "name": "Energia AC - Verkko Vienti (Uudelleenkäynnistyksestä)"
+      },
+      "ein3": {
+        "name": "Energia DC - String 3 (Yhteensä)"
+      },
+      "meter_vgrid_l3": {
+        "name": "Jännite AC - Mittari Vaihe C"
+      },
+      "input_mode": {
+        "name": "Tulotila"
+      },
+      "iin3": {
+        "name": "Virta DC - String 3"
+      },
+      "warning_flags": {
+        "name": "Tila - Varoitusliput"
+      },
+      "pin1": {
+        "name": "Teho DC - Ketju 1"
+      },
+      "e7_total": {
+        "name": "Energia - Talo Kulutus (Yhteensä)"
+      },
+      "meter_pgrid_l3": {
+        "name": "Teho AC - Mittari Vaihe C"
+      },
+      "e6_since_restart": {
+        "name": "Energia - Talo invertteristä (Uudelleenkäynnistyksestä)"
+      },
+      "e_ct": {
+        "name": "Energia - Virta Transformer (CT) (Yhteensä)"
+      },
+      "d_c2_state": {
+        "name": "Tila - DC Tulo 2"
+      },
+      "batt_ext_ctrl_ena": {
+        "name": "Control Käytössä"
+      },
+      "iin2": {
+        "name": "Virta DC - Ketju 2"
+      },
+      "iin1": {
+        "name": "Virta DC - Ketju 1"
+      },
+      "house_p_inverter": {
+        "name": "Teho - PV Koti"
+      },
+      "fan1rpm": {
+        "name": "Nopeus - Tuuletin 1"
+      },
+      "e6_total": {
+        "name": "Energia - Talo invertteristä (Yhteensä)"
+      },
+      "pin2": {
+        "name": "Teho DC - Ketju 2"
+      },
+      "e_total_absorbed": {
+        "name": "Energia AC - Absorboitu (Yhteensä)"
+      },
+      "meter_igrid_l3": {
+        "name": "Virta AC - Mittari Vaihe C"
+      },
+      "e_tot_discharge_since_restart": {
+        "name": "Energia - Akun Purkaus yhteensä (Uudelleenkäynnistyksestä)"
+      },
+      "e6_last_week": {
+        "name": "Energia - Talo invertteristä (kuluva viikko)"
+      },
+      "e6_last_month": {
+        "name": "Energia - Talo invertteristä (kuluva kuukausi)"
+      },
+      "commissioning_freeze": {
+        "name": "Käyttöönoton Jäädytys"
+      },
+      "num_of_mppt": {
+        "name": "MPPT Channel Lukumäärä"
+      },
+      "e8_last_week": {
+        "name": "Energia AC - Verkko Tuonti (kuluva viikko)"
+      },
+      "temp_inv": {
+        "name": "Lämpötila - Invertteri"
+      },
+      "temp_bst": {
+        "name": "Lämpötila - Booster"
+      },
+      "d_c1_state": {
+        "name": "Tila - DC Tulo 1"
+      },
+      "di1_mode": {
+        "name": "Digitaalitulo - Tila 1"
+      },
+      "e15_since_restart": {
+        "name": "Energia AC - Varmuuskopiointi Lähtö (Uudelleenkäynnistyksestä)"
+      },
+      "di0_mode": {
+        "name": "Digitaalitulo - Tila 0"
+      },
+      "vin1": {
+        "name": "Jännite DC - Tulo 1"
+      },
+      "pin3": {
+        "name": "Teho DC - String 3"
+      },
+      "fcc": {
+        "name": "Taajuus - Central Controller"
+      },
+      "e_dt": {
+        "name": "Energia - Direct Transducer (DT) (Yhteensä)"
+      },
+      "fan2rpm": {
+        "name": "Nopeus - Tuuletin 2"
+      },
+      "d_c3_state": {
+        "name": "Tila - DC-tulo 3"
+      },
+      "qac_derating_flags": {
+        "name": "Loisteho Teho - Derating Liput"
+      },
+      "w_rtg": {
+        "name": "Teho - Nimellis"
+      },
+      "clock_state": {
+        "name": "Tila - Kello"
+      },
+      "temp1": {
+        "name": "Lämpötila - Anturi 1"
+      },
+      "meter_vgrid_l1": {
+        "name": "Jännite AC - Mittari Vaihe A"
+      },
+      "e1_last_month": {
+        "name": "Energia AC - Absorboitu (kuluva kuukausi)"
+      },
+      "detected_battery_number": {
+        "name": "Havaittu lukumäärä"
+      },
+      "pba_t": {
+        "name": "Teho - Akku Aggregate"
+      },
+      "vc_min": {
+        "name": "Jännite - Akkukenno Min"
+      },
+      "glob_state": {
+        "name": "Tila - Yleinen"
+      },
+      "e7_last_week": {
+        "name": "Energia - Talo Kulutus (kuluva viikko)"
+      },
+      "e1_last_week": {
+        "name": "Energia AC - Absorboitu (kuluva viikko)"
+      },
+      "p_dh": {
+        "name": "Teho - Akun Purkaus"
+      },
+      "mfg_part_number": {
+        "name": "Osanumero"
+      },
+      "mfg_serial_number": {
+        "name": "Sarjanumero"
+      },
+      "mfg_week_year": {
+        "name": "Valmistusviikko/Vuosi"
+      },
+      "logger_sn": {
+        "name": "Logger Sarjanumero"
+      },
+      "fw_build_date": {
+        "name": "Firmware Build Päivämäärä"
+      },
+      "fw_release_number": {
+        "name": "Laiteohjelmiston versio"
+      },
+      "fw_build_number": {
+        "name": "Laiteohjelmiston koontitiiviste"
+      },
+      "fw_revision": {
+        "name": "Laiteohjelmiston revisio"
+      },
+      "logger_board_model": {
+        "name": "Logger Kortin Malli"
+      },
+      "device_name": {
+        "name": "Nimi 0"
+      },
+      "device_type": {
+        "name": "Tyyppi 0"
+      },
+      "fw_version": {
+        "name": "Laiteohjelmiston versio"
+      },
+      "logger_hostname": {
+        "name": "Isäntänimi"
+      },
+      "model_type": {
+        "name": "Mallityyppi"
+      },
+      "inverter_id": {
+        "name": "Invertterin tunnus"
+      },
+      "communication_protocol": {
+        "name": "Viestintäprotokolla"
+      },
+      "model_description": {
+        "name": "Mallin Kuvaus"
+      },
+      "wlan_fsm_status": {
+        "name": "WiFi - FSM-tila"
+      },
+      "wlan_0_status": {
+        "name": "WiFi - Tila"
+      },
+      "inverter_time": {
+        "name": "Invertteri Aika"
+      },
+      "wlan_ap_status": {
+        "name": "WiFi - AP-tila"
+      },
+      "wlan_0_dhcp_state": {
+        "name": "WiFi - DHCP Tila"
+      },
+      "wlan_0_ipaddr": {
+        "name": "WiFi - IP-osoite"
+      },
+      "wlan_0_netmask": {
+        "name": "WiFi Verkkopeite"
+      },
+      "wlan_0_broadcast": {
+        "name": "WiFi - Broadcast"
+      },
+      "wlan_0_gateway": {
+        "name": "WiFi - Yhdyskäytävä"
+      },
+      "wlan_0_dns": {
+        "name": "WiFi - DNS-palvelin"
+      },
+      "logger_logger_id": {
+        "name": "Loggerin tunnus"
+      },
+      "events": {
+        "name": "Tapahtumat"
+      },
+      "dc_input_3_state": {
+        "name": "DC-tulon 3 tila"
+      }
+    },
+    "number": {
+      "power_limit": {
+        "name": "Tehorajoitus"
+      }
+    },
+    "switch": {
+      "power_limit_enabled": {
+        "name": "Tehorajoitus"
+      }
+    }
+  },
+  "exceptions": {
+    "update_failed": {
+      "message": "Virhe luettaessa invertteriä: {error}"
+    },
+    "modbus_link_conflict": {
+      "message": "Toinen integraatio käyttää jo isäntää {host} eri Modbus-yhteysasetuksilla: {error}"
+    },
+    "write_failed": {
+      "message": "Kirjoitus invertteriin epäonnistui: {error}"
+    },
+    "entry_not_found": {
+      "message": "FIMER-määritysmerkintää {entry_id} ei ole."
+    },
+    "entry_not_loaded": {
+      "message": "Merkintää {title} ei ole ladattu."
+    },
+    "modbus_not_enabled": {
+      "message": "Tämä merkintä ei lue Modbusin kautta, joten se ei pääse rekistereihin."
+    },
+    "no_controls": {
+      "message": "Invertteri ei tarjoa välittömien ohjausten mallia."
+    },
+    "unknown_point": {
+      "message": "Pistettä {point} ei voi kirjoittaa: {error}"
+    },
+    "invalid_value": {
+      "message": "Virheellinen arvo: {error}"
+    },
+    "value_required": {
+      "message": "Anna joko arvo tai luettelo raakarekistereistä."
+    },
+    "device_not_found": {
+      "message": "Laitetta {device} ei ole tässä merkinnässä."
+    },
+    "invalid_auth": {
+      "message": "Datalogger hylkäsi tunnukset: {error}"
+    },
+    "unsupported_firmware": {
+      "message": "VSN300:ssa on laiteohjelmisto {firmware_version}, joka ei pysty tarjoamaan reaaliaikaisia tietoja. Päivitä datalogger laiteohjelmistoon 2.0.1 tai uudempaan; päivitys on pakollinen."
+    }
+  },
+  "services": {
+    "read_registers": {
+      "name": "Lue rekisterejä",
+      "description": "Lukee rekisterejä absoluuttisesta Modbus-osoitteesta ja purkaa ne. Palauttaa raakarekisterit ja puretun arvon.",
+      "fields": {
+        "config_entry": {
+          "name": "Määritysmerkintä",
+          "description": "Kohteena oleva invertteri."
+        },
+        "address": {
+          "name": "Osoite",
+          "description": "Ensimmäisen rekisterin osoite."
+        },
+        "count": {
+          "name": "Lukumäärä",
+          "description": "Kuinka monta rekisteriä luetaan; ohitetaan kiinteäkokoisilla tietotyypeillä."
+        },
+        "register_type": {
+          "name": "Rekisterityyppi",
+          "description": "Holding- tai input-rekisterit."
+        },
+        "data_type": {
+          "name": "Tietotyyppi",
+          "description": "Miten rekisterit puretaan; raw palauttaa ne purkamattomina."
+        },
+        "word_order": {
+          "name": "Sanajärjestys",
+          "description": "Mikä rekisteri sisältää 32-bittisen arvon ylemmän sanan."
+        }
+      }
+    },
+    "write_registers": {
+      "name": "Kirjoita rekisterejä",
+      "description": "Kirjoittaa yhden annetulla tyypillä koodatun arvon tai luettelon raakarekistereistä absoluuttiseen Modbus-osoitteeseen.",
+      "fields": {
+        "config_entry": {
+          "name": "Määritysmerkintä",
+          "description": "Kohteena oleva invertteri."
+        },
+        "address": {
+          "name": "Osoite",
+          "description": "Ensimmäisen rekisterin osoite."
+        },
+        "value": {
+          "name": "Arvo",
+          "description": "Koodattava ja kirjoitettava arvo."
+        },
+        "values": {
+          "name": "Raakarekisterit",
+          "description": "Luettelo 16-bittisistä rekisteriarvoista, jotka kirjoitetaan sellaisinaan arvon sijaan."
+        },
+        "data_type": {
+          "name": "Tietotyyppi",
+          "description": "Miten arvo koodataan."
+        },
+        "word_order": {
+          "name": "Sanajärjestys",
+          "description": "Mikä rekisteri saa 32-bittisen arvon ylemmän sanan."
+        },
+        "count": {
+          "name": "Pituus",
+          "description": "Merkkijonon viemät rekisterit; oletuksena sen verran kuin merkkijono tarvitsee."
+        }
+      }
+    },
+    "write_point": {
+      "name": "Kirjoita piste",
+      "description": "Kirjoittaa kirjoitettavan SunSpec-pisteen sen nimellä, esimerkiksi WMaxLimPct tai OutPFSet, ja päivittää lukemat.",
+      "fields": {
+        "config_entry": {
+          "name": "Määritysmerkintä",
+          "description": "Kohteena oleva invertteri."
+        },
+        "point": {
+          "name": "Piste",
+          "description": "Pisteen nimi."
+        },
+        "value": {
+          "name": "Arvo",
+          "description": "Arvo pisteen teknisessä yksikössä."
+        }
+      }
+    },
+    "set_power_limit": {
+      "name": "Aseta tehorajoitus",
+      "description": "Asettaa pätötehorajoituksen ja sen, sovelletaanko sitä, ja varmistaa lukemalla takaisin. Jätä kenttä pois, jos haluat säilyttää sen nykyisen arvon.",
+      "fields": {
+        "config_entry": {
+          "name": "Määritysmerkintä",
+          "description": "Kohteena oleva invertteri."
+        },
+        "percent": {
+          "name": "Rajoitus",
+          "description": "Rajoitus prosentteina nimellistehosta."
+        },
+        "enabled": {
+          "name": "Käytössä",
+          "description": "Sovelletaanko rajoitusta."
+        }
+      }
+    },
+    "get_readings": {
+      "name": "Hae lukemat",
+      "description": "Palauttaa jokaisen pisteen, jonka merkinnän kukin laite tällä hetkellä raportoi.",
+      "fields": {
+        "config_entry": {
+          "name": "Määritysmerkintä",
+          "description": "Kohteena oleva invertteri."
+        },
+        "device": {
+          "name": "Laite",
+          "description": "Vain tämä laite, sarjanumeron tai tunnisteen perusteella."
+        }
+      }
+    },
+    "rediscover": {
+      "name": "Etsi uudelleen",
+      "description": "Käy SunSpec-malliketjun ja dataloggerin laitteet uudelleen läpi ilman uudelleenlatausta ja päivittää lukemat. Laitteet, jotka datalogger raportoi ensimmäistä kertaa, saavat entiteettinsä.",
+      "fields": {
+        "config_entry": {
+          "name": "Määritysmerkintä",
+          "description": "Kohteena oleva invertteri."
+        }
+      }
+    }
+  },
+  "selector": {
+    "register_type": {
+      "options": {
+        "holding": "Holding-rekisterit",
+        "input": "Input-rekisterit"
+      }
+    },
+    "data_type": {
+      "options": {
+        "raw": "Raakarekisterit",
+        "uint16": "16-bittinen etumerkitön",
+        "int16": "16-bittinen etumerkillinen",
+        "uint32": "32-bittinen etumerkitön",
+        "int32": "32-bittinen etumerkillinen",
+        "float32": "Liukuluku (32-bittinen)",
+        "string": "Merkkijono"
+      }
+    },
+    "word_order": {
+      "options": {
+        "big": "Ylempi sana ensin",
+        "little": "Alempi sana ensin"
+      }
+    }
+  },
+  "issues": {
+    "connection_failed_modbus": {
+      "title": "{title}: ei Modbus-vastausta",
+      "description": "Home Assistant ei ole pystynyt lukemaan laitetta {title} Modbus TCP:n kautta osoitteessa {host} {failures} peräkkäisen kyselyn aikana päivänvalossa.\n\nViimeisin virhe: `{error}`\n\n**Mahdolliset syyt**\n- Invertteri tai sen datalogger on sammutettu tai menettänyt verkkoyhteyden\n- Laitteen osoite on muuttunut\n- Toinen Modbus-asiakas on vallannut dataloggerin, joka palvelee vain yhtä yhteyttä kerrallaan\n- SunSpec-asetukset (yksikkötunnus, perusosoite) muuttuivat laiteohjelmistopäivityksen jälkeen\n\n**Tarkistettavaa**\n1. Avaa dataloggerin verkkosivu osoitteessa http://{host}\n2. Etsi laitteen nykyinen osoite reitittimen DHCP-taulukosta\n3. Jos osoite muuttui, käytä integraation sivulla toimintoa **Määritä uudelleen**\n\nTämä korjaus poistuu itsestään heti, kun kysely onnistuu."
+    },
+    "connection_failed_rest": {
+      "title": "{title}: dataloggerin REST-rajapinta ei vastaa",
+      "description": "Home Assistant ei ole pystynyt lukemaan laitteen {title} VSN-dataloggeria osoitteessa {host} {failures} peräkkäisen kyselyn aikana päivänvalossa.\n\nViimeisin virhe: `{error}`\n\n**Mahdolliset syyt**\n- Datalogger on sammutettu tai menettänyt verkkoyhteyden\n- Dataloggerin osoite on muuttunut\n- Kortti on jumissa; VSN300 tarvitsee joskus virran katkaisun WiFi-yhteyden menettämisen jälkeen\n\n**Tarkistettavaa**\n1. Avaa dataloggerin verkkosivu osoitteessa http://{host}\n2. Etsi sen nykyinen osoite reitittimen DHCP-taulukosta\n3. Jos osoite muuttui, käytä integraation sivulla toimintoa **Määritä uudelleen**\n4. Katkaise kortin virta hetkeksi, jos sivu ei lataudu\n\nTämä korjaus poistuu itsestään heti, kun kysely onnistuu."
+    },
+    "unsupported_firmware": {
+      "title": "{title}: dataloggerin laiteohjelmistoa {firmware_version} ei tueta",
+      "description": "Laitteen {title} VSN300-datalogger osoitteessa {host} käyttää laiteohjelmistoa {firmware_version}. Tässä versiossa on tunnettu vika: sen reaaliaikaisten tietojen rajapinta katkaisee jokaisen yhteyden, joten mitään ei voi lukea.\n\n**Päivitä datalogger laiteohjelmistoon 2.0.1 tai uudempaan. Päivitys on pakollinen: integraatio ei voi toimia version 2.0.0 kanssa.** Se on saatavilla kortin omalta verkkosivulta:\n\n1. Avaa http://{host} ja siirry välilehdelle **FW UPDATE**\n2. Napsauta kohdassa **Remote Update** painiketta **Check for FW update**; sen pitäisi tarjota versiota 2.0.1 tai uudempaa\n3. Napsauta **Download & Update** ja odota, että kortti päivittyy ja käynnistyy uudelleen\n4. Lataa integraatio uudelleen sen sivulta kohdassa Asetukset > Laitteet ja palvelut\n\nJos päivitystä ei tarjota, ota yhteyttä FIMERin tukeen. Tämä korjaus poistuu itsestään, kun integraatio käynnistyy."
+    },
+    "datalogger_silent": {
+      "title": "{title}: datalogger ei raportoi omia tietojaan",
+      "description": "Laitteen {title} VSN-datalogger osoitteessa {host} vastaa ja toimittaa invertterin lukemat, mutta sen omat lukemat (käyntiaika, WiFi-yhteys, muisti) ovat puuttuneet yli {minutes} minuuttia. Dataloggerin anturit pysyvät poissa käytöstä, kunnes ne palaavat.\n\n**Todennäköisin syy**\nUudelleenkäynnistyksen jälkeen kortti ei pystynyt asettamaan kelloaan (ei NTP:tä tai internetyhteyttä) ja lakkasi julkaisemasta omia tietojaan. Tämä on VSN300-laiteohjelmiston tunnettu ominaisuus.\n\n**Mitä tehdä**\n- Tarkista, että kortti pääsee internetiin, esimerkiksi sen verkkosivulta osoitteessa http://{host}\n- Katkaise kortin virta hetkeksi\n\nTämä korjaus poistuu itsestään heti, kun kortti raportoi taas omia tietojaan."
+    },
+    "partial_discovery": {
+      "title": "{title}: laitteita puuttuu dataloggerista",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Unohda puuttuvat laitteet",
+            "description": "Laitteen {title} datalogger osoitteessa {host} raportoi aiemmin nämä laitteet, mutta ei raportoi niitä nyt:\n\n{missing_devices}\n\nNiiden entiteetit eivät ole sillä välin käytettävissä. Mahdolliset syyt: laite on pois päältä (invertteri yöllä), irrotettu dataloggerista tai poistettu laitoksesta. Korjaus poistuu itsestään, kun kaikki laitteet raportoidaan taas.\n\nLähetä vain, jos laitteet ovat poissa lopullisesti: ne ja niiden entiteetit poistetaan Home Assistantista. Laite, jonka datalogger raportoi myöhemmin uudelleen, lisätään uutena."
+          }
+        }
+      }
+    },
+    "takeover_incomplete": {
+      "title": "{title}: {count} aiempaa anturia ei siirretty",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Kuittaa",
+            "description": "Aiemman ABB/FIMER PVI VSN REST -integraation merkintä poistettiin ja sen anturit rekisteröitiin uudelleen tänne, paitsi nämä, joilla ei ole vastinetta tässä integraatiossa:\n\n{entities}\n\nNiiden historia säilyy recorderissa vanhoilla entiteettitunnuksilla, mutta mikään entiteetti ei enää tarjoa niitä. Jos käytit niitä automaatioissa tai kojelaudoissa, osoita ne tämän integraation entiteetteihin.\n\nLähetä sulkeaksesi tämän ilmoituksen; lueteltuja antureita ei palauteta."
+          }
+        }
+      }
+    }
+  }
+}

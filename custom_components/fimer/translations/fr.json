@@ -1,0 +1,1356 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "FIMER (ABB / Power-One)",
+        "description": "Une entrée de l'ancienne intégration ABB/FIMER PVI VSN REST existe déjà. Reprenez ses réglages et ses entités, ou configurez un nouvel onduleur.",
+        "menu_options": {
+          "manual": "Configurer un nouvel onduleur",
+          "legacy": "Reprendre une entrée REST existante"
+        }
+      },
+      "reconfigure": {
+        "title": "Modifier la connexion",
+        "description": "Mettez à jour la façon dont Home Assistant joint cet onduleur. Ce doit rester le même onduleur.",
+        "data": {
+          "host": "Hôte",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "Adresse IP ou nom d'hôte de l'onduleur ou du datalogger.",
+          "port": "Port Modbus TCP, 502 sauf modification sur l'appareil."
+        },
+        "sections": {
+          "modbus": {
+            "name": "Modbus TCP (SunSpec)",
+            "description": "Les valeurs par défaut conviennent à un datalogger VSN300 ou VSN700. Un onduleur nativement Modbus comme un REACT2 demande en général l'ID d'unité 1 et l'adresse de base 40000.",
+            "data": {
+              "use_modbus": "Lire via Modbus TCP",
+              "unit_id": "ID d'unité Modbus",
+              "base_address": "Adresse de base SunSpec"
+            },
+            "data_description": {
+              "use_modbus": "Lectures rapides et sans authentification des modèles SunSpec. Modbus TCP doit être activé sur l'appareil.",
+              "unit_id": "L'ID d'unité (esclave) Modbus auquel l'onduleur répond. Les cartes VSN utilisent 2, certains firmwares 247.",
+              "base_address": "Le registre où commence la carte SunSpec : 0 derrière une carte VSN, 40000 sur un onduleur nativement Modbus."
+            }
+          },
+          "rest": {
+            "name": "API REST du datalogger",
+            "description": "L'API propre à la carte VSN300 / VSN700 ajoute le datalogger, les compteurs, les batteries et les compteurs d'énergie périodiques.",
+            "data": {
+              "use_rest": "Lire l'API REST du datalogger",
+              "username": "Nom d'utilisateur",
+              "password": "Mot de passe"
+            },
+            "data_description": {
+              "use_rest": "Interroger aussi l'API REST de la carte. Facultatif derrière un VSN300 ; seule source pour les compteurs et batteries derrière un VSN700.",
+              "username": "L'utilisateur de la carte, en général guest.",
+              "password": "Le mot de passe défini sur la carte, le cas échéant."
+            }
+          }
+        }
+      },
+      "legacy": {
+        "title": "Reprendre une entrée REST",
+        "description": "L'entrée choisie est supprimée et ses capteurs conservent leurs identifiants d'entité et leur historique sous cette intégration.",
+        "data": {
+          "legacy_entry": "Entrée à reprendre"
+        }
+      },
+      "manual": {
+        "title": "Connexion à l'onduleur",
+        "description": "Saisissez l'adresse de l'onduleur ou de sa carte datalogger VSN300 / VSN700 et choisissez les sources à lire. L'onduleur doit être éveillé : un PVI sans réseau électrique ne répond pas la nuit.",
+        "data": {
+          "host": "Hôte",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "Adresse IP ou nom d'hôte de l'onduleur ou du datalogger.",
+          "port": "Port Modbus TCP, 502 sauf modification sur l'appareil."
+        },
+        "sections": {
+          "modbus": {
+            "name": "Modbus TCP (SunSpec)",
+            "description": "Les valeurs par défaut conviennent à un datalogger VSN300 ou VSN700. Un onduleur nativement Modbus comme un REACT2 demande en général l'ID d'unité 1 et l'adresse de base 40000.",
+            "data": {
+              "use_modbus": "Lire via Modbus TCP",
+              "unit_id": "ID d'unité Modbus",
+              "base_address": "Adresse de base SunSpec"
+            },
+            "data_description": {
+              "use_modbus": "Lectures rapides et sans authentification des modèles SunSpec. Modbus TCP doit être activé sur l'appareil.",
+              "unit_id": "L'ID d'unité (esclave) Modbus auquel l'onduleur répond. Les cartes VSN utilisent 2, certains firmwares 247.",
+              "base_address": "Le registre où commence la carte SunSpec : 0 derrière une carte VSN, 40000 sur un onduleur nativement Modbus."
+            }
+          },
+          "rest": {
+            "name": "API REST du datalogger",
+            "description": "L'API propre à la carte VSN300 / VSN700 ajoute le datalogger, les compteurs, les batteries et les compteurs d'énergie périodiques.",
+            "data": {
+              "use_rest": "Lire l'API REST du datalogger",
+              "username": "Nom d'utilisateur",
+              "password": "Mot de passe"
+            },
+            "data_description": {
+              "use_rest": "Interroger aussi l'API REST de la carte. Facultatif derrière un VSN300 ; seule source pour les compteurs et batteries derrière un VSN700.",
+              "username": "L'utilisateur de la carte, en général guest.",
+              "password": "Le mot de passe défini sur la carte, le cas échéant."
+            }
+          }
+        }
+      },
+      "reauth_confirm": {
+        "title": "Identifiants du datalogger",
+        "description": "Le datalogger à {host} a refusé les identifiants enregistrés. Saisissez les identifiants actuels.",
+        "data": {
+          "username": "Nom d'utilisateur",
+          "password": "Mot de passe"
+        },
+        "data_description": {
+          "username": "L'utilisateur de la carte, en général guest.",
+          "password": "Le mot de passe défini sur la carte."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Échec de la connexion. Vérifiez l'hôte et le port, et que l'onduleur est éveillé.",
+      "no_sunspec": "Aucune carte SunSpec trouvée à l'adresse de base. Essayez 0 derrière une carte VSN ou 40000 sur un onduleur nativement Modbus, et vérifiez l'ID d'unité.",
+      "unsupported_device": "Un appareil SunSpec a répondu mais ce n'est pas un onduleur.",
+      "link_conflict": "Une autre intégration utilise déjà cet hôte avec d'autres réglages de liaison Modbus.",
+      "unknown": "Erreur inattendue",
+      "no_source": "Activez au moins une source.",
+      "invalid_auth": "Le datalogger a refusé le nom d'utilisateur ou le mot de passe.",
+      "no_rest_api": "Aucune API REST VSN300 / VSN700 n'a répondu à cet hôte.",
+      "unsupported_firmware": "Ce VSN300 utilise le firmware 2.0.0, qui ne peut pas fournir les données en direct. Veuillez mettre à jour le datalogger vers le firmware 2.0.1 ou ultérieur ; la mise à jour est obligatoire."
+    },
+    "abort": {
+      "already_configured": "Cet onduleur est déjà configuré.",
+      "reconfigure_successful": "Les réglages de connexion ont été mis à jour.",
+      "unique_id_mismatch": "L'appareil à la nouvelle adresse est un autre onduleur.",
+      "reauth_successful": "Les identifiants ont été mis à jour."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Interrogation et réparations",
+        "data": {
+          "scan_interval": "Intervalle de mise à jour",
+          "power_control": "Contrôle de la limite de puissance (expérimental)",
+          "connection_issues": "Réparation quand une source est injoignable",
+          "failures_threshold": "Interrogations échouées avant la réparation",
+          "notify_recovery": "Notifier quand une source répond à nouveau",
+          "recovery_script": "Script de récupération"
+        },
+        "data_description": {
+          "scan_interval": "Secondes entre deux interrogations de l'onduleur.",
+          "power_control": "Expose la limite de puissance active SunSpec sous forme de nombre et d'interrupteur. Le datalogger accepte les écritures sur tous les onduleurs, mais seuls certains les appliquent ; vérifiez avec le test décrit dans la documentation avant de vous y fier.",
+          "connection_issues": "Crée une réparation quand Modbus ou l'API REST du datalogger échoue de façon répétée en plein jour. Les échecs nocturnes sont ignorés : un onduleur endormi n'est pas une panne.",
+          "failures_threshold": "Interrogations échouées consécutives en plein jour avant que la réparation soit créée. Après le troisième échec, les interrogations passent à une toutes les 5 minutes.",
+          "notify_recovery": "Publie une notification persistante quand une source répond à nouveau après une réparation.",
+          "recovery_script": "Un script exécuté une seule fois quand la réparation est créée, par exemple un script qui redémarre le datalogger via une prise connectée."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ac_power": {
+        "name": "Puissance AC"
+      },
+      "ac_current": {
+        "name": "Courant AC"
+      },
+      "ac_current_phase_a": {
+        "name": "Courant AC phase A"
+      },
+      "ac_current_phase_b": {
+        "name": "Courant AC phase B"
+      },
+      "ac_current_phase_c": {
+        "name": "Courant AC phase C"
+      },
+      "ac_voltage_phase_a": {
+        "name": "Tension AC phase A"
+      },
+      "ac_voltage_phase_b": {
+        "name": "Tension AC phase B"
+      },
+      "ac_voltage_phase_c": {
+        "name": "Tension AC phase C"
+      },
+      "ac_voltage_phase_ab": {
+        "name": "Tension AC phase A-B"
+      },
+      "ac_voltage_phase_bc": {
+        "name": "Tension AC phase B-C"
+      },
+      "ac_voltage_phase_ca": {
+        "name": "Tension AC phase C-A"
+      },
+      "ac_frequency": {
+        "name": "Fréquence AC"
+      },
+      "apparent_power": {
+        "name": "Puissance apparente"
+      },
+      "reactive_power": {
+        "name": "Puissance réactive"
+      },
+      "power_factor": {
+        "name": "Facteur de puissance"
+      },
+      "ac_energy_total": {
+        "name": "Énergie totale"
+      },
+      "dc_current": {
+        "name": "Courant DC"
+      },
+      "dc_voltage": {
+        "name": "Tension DC"
+      },
+      "dc_power": {
+        "name": "Puissance DC"
+      },
+      "cabinet_temperature": {
+        "name": "Température du boîtier"
+      },
+      "heat_sink_temperature": {
+        "name": "Température du dissipateur"
+      },
+      "transformer_temperature": {
+        "name": "Température du transformateur"
+      },
+      "other_temperature": {
+        "name": "Autre température"
+      },
+      "operating_state": {
+        "name": "État de fonctionnement",
+        "state": {
+          "off": "Off",
+          "sleeping": "Sleeping",
+          "starting": "Starting",
+          "mppt": "Producing (MPPT)",
+          "throttled": "Throttled",
+          "shutting_down": "Shutting down",
+          "fault": "Fault",
+          "standby": "Standby"
+        }
+      },
+      "vendor_operating_state": {
+        "name": "État de fonctionnement (fabricant)"
+      },
+      "dc_current_input_1": {
+        "name": "Courant DC entrée 1"
+      },
+      "dc_voltage_input_1": {
+        "name": "Tension DC entrée 1"
+      },
+      "dc_power_input_1": {
+        "name": "Puissance DC entrée 1"
+      },
+      "dc_energy_input_1": {
+        "name": "Énergie DC entrée 1"
+      },
+      "dc_current_input_2": {
+        "name": "Courant DC entrée 2"
+      },
+      "dc_voltage_input_2": {
+        "name": "Tension DC entrée 2"
+      },
+      "dc_power_input_2": {
+        "name": "Puissance DC entrée 2"
+      },
+      "dc_energy_input_2": {
+        "name": "Énergie DC entrée 2"
+      },
+      "dc_current_input_3": {
+        "name": "Courant DC entrée 3"
+      },
+      "dc_voltage_input_3": {
+        "name": "Tension DC entrée 3"
+      },
+      "dc_power_input_3": {
+        "name": "Puissance DC entrée 3"
+      },
+      "dc_energy_input_3": {
+        "name": "Énergie DC entrée 3"
+      },
+      "global_state": {
+        "name": "État global"
+      },
+      "inverter_state": {
+        "name": "État de l'onduleur"
+      },
+      "dc_input_1_state": {
+        "name": "État entrée DC 1"
+      },
+      "dc_input_2_state": {
+        "name": "État entrée DC 2"
+      },
+      "alarms": {
+        "name": "Alarmes"
+      },
+      "system_time": {
+        "name": "Heure système"
+      },
+      "energy_today": {
+        "name": "Énergie aujourd'hui"
+      },
+      "energy_this_week": {
+        "name": "Énergie cette semaine"
+      },
+      "energy_this_month": {
+        "name": "Énergie ce mois"
+      },
+      "energy_this_year": {
+        "name": "Énergie cette année"
+      },
+      "energy_total_vendor": {
+        "name": "Énergie totale (modèle fabricant)"
+      },
+      "energy_partial": {
+        "name": "Énergie partielle"
+      },
+      "inverter_temperature": {
+        "name": "Température de l'onduleur"
+      },
+      "booster_temperature": {
+        "name": "Température du booster"
+      },
+      "isolation_resistance_input_1": {
+        "name": "Résistance d'isolement entrée 1"
+      },
+      "isolation_resistance_input_2": {
+        "name": "Résistance d'isolement entrée 2"
+      },
+      "cos_phi": {
+        "name": "Cos phi"
+      },
+      "power_limit_permanent": {
+        "name": "Limite de puissance (permanente)"
+      },
+      "power_limit_dynamic": {
+        "name": "Limite de puissance (dynamique)"
+      },
+      "rated_power": {
+        "name": "Puissance nominale"
+      },
+      "power_limit": {
+        "name": "Limite de puissance"
+      },
+      "power_limit_enabled": {
+        "name": "Limite de puissance active",
+        "state": {
+          "disabled": "No",
+          "enabled": "Yes"
+        }
+      },
+      "watts": {
+        "name": "Puissance AC"
+      },
+      "var": {
+        "name": "Puissance Réactive - Connexion Réseau"
+      },
+      "hz": {
+        "name": "Fréquence AC - Réseau"
+      },
+      "amps": {
+        "name": "Courant AC"
+      },
+      "phase_voltage_an": {
+        "name": "Tension AC - Phase A-N"
+      },
+      "phase_voltage_bn": {
+        "name": "Tension AC - Phase B-N"
+      },
+      "phase_voltage_cn": {
+        "name": "Tension AC - Phase C-N"
+      },
+      "ph_vph_a_b": {
+        "name": "Tension AC - Phase A-B"
+      },
+      "ph_vph_b_c": {
+        "name": "Tension AC - Phase B-C"
+      },
+      "ph_vph_c_a": {
+        "name": "Tension AC - Phase C-A"
+      },
+      "amps_phasea": {
+        "name": "Courant AC - Phase A"
+      },
+      "amps_phaseb": {
+        "name": "Courant AC - Phase B"
+      },
+      "amps_phasec": {
+        "name": "Courant AC - Phase C"
+      },
+      "manufacturer": {
+        "name": "Fabricant"
+      },
+      "model": {
+        "name": "Identifiant du modèle"
+      },
+      "options": {
+        "name": "Options de configuration"
+      },
+      "version": {
+        "name": "Version du firmware"
+      },
+      "serial_number": {
+        "name": "Numéro de Série"
+      },
+      "device_address": {
+        "name": "Adresse Modbus"
+      },
+      "battery_mode": {
+        "name": "Mode Batterie"
+      },
+      "e_charge": {
+        "name": "Énergie - Charge Batterie (Total)"
+      },
+      "e_discharge": {
+        "name": "Énergie - Décharge Batterie (Total)"
+      },
+      "alarm_state": {
+        "name": "État - Alarme"
+      },
+      "house_igrid_l1": {
+        "name": "Courant AC - Maison Phase A"
+      },
+      "state_of_charge": {
+        "name": "État de Charge"
+      },
+      "batt_num": {
+        "name": "Module Compte"
+      },
+      "house_igrid_l3": {
+        "name": "Courant AC - Maison Phase C"
+      },
+      "dhc": {
+        "name": "Cycles de décharge"
+      },
+      "house_pgrid_l1": {
+        "name": "Puissance AC - Maison Phase A"
+      },
+      "split_phase": {
+        "name": "Phase divisée"
+      },
+      "chc": {
+        "name": "Cycles de charge"
+      },
+      "country_std": {
+        "name": "Comptery Standard"
+      },
+      "sys_time": {
+        "name": "Heure Système"
+      },
+      "state_of_health": {
+        "name": "État de Santé"
+      },
+      "house_igrid_l2": {
+        "name": "Courant AC - Maison Phase B"
+      },
+      "house_pgrid_l3": {
+        "name": "Puissance AC - Maison Phase C"
+      },
+      "house_pgrid_l2": {
+        "name": "Puissance AC - Maison Phase B"
+      },
+      "hz_c": {
+        "name": "Fréquence AC - Phase C"
+      },
+      "power_peak_abs": {
+        "name": "Puissance - Crête (Total)"
+      },
+      "pf": {
+        "name": "Facteur de Puissance"
+      },
+      "isolation_ohm1": {
+        "name": "Résistance - Isolation"
+      },
+      "dc_st2": {
+        "name": "État - DC Entrée 2"
+      },
+      "sn": {
+        "name": "Numéro de Série"
+      },
+      "hz_b": {
+        "name": "Fréquence AC - Phase B"
+      },
+      "dc_st1": {
+        "name": "État - DC Entrée 1"
+      },
+      "power_peak_today": {
+        "name": "Puissance - Crête (Aujourd'hui)"
+      },
+      "storage_size": {
+        "name": "Flash utilisée"
+      },
+      "wlan0_ipaddr_local": {
+        "name": "WiFi - IP locale"
+      },
+      "year_wh": {
+        "name": "Énergie AC - Produite (année en cours)"
+      },
+      "day_wh": {
+        "name": "Énergie AC - Produite (Aujourd'hui)"
+      },
+      "wlan0_mode": {
+        "name": "WiFi - Mode"
+      },
+      "i_leak_dc_ac": {
+        "name": "Courant DC - Fuite DC-AC"
+      },
+      "watthours": {
+        "name": "Énergie AC - Produite (Total)"
+      },
+      "v_gnd": {
+        "name": "Tension - Terre"
+      },
+      "week_wh": {
+        "name": "Énergie AC - Produite (semaine en cours)"
+      },
+      "system_load": {
+        "name": "Charge moyenne"
+      },
+      "alarm_st": {
+        "name": "État - Alarme"
+      },
+      "dc_current_2": {
+        "name": "Courant DC - Chaîne 2"
+      },
+      "i_leak_dc_dc": {
+        "name": "Courant DC - Fuite DC-DC"
+      },
+      "inverter_st": {
+        "name": "État Onduleur"
+      },
+      "pn": {
+        "name": "Référence produit"
+      },
+      "system_uptime": {
+        "name": "Temps de fonctionnement"
+      },
+      "wlan0_link_quality": {
+        "name": "WiFi - Qualité de la liaison"
+      },
+      "dc_voltage_1": {
+        "name": "Tension DC - Chaîne 1"
+      },
+      "global_st": {
+        "name": "État - Global"
+      },
+      "wlan0_essid": {
+        "name": "WiFi - SSID"
+      },
+      "booster_tmp": {
+        "name": "Température - Booster"
+      },
+      "dc_power_1": {
+        "name": "Puissance DC - Chaîne 1"
+      },
+      "dc_voltage_2": {
+        "name": "Tension DC - Chaîne 2"
+      },
+      "dc_voltage_3": {
+        "name": "Tension DC - Chaîne 3"
+      },
+      "v_bulk": {
+        "name": "Tension DC - Condensateur Bulk"
+      },
+      "type": {
+        "name": "Type"
+      },
+      "firmware_version": {
+        "name": "Version du firmware"
+      },
+      "dc_watts": {
+        "name": "Puissance DC"
+      },
+      "dc_power_3": {
+        "name": "Puissance DC - Chaîne 3"
+      },
+      "free_ram": {
+        "name": "RAM disponible"
+      },
+      "dc_current_3": {
+        "name": "Courant DC - Chaîne 3"
+      },
+      "dc_power_2": {
+        "name": "Puissance DC - Chaîne 2"
+      },
+      "hz_a": {
+        "name": "Fréquence AC - Phase A"
+      },
+      "v_bulk_mid": {
+        "name": "Tension DC - Point Milieu Bus"
+      },
+      "month_wh": {
+        "name": "Énergie AC - Produite (mois en cours)"
+      },
+      "flash_memory_free": {
+        "name": "Flash disponible"
+      },
+      "dc_current_1": {
+        "name": "Courant DC - Chaîne 1"
+      },
+      "e_total": {
+        "name": "Énergie AC - Produite (Total)"
+      },
+      "meter_igrid_l1": {
+        "name": "Courant AC - Compteur Phase A"
+      },
+      "e_grid_export": {
+        "name": "Énergie AC - Réseau Exportation (Total)"
+      },
+      "e_charge_since_restart": {
+        "name": "Énergie - Charge Batterie (Depuis Redémarrage)"
+      },
+      "grid_ext_ctrl_ena": {
+        "name": "External Control Activé"
+      },
+      "tc_max": {
+        "name": "Température - Armoire Max"
+      },
+      "meter_igrid_l2": {
+        "name": "Courant AC - Compteur Phase B"
+      },
+      "e3_last_week": {
+        "name": "Énergie AC - Réseau Exportation (semaine en cours)"
+      },
+      "e_grid_import": {
+        "name": "Énergie AC - Réseau Importation (Total)"
+      },
+      "pin": {
+        "name": "Puissance DC - Entrée totale"
+      },
+      "ppeak": {
+        "name": "Puissance - Crête"
+      },
+      "e0_last_week": {
+        "name": "Énergie AC - Produite (semaine en cours)"
+      },
+      "ein1": {
+        "name": "Énergie DC - Chaîne 1 (Total)"
+      },
+      "energy_policy": {
+        "name": "Politique Énergétique"
+      },
+      "e4_since_restart": {
+        "name": "Énergie - Autoconsommée (Depuis Redémarrage)"
+      },
+      "e5_since_restart": {
+        "name": "Énergie - Charge Batterie (Depuis Redémarrage)"
+      },
+      "meter_pgrid_tot": {
+        "name": "Puissance AC - Compteur total"
+      },
+      "iba": {
+        "name": "Courant - Batterie"
+      },
+      "tc_min": {
+        "name": "Température - Armoire Min"
+      },
+      "e3_last_month": {
+        "name": "Énergie AC - Réseau Exportation (mois en cours)"
+      },
+      "vin2": {
+        "name": "Tension DC - Entrée 2"
+      },
+      "vgrid_l1_n": {
+        "name": "Tension AC - Réseau L1-N"
+      },
+      "ein_last_week": {
+        "name": "Énergie DC - PV (semaine en cours)"
+      },
+      "vc_max": {
+        "name": "Tension - Cellule Batterie Max"
+      },
+      "e_tot_charge_last_month": {
+        "name": "Énergie - Charge Batterie totale (mois en cours)"
+      },
+      "vba": {
+        "name": "Tension - Batterie"
+      },
+      "grid_ext_ctrl_state": {
+        "name": "État - Réseau External Control"
+      },
+      "pac_derating_flags": {
+        "name": "Puissance AC - Derating Flags"
+      },
+      "frt_state": {
+        "name": "État - Fault Ride Through (FRT)"
+      },
+      "e1_since_restart": {
+        "name": "Énergie AC - Absorbée (Depuis Redémarrage)"
+      },
+      "ein_since_restart": {
+        "name": "Énergie DC - PV (Depuis Redémarrage)"
+      },
+      "e_backup": {
+        "name": "Énergie AC - Sortie Secours (Total)"
+      },
+      "m132_mod_ena": {
+        "name": "Modèle 132 Activé"
+      },
+      "dynamic_feed_in_ctrl": {
+        "name": "Contrôle dynamique de l'injection"
+      },
+      "e5_last_month": {
+        "name": "Énergie - Charge Batterie (mois en cours)"
+      },
+      "e4_last_week": {
+        "name": "Énergie - Autoconsommée (semaine en cours)"
+      },
+      "meter_qgrid_l3": {
+        "name": "Puissance réactive AC - Compteur Phase C"
+      },
+      "e8_since_restart": {
+        "name": "Énergie AC - Réseau Importation (Depuis Redémarrage)"
+      },
+      "di_status": {
+        "name": "État - Entrée numérique"
+      },
+      "e_tot_discharge_last_month": {
+        "name": "Énergie - Décharge Batterie totale (mois en cours)"
+      },
+      "house_pgrid_tot": {
+        "name": "Puissance AC - Charge Maison totalee"
+      },
+      "tba": {
+        "name": "Température - Batterie"
+      },
+      "batt_ext_ctrl_state": {
+        "name": "Control État"
+      },
+      "m126_mod_ena": {
+        "name": "Modèle 126 Activé"
+      },
+      "e2_since_restart": {
+        "name": "Énergie AC - Apparente (Depuis Redémarrage)"
+      },
+      "e_tot_discharge_last_week": {
+        "name": "Énergie - Décharge Batterie totale (semaine en cours)"
+      },
+      "meter_pgrid_l1": {
+        "name": "Puissance AC - Compteur Phase A"
+      },
+      "vin3": {
+        "name": "Tension DC - Entrée 3"
+      },
+      "e7_last_month": {
+        "name": "Énergie - Maison Consommation (mois en cours)"
+      },
+      "e8_last_month": {
+        "name": "Énergie AC - Réseau Importation (mois en cours)"
+      },
+      "pac_togrid": {
+        "name": "Puissance AC - Exportation to Réseau"
+      },
+      "pac_stand_alone": {
+        "name": "Puissance AC - Mode Autonome"
+      },
+      "meter_fgrid": {
+        "name": "Fréquence AC - Compteur"
+      },
+      "e0_1_year": {
+        "name": "Énergie AC - Produite (année en cours)"
+      },
+      "p_ch": {
+        "name": "Puissance - Charge Batterie"
+      },
+      "meter_vgrid_l2": {
+        "name": "Tension AC - Compteur Phase B"
+      },
+      "e_tot_charge_last_week": {
+        "name": "Énergie - Charge Batterie totale (semaine en cours)"
+      },
+      "sh_u": {
+        "name": "Tension - Shunt"
+      },
+      "e2_last_month": {
+        "name": "Énergie AC - Apparente (mois en cours)"
+      },
+      "meter_pgrid_l2": {
+        "name": "Puissance AC - Compteur Phase B"
+      },
+      "e15_last_month": {
+        "name": "Énergie AC - Sortie Secours (mois en cours)"
+      },
+      "ein": {
+        "name": "Énergie DC - PV (Total)"
+      },
+      "meter_qgrid_l1": {
+        "name": "Puissance réactive AC - Compteur Phase A"
+      },
+      "temp_int": {
+        "name": "Température - Internal"
+      },
+      "meter_qgrid_tot": {
+        "name": "Puissance réactive AC - Compteur total"
+      },
+      "e_charge_last_month": {
+        "name": "Énergie - Charge Batterie (mois en cours)"
+      },
+      "cycle_num": {
+        "name": "Cycles"
+      },
+      "meter_qgrid_l2": {
+        "name": "Puissance réactive AC - Compteur Phase B"
+      },
+      "vgrid_l2_n": {
+        "name": "Tension AC - Réseau L2-N"
+      },
+      "ein_last_month": {
+        "name": "Énergie DC - PV (mois en cours)"
+      },
+      "e_tot_charge": {
+        "name": "Énergie - Charge Batterie totale"
+      },
+      "e_total_apparent": {
+        "name": "Énergie AC - Apparente (Total)"
+      },
+      "e_discharge_since_restart": {
+        "name": "Énergie - Décharge Batterie (Depuis Redémarrage)"
+      },
+      "e7_since_restart": {
+        "name": "Énergie - Maison Consommation (Depuis Redémarrage)"
+      },
+      "ein2": {
+        "name": "Énergie DC - Chaîne 2 (Total)"
+      },
+      "e_discharge_last_month": {
+        "name": "Énergie - Décharge Batterie (mois en cours)"
+      },
+      "pba": {
+        "name": "Puissance - Total Batterie"
+      },
+      "e0_since_restart": {
+        "name": "Énergie AC - Produite (Depuis Redémarrage)"
+      },
+      "e15_last_week": {
+        "name": "Énergie AC - Sortie Secours (semaine en cours)"
+      },
+      "e4_last_month": {
+        "name": "Énergie - Autoconsommée (mois en cours)"
+      },
+      "inv_state": {
+        "name": "État - Onduleur"
+      },
+      "sac_derating_flags": {
+        "name": "Puissance AC - Apparente Derating Flags"
+      },
+      "e2_last_week": {
+        "name": "Énergie AC - Apparente (semaine en cours)"
+      },
+      "e_tot_charge_since_restart": {
+        "name": "Énergie - Charge Batterie totale (Depuis Redémarrage)"
+      },
+      "e0_last_month": {
+        "name": "Énergie AC - Produite (mois en cours)"
+      },
+      "e_charge_last_week": {
+        "name": "Énergie - Charge Batterie (semaine en cours)"
+      },
+      "e_discharge_last_week": {
+        "name": "Énergie - Décharge Batterie (semaine en cours)"
+      },
+      "e_tot_discharge": {
+        "name": "Énergie - Décharge Batterie totale"
+      },
+      "e5_last_week": {
+        "name": "Énergie - Charge Batterie (semaine en cours)"
+      },
+      "e3_since_restart": {
+        "name": "Énergie AC - Réseau Exportation (Depuis Redémarrage)"
+      },
+      "ein3": {
+        "name": "Énergie DC - Chaîne 3 (Total)"
+      },
+      "meter_vgrid_l3": {
+        "name": "Tension AC - Compteur Phase C"
+      },
+      "input_mode": {
+        "name": "Mode Entrée"
+      },
+      "iin3": {
+        "name": "Courant DC - Chaîne 3"
+      },
+      "warning_flags": {
+        "name": "État - Flags Avertissement"
+      },
+      "pin1": {
+        "name": "Puissance DC - Chaîne 1"
+      },
+      "e7_total": {
+        "name": "Énergie - Maison Consommation (Total)"
+      },
+      "meter_pgrid_l3": {
+        "name": "Puissance AC - Compteur Phase C"
+      },
+      "e6_since_restart": {
+        "name": "Énergie - Maison depuis Onduleur (Depuis Redémarrage)"
+      },
+      "e_ct": {
+        "name": "Énergie - Courant Transformer (CT) (Total)"
+      },
+      "d_c2_state": {
+        "name": "État - DC Entrée 2"
+      },
+      "batt_ext_ctrl_ena": {
+        "name": "Control Activé"
+      },
+      "iin2": {
+        "name": "Courant DC - Chaîne 2"
+      },
+      "iin1": {
+        "name": "Courant DC - Chaîne 1"
+      },
+      "house_p_inverter": {
+        "name": "Puissance - PV Maison"
+      },
+      "fan1rpm": {
+        "name": "Vitesse - Ventilateur 1"
+      },
+      "e6_total": {
+        "name": "Énergie - Maison depuis Onduleur (Total)"
+      },
+      "pin2": {
+        "name": "Puissance DC - Chaîne 2"
+      },
+      "e_total_absorbed": {
+        "name": "Énergie AC - Absorbée (Total)"
+      },
+      "meter_igrid_l3": {
+        "name": "Courant AC - Compteur Phase C"
+      },
+      "e_tot_discharge_since_restart": {
+        "name": "Énergie - Décharge Batterie totale (Depuis Redémarrage)"
+      },
+      "e6_last_week": {
+        "name": "Énergie - Maison depuis Onduleur (semaine en cours)"
+      },
+      "e6_last_month": {
+        "name": "Énergie - Maison depuis Onduleur (mois en cours)"
+      },
+      "commissioning_freeze": {
+        "name": "Gel Mise en Service"
+      },
+      "num_of_mppt": {
+        "name": "MPPT Channel Compte"
+      },
+      "e8_last_week": {
+        "name": "Énergie AC - Réseau Importation (semaine en cours)"
+      },
+      "temp_inv": {
+        "name": "Température - Onduleur"
+      },
+      "temp_bst": {
+        "name": "Température - Booster"
+      },
+      "d_c1_state": {
+        "name": "État - DC Entrée 1"
+      },
+      "di1_mode": {
+        "name": "Entrée numérique - Mode 1"
+      },
+      "e15_since_restart": {
+        "name": "Énergie AC - Sortie Secours (Depuis Redémarrage)"
+      },
+      "di0_mode": {
+        "name": "Entrée numérique - Mode 0"
+      },
+      "vin1": {
+        "name": "Tension DC - Entrée 1"
+      },
+      "pin3": {
+        "name": "Puissance DC - Chaîne 3"
+      },
+      "fcc": {
+        "name": "Fréquence - Central Controller"
+      },
+      "e_dt": {
+        "name": "Énergie - Direct Transducer (DT) (Total)"
+      },
+      "fan2rpm": {
+        "name": "Vitesse - Ventilateur 2"
+      },
+      "d_c3_state": {
+        "name": "État - Entrée DC 3"
+      },
+      "qac_derating_flags": {
+        "name": "Réactive Puissance - Derating Flags"
+      },
+      "w_rtg": {
+        "name": "Puissance - Nominal"
+      },
+      "clock_state": {
+        "name": "État - Horloge"
+      },
+      "temp1": {
+        "name": "Température - Capteur 1"
+      },
+      "meter_vgrid_l1": {
+        "name": "Tension AC - Compteur Phase A"
+      },
+      "e1_last_month": {
+        "name": "Énergie AC - Absorbée (mois en cours)"
+      },
+      "detected_battery_number": {
+        "name": "Nombre détecté"
+      },
+      "pba_t": {
+        "name": "Puissance - Batterie Aggregate"
+      },
+      "vc_min": {
+        "name": "Tension - Cellule Batterie Min"
+      },
+      "glob_state": {
+        "name": "État - Global"
+      },
+      "e7_last_week": {
+        "name": "Énergie - Maison Consommation (semaine en cours)"
+      },
+      "e1_last_week": {
+        "name": "Énergie AC - Absorbée (semaine en cours)"
+      },
+      "p_dh": {
+        "name": "Puissance - Décharge Batterie"
+      },
+      "mfg_part_number": {
+        "name": "Numéro Pièce"
+      },
+      "mfg_serial_number": {
+        "name": "Numéro de Série"
+      },
+      "mfg_week_year": {
+        "name": "Semaine/Année Production"
+      },
+      "logger_sn": {
+        "name": "Numéro de Série Logger"
+      },
+      "fw_build_date": {
+        "name": "Date Build Firmware"
+      },
+      "fw_release_number": {
+        "name": "Version du firmware"
+      },
+      "fw_build_number": {
+        "name": "Hash de build du firmware"
+      },
+      "fw_revision": {
+        "name": "Révision du firmware"
+      },
+      "logger_board_model": {
+        "name": "Modèle Carte Logger"
+      },
+      "device_name": {
+        "name": "Nom 0"
+      },
+      "device_type": {
+        "name": "Type 0"
+      },
+      "fw_version": {
+        "name": "Version du firmware"
+      },
+      "logger_hostname": {
+        "name": "Nom d'hôte"
+      },
+      "model_type": {
+        "name": "Type Modèle"
+      },
+      "inverter_id": {
+        "name": "ID de l'onduleur"
+      },
+      "communication_protocol": {
+        "name": "Protocole Communication"
+      },
+      "model_description": {
+        "name": "Description Modèle"
+      },
+      "wlan_fsm_status": {
+        "name": "WiFi - État FSM"
+      },
+      "wlan_0_status": {
+        "name": "WiFi - État"
+      },
+      "inverter_time": {
+        "name": "Heure Onduleur"
+      },
+      "wlan_ap_status": {
+        "name": "WiFi - État du point d'accès"
+      },
+      "wlan_0_dhcp_state": {
+        "name": "WiFi - DHCP État"
+      },
+      "wlan_0_ipaddr": {
+        "name": "WiFi - Adresse IP"
+      },
+      "wlan_0_netmask": {
+        "name": "Masque Réseau WiFi"
+      },
+      "wlan_0_broadcast": {
+        "name": "WiFi - Broadcast"
+      },
+      "wlan_0_gateway": {
+        "name": "WiFi - Passerelle"
+      },
+      "wlan_0_dns": {
+        "name": "WiFi - Serveur DNS"
+      },
+      "logger_logger_id": {
+        "name": "ID du logger"
+      },
+      "events": {
+        "name": "Événements"
+      },
+      "dc_input_3_state": {
+        "name": "État entrée DC 3"
+      }
+    },
+    "number": {
+      "power_limit": {
+        "name": "Limite de puissance"
+      }
+    },
+    "switch": {
+      "power_limit_enabled": {
+        "name": "Limite de puissance"
+      }
+    }
+  },
+  "exceptions": {
+    "update_failed": {
+      "message": "Erreur de lecture de l'onduleur : {error}"
+    },
+    "modbus_link_conflict": {
+      "message": "Une autre intégration utilise déjà {host} avec d'autres réglages de liaison Modbus : {error}"
+    },
+    "write_failed": {
+      "message": "Échec de l'écriture sur l'onduleur : {error}"
+    },
+    "entry_not_found": {
+      "message": "Aucune entrée de configuration FIMER {entry_id}."
+    },
+    "entry_not_loaded": {
+      "message": "L'entrée {title} n'est pas chargée."
+    },
+    "modbus_not_enabled": {
+      "message": "Cette entrée ne lit pas via Modbus et ne peut donc pas accéder aux registres."
+    },
+    "no_controls": {
+      "message": "L'onduleur ne fournit pas le modèle de contrôles immédiats."
+    },
+    "unknown_point": {
+      "message": "Impossible d'écrire le point {point} : {error}"
+    },
+    "invalid_value": {
+      "message": "Valeur invalide : {error}"
+    },
+    "value_required": {
+      "message": "Indiquez soit une valeur, soit une liste de registres bruts."
+    },
+    "device_not_found": {
+      "message": "Aucun appareil {device} dans cette entrée."
+    },
+    "invalid_auth": {
+      "message": "Le datalogger a refusé les identifiants : {error}"
+    },
+    "unsupported_firmware": {
+      "message": "Le VSN300 utilise le firmware {firmware_version}, qui ne peut pas fournir les données en direct. Veuillez mettre à jour le datalogger vers le firmware 2.0.1 ou ultérieur ; la mise à jour est obligatoire."
+    }
+  },
+  "services": {
+    "read_registers": {
+      "name": "Lire des registres",
+      "description": "Lit des registres à une adresse Modbus absolue et les décode. Renvoie les registres bruts et la valeur décodée.",
+      "fields": {
+        "config_entry": {
+          "name": "Entrée de configuration",
+          "description": "L'onduleur à interroger."
+        },
+        "address": {
+          "name": "Adresse",
+          "description": "L'adresse du premier registre."
+        },
+        "count": {
+          "name": "Nombre",
+          "description": "Combien de registres lire ; ignoré pour les types de données de taille fixe."
+        },
+        "register_type": {
+          "name": "Type de registre",
+          "description": "Registres holding ou input."
+        },
+        "data_type": {
+          "name": "Type de données",
+          "description": "Comment décoder les registres ; raw les renvoie sans décodage."
+        },
+        "word_order": {
+          "name": "Ordre des mots",
+          "description": "Quel registre contient le mot de poids fort d'une valeur 32 bits."
+        }
+      }
+    },
+    "write_registers": {
+      "name": "Écrire des registres",
+      "description": "Écrit une valeur encodée dans le type indiqué, ou une liste de registres bruts, à une adresse Modbus absolue.",
+      "fields": {
+        "config_entry": {
+          "name": "Entrée de configuration",
+          "description": "L'onduleur à interroger."
+        },
+        "address": {
+          "name": "Adresse",
+          "description": "L'adresse du premier registre."
+        },
+        "value": {
+          "name": "Valeur",
+          "description": "La valeur à encoder et à écrire."
+        },
+        "values": {
+          "name": "Registres bruts",
+          "description": "Une liste de valeurs de registre 16 bits à écrire telles quelles, à la place d'une valeur."
+        },
+        "data_type": {
+          "name": "Type de données",
+          "description": "Comment encoder la valeur."
+        },
+        "word_order": {
+          "name": "Ordre des mots",
+          "description": "Quel registre reçoit le mot de poids fort d'une valeur 32 bits."
+        },
+        "count": {
+          "name": "Longueur",
+          "description": "Registres occupés par une chaîne ; par défaut, ce dont la chaîne a besoin."
+        }
+      }
+    },
+    "write_point": {
+      "name": "Écrire un point",
+      "description": "Écrit un point SunSpec inscriptible par son nom, par exemple WMaxLimPct ou OutPFSet, et rafraîchit les mesures.",
+      "fields": {
+        "config_entry": {
+          "name": "Entrée de configuration",
+          "description": "L'onduleur à interroger."
+        },
+        "point": {
+          "name": "Point",
+          "description": "Le nom du point."
+        },
+        "value": {
+          "name": "Valeur",
+          "description": "La valeur dans l'unité physique du point."
+        }
+      }
+    },
+    "set_power_limit": {
+      "name": "Définir la limite de puissance",
+      "description": "Définit la limite de puissance active et si elle est appliquée, avec vérification par relecture. Omettez un champ pour conserver sa valeur actuelle.",
+      "fields": {
+        "config_entry": {
+          "name": "Entrée de configuration",
+          "description": "L'onduleur à interroger."
+        },
+        "percent": {
+          "name": "Limite",
+          "description": "La limite en pourcentage de la puissance nominale."
+        },
+        "enabled": {
+          "name": "Activée",
+          "description": "Si la limite est appliquée."
+        }
+      }
+    },
+    "get_readings": {
+      "name": "Obtenir les mesures",
+      "description": "Renvoie chaque point que chaque appareil de l'entrée rapporte actuellement.",
+      "fields": {
+        "config_entry": {
+          "name": "Entrée de configuration",
+          "description": "L'onduleur à interroger."
+        },
+        "device": {
+          "name": "Appareil",
+          "description": "Seulement cet appareil, par son numéro de série ou son identifiant."
+        }
+      }
+    },
+    "rediscover": {
+      "name": "Redécouvrir",
+      "description": "Parcourt à nouveau la chaîne des modèles SunSpec et les appareils du datalogger sans recharger, et rafraîchit les mesures. Les appareils que le datalogger rapporte pour la première fois obtiennent leurs entités.",
+      "fields": {
+        "config_entry": {
+          "name": "Entrée de configuration",
+          "description": "L'onduleur à interroger."
+        }
+      }
+    }
+  },
+  "selector": {
+    "register_type": {
+      "options": {
+        "holding": "Registres holding",
+        "input": "Registres input"
+      }
+    },
+    "data_type": {
+      "options": {
+        "raw": "Registres bruts",
+        "uint16": "16 bits non signé",
+        "int16": "16 bits signé",
+        "uint32": "32 bits non signé",
+        "int32": "32 bits signé",
+        "float32": "Flottant (32 bits)",
+        "string": "Chaîne"
+      }
+    },
+    "word_order": {
+      "options": {
+        "big": "Mot de poids fort en premier",
+        "little": "Mot de poids faible en premier"
+      }
+    }
+  },
+  "issues": {
+    "connection_failed_modbus": {
+      "title": "{title} : aucune réponse Modbus",
+      "description": "Home Assistant n'a pas pu lire {title} via Modbus TCP à {host} depuis {failures} interrogations consécutives en plein jour.\n\nDernière erreur : `{error}`\n\n**Causes possibles**\n- L'onduleur ou son datalogger est hors tension ou a perdu le réseau\n- L'adresse de l'appareil a changé\n- Un autre client Modbus occupe le datalogger, qui ne sert qu'une connexion à la fois\n- Les réglages SunSpec (ID d'unité, adresse de base) ont changé après une mise à jour du firmware\n\n**À vérifier**\n1. Ouvrez la page web du datalogger à http://{host}\n2. Cherchez l'adresse actuelle de l'appareil dans la table DHCP de votre routeur\n3. Si l'adresse a changé, utilisez **Reconfigurer** sur la page de l'intégration\n\nCette réparation se ferme d'elle-même dès qu'une interrogation réussit."
+    },
+    "connection_failed_rest": {
+      "title": "{title} : l'API REST du datalogger ne répond pas",
+      "description": "Home Assistant n'a pas pu lire le datalogger VSN de {title} à {host} depuis {failures} interrogations consécutives en plein jour.\n\nDernière erreur : `{error}`\n\n**Causes possibles**\n- Le datalogger est hors tension ou a perdu le réseau\n- L'adresse du datalogger a changé\n- La carte est bloquée ; un VSN300 a parfois besoin d'être mis hors tension puis sous tension après avoir perdu sa liaison WiFi\n\n**À vérifier**\n1. Ouvrez la page web du datalogger à http://{host}\n2. Cherchez son adresse actuelle dans la table DHCP de votre routeur\n3. Si l'adresse a changé, utilisez **Reconfigurer** sur la page de l'intégration\n4. Mettez la carte hors tension puis sous tension si la page ne se charge pas\n\nCette réparation se ferme d'elle-même dès qu'une interrogation réussit."
+    },
+    "unsupported_firmware": {
+      "title": "{title} : firmware du datalogger {firmware_version} non pris en charge",
+      "description": "Le datalogger VSN300 de {title} à {host} utilise le firmware {firmware_version}. Cette version a un défaut connu : son API de données en direct coupe chaque connexion, si bien que rien ne peut être lu.\n\n**Veuillez mettre à jour le datalogger vers le firmware 2.0.1 ou ultérieur. La mise à jour est obligatoire : l'intégration ne peut pas fonctionner avec la 2.0.0.** Elle est disponible depuis la page web de la carte :\n\n1. Ouvrez http://{host} et allez dans l'onglet **FW UPDATE**\n2. Sous **Remote Update**, cliquez sur **Check for FW update** ; la 2.0.1 ou ultérieure devrait être proposée\n3. Cliquez sur **Download & Update** et attendez que la carte se mette à jour et redémarre\n4. Rechargez l'intégration depuis sa page dans Paramètres > Appareils et services\n\nSi aucune mise à jour n'est proposée, contactez l'assistance FIMER. Cette réparation se ferme d'elle-même dès que l'intégration démarre."
+    },
+    "datalogger_silent": {
+      "title": "{title} : le datalogger ne rapporte pas ses propres données",
+      "description": "Le datalogger VSN de {title} à {host} répond et fournit les mesures de l'onduleur, mais ses propres mesures (temps de fonctionnement, liaison WiFi, mémoire) manquent depuis plus de {minutes} minutes. Les capteurs du datalogger restent indisponibles jusqu'à leur retour.\n\n**Cause la plus probable**\nAprès un redémarrage, la carte n'a pas pu régler son horloge (pas de NTP ni d'accès internet) et a cessé de publier ses propres données. C'est un défaut connu du firmware VSN300.\n\n**Que faire**\n- Vérifiez que la carte accède à internet, par exemple depuis sa page web à http://{host}\n- Mettez la carte hors tension puis sous tension\n\nCette réparation se ferme d'elle-même dès que la carte rapporte à nouveau ses propres données."
+    },
+    "partial_discovery": {
+      "title": "{title} : appareils absents du datalogger",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Oublier les appareils absents",
+            "description": "Le datalogger de {title} à {host} rapportait ces appareils auparavant mais ne les rapporte plus :\n\n{missing_devices}\n\nLeurs entités sont indisponibles entre-temps. Causes possibles : l'appareil est éteint (un onduleur la nuit), déconnecté du datalogger ou retiré de l'installation. La réparation se ferme d'elle-même dès que tous les appareils sont à nouveau rapportés.\n\nValidez seulement si les appareils ont disparu pour de bon : ils sont retirés de Home Assistant avec leurs entités. Un appareil que le datalogger rapporte à nouveau plus tard est ajouté comme nouvel appareil."
+          }
+        }
+      }
+    },
+    "takeover_incomplete": {
+      "title": "{title} : {count} anciens capteurs n'ont pas été repris",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Prendre acte",
+            "description": "L'entrée de l'ancienne intégration ABB/FIMER PVI VSN REST a été supprimée et ses capteurs ont été réenregistrés ici, sauf ceux-ci, qui n'ont pas d'équivalent dans cette intégration :\n\n{entities}\n\nLeur historique reste dans le recorder sous les anciens identifiants d'entité, mais plus aucune entité ne les fournit. Si vous les utilisiez dans des automatisations ou des tableaux de bord, pointez ceux-ci vers les entités de cette intégration.\n\nValidez pour fermer cet avis ; les capteurs listés ne sont pas restaurés."
+          }
+        }
+      }
+    }
+  }
+}
