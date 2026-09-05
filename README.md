@@ -332,7 +332,8 @@ Details about Modbus registers can be found in the device documentation or on th
 - If another integration already uses the same host with different link settings, Home Assistant
   reports a conflict. One connection cannot honour two configurations at once.
 - If the REST API rejects the username or password, check them in the card's web interface; the
-  user is usually `guest`.
+  user is usually `guest`. When the password changes later, Home Assistant asks for the new one
+  through a repair on the integration page.
 - If no REST API answers at the host, the device is not a VSN300 / VSN700 card, or its REST server
   is disabled.
 - A VSN300 on firmware 2.0.0 is refused: update the card to 2.0.1 or later.
