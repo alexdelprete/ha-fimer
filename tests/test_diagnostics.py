@@ -23,10 +23,11 @@ async def test_diagnostics(
     diag = await get_diagnostics_for_config_entry(hass, hass_client, init_integration)
 
     assert diag["config_entry"]["data"]["host"] == REDACTED
-    assert diag["identity"]["serial_number"] == REDACTED
-    assert diag["identity"]["inverter_model"] == "PVI-10.0-OUTD"
-    assert diag["phases"] == 3
-    assert [model["model_id"] for model in diag["model_chain"]] == [
+    modbus = diag["modbus"]
+    assert modbus["identity"]["serial_number"] == REDACTED
+    assert modbus["identity"]["inverter_model"] == "PVI-10.0-OUTD"
+    assert modbus["phases"] == 3
+    assert [model["model_id"] for model in modbus["model_chain"]] == [
         1,
         103,
         160,
@@ -35,11 +36,13 @@ async def test_diagnostics(
         123,
         64061,
     ]
-    assert diag["vendor_model_length"] == 124
-    assert diag["data"]["W"] == 1500
-    assert diag["data"]["SN"] == REDACTED
-    assert diag["registers"]["holding"]["2"] == 1
-    assert diag["registers"]["holding"]["258"] == 64061
+    assert modbus["vendor_model_length"] == 124
+    assert modbus["data"]["W"] == 1500
+    assert modbus["data"]["SN"] == REDACTED
+    assert modbus["registers"]["holding"]["2"] == 1
+    assert modbus["registers"]["holding"]["258"] == 64061
+    assert diag["devices"][0]["type"] == "inverter"
+    assert "rest" not in diag
 
 
 async def test_diagnostics_offline(

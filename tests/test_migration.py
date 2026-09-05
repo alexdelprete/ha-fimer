@@ -41,7 +41,7 @@ async def test_takeover(
     old_quality = entity_registry.async_get_or_create(
         "sensor",
         LEGACY_REST_DOMAIN,
-        "abb_fimer_pvi_vsn_rest_datalogger_llllll3n16bbbb_wifi_link_quality",
+        "abb_fimer_pvi_vsn_rest_datalogger_llllll3n16bbbb_wlan0_link_quality",
         suggested_object_id="abb_fimer_datalogger_wifi_link_quality",
         config_entry=legacy,
     )
