@@ -24,3 +24,9 @@ MAX_SCAN_INTERVAL: Final = 600
 MAX_FAILED_UPDATES: Final = 3
 """Consecutive failed polls before the interval stretches for a sleeping inverter."""
 ERROR_SCAN_INTERVAL: Final = 300
+
+CONF_POWER_CONTROL: Final = "power_control"
+"""Option: expose the SunSpec power limit as number and switch entities (experimental)."""
+DEFAULT_POWER_CONTROL: Final = False
+SETTINGS_SCAN_INTERVAL: Final = 60
+"""Seconds between polls of the immediate controls model when power control is on."""

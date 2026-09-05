@@ -13,11 +13,11 @@ from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError, HomeAssistantError
 
-from .const import CONF_BASE_ADDRESS, CONF_UNIT_ID, DOMAIN
-from .coordinator import FimerCoordinator
+from .const import CONF_BASE_ADDRESS, CONF_POWER_CONTROL, CONF_UNIT_ID, DOMAIN
+from .coordinator import FimerCoordinator, FimerSettingsCoordinator
 from .pyfimer.modbus import FimerModbusInverter
 
-PLATFORMS: Final = [Platform.SENSOR]
+PLATFORMS: Final = [Platform.NUMBER, Platform.SENSOR, Platform.SWITCH]
 
 
 @dataclass
@@ -26,6 +26,8 @@ class FimerRuntimeData:
 
     inverter: FimerModbusInverter
     coordinator: FimerCoordinator
+    settings_coordinator: FimerSettingsCoordinator | None = None
+    """Present only with the experimental power control option on model 123."""
 
 
 type FimerConfigEntry = ConfigEntry[FimerRuntimeData]
@@ -48,7 +50,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> boo
     coordinator = FimerCoordinator(hass, entry, inverter)
     await coordinator.async_config_entry_first_refresh()
 
-    entry.runtime_data = FimerRuntimeData(inverter=inverter, coordinator=coordinator)
+    settings_coordinator = None
+    if entry.options.get(CONF_POWER_CONTROL) and inverter.controls is not None:
+        settings_coordinator = FimerSettingsCoordinator(hass, entry, inverter, coordinator)
+        await settings_coordinator.async_config_entry_first_refresh()
+
+    entry.runtime_data = FimerRuntimeData(
+        inverter=inverter, coordinator=coordinator, settings_coordinator=settings_coordinator
+    )
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 

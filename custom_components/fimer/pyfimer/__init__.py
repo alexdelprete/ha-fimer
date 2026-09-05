@@ -25,7 +25,12 @@ from .aurora import (
     decode_alarms,
     inverter_model_from_options,
 )
-from .exceptions import FimerError, FimerNotDiscoveredError, FimerUnsupportedDeviceError
+from .exceptions import (
+    FimerError,
+    FimerNotDiscoveredError,
+    FimerUnsupportedDeviceError,
+    FimerWriteError,
+)
 from .points import POINTS, POINTS_BY_NAME, Point, PointKind
 
 __all__ = [
@@ -40,6 +45,7 @@ __all__ = [
     "FimerError",
     "FimerNotDiscoveredError",
     "FimerUnsupportedDeviceError",
+    "FimerWriteError",
     "Point",
     "PointKind",
     "decode_alarms",

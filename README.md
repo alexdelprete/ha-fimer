@@ -178,12 +178,32 @@ actions:
               entity_id: switch.my_load
 ```
 
+## Power limit control (experimental)
+
+The SunSpec immediate controls model (123) carries an active power limit in percent of the rated
+power and a flag that enables it. The integration can expose them as a `Power limit` number and
+switch, off by default: enable **Power limit control (experimental)** in the integration's options.
+The entities appear only when the inverter serves model 123.
+
+Whether the inverter acts on the limit depends on the inverter, not on the datalogger. A VSN300
+accepts the writes for every inverter, answers them with a Modbus negative acknowledge, and reads
+back the values written; a 2013-era PVI-10.0-OUTD then ignores them. Newer inverters such as the
+REACT2 and UNO-DM-PLUS families are expected to honour them, but this has not been verified yet.
+If you try it, please run this test and report the outcome in an issue:
+
+1. Note the AC power while the inverter is producing well above 10 % of its rated power.
+1. Set `Power limit` to 10 and switch it on. Watch the AC power for three minutes; the datalogger
+   refreshes its readings about once a minute.
+1. Switch the limit off and check that production recovers within a few minutes.
+
+Report the inverter model and firmware (both shown on the device page), the datalogger model and
+firmware, whether the AC power followed the limit, and attach the diagnostics download.
+
 ## Known limitations
 
-The integration is read-only. It exposes what the SunSpec models implement on the device and does
-not write to the inverter. The SunSpec immediate controls model is read, but on the hardware tested
-so far (a PVI-10.0-OUTD behind a VSN300 on firmware 2.0.1) the datalogger stores a power limit
-written to it without the inverter acting on it, so no control entity is offered.
+The integration is read-only unless the experimental power limit control is switched on (see
+below). On the hardware tested so far, a PVI-10.0-OUTD behind a VSN300 on firmware 2.0.1, the
+datalogger stores the power limit written to it without the inverter acting on it.
 
 The SunSpec register map of a device can change with a firmware update or when a datalogger is
 reconfigured. The integration verifies the model headers on every poll and re-discovers the models

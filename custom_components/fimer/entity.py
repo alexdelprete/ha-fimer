@@ -5,7 +5,7 @@ from __future__ import annotations
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .coordinator import FimerCoordinator
+from .coordinator import FimerCoordinator, FimerSettingsCoordinator
 
 
 class FimerEntity(CoordinatorEntity[FimerCoordinator]):
@@ -18,4 +18,16 @@ class FimerEntity(CoordinatorEntity[FimerCoordinator]):
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{coordinator.device_unique_id}_{description.key}"
+        self._attr_device_info = coordinator.device_info
+
+
+class FimerControlEntity(CoordinatorEntity[FimerSettingsCoordinator]):
+    """An entity writing to the inverter through the settings coordinator."""
+
+    _attr_has_entity_name = True
+
+    def __init__(self, coordinator: FimerSettingsCoordinator, key: str) -> None:
+        """Set up the entity on the inverter's device."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{coordinator.device_unique_id}_{key}"
         self._attr_device_info = coordinator.device_info

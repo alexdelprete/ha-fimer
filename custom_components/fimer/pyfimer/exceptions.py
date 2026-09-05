@@ -16,3 +16,7 @@ class FimerUnsupportedDeviceError(FimerError):
 
 class FimerNotDiscoveredError(FimerError):
     """A read was attempted before the device was discovered."""
+
+
+class FimerWriteError(FimerError):
+    """A write was accepted by the device but the readback does not show it."""

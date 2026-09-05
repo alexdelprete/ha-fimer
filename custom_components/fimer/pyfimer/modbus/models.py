@@ -7,11 +7,16 @@ SunSpec model definitions; the ``PhVph*`` spelling of the phase-to-phase
 voltages follows the VSN REST mapping rather than the register names.
 """
 
+# ruff: noqa: TID252 - attribute names are the shared SunSpec point vocabulary;
+# parent-relative imports keep the package movable to PyPI
+
 from __future__ import annotations
 
 from enum import IntEnum, IntFlag
+import math
 from typing import Any, ClassVar
 
+from modbus_connection import ModbusExceptionError
 from modbus_connection.model import Component, repeating_group
 from modbus_connection.model.sunspec import (
     SunSpecComponent,
@@ -24,6 +29,7 @@ from modbus_connection.model.sunspec import (
     uint32,
 )
 
+from ..exceptions import FimerWriteError
 from .sunspec import MAX_READ_SPAN
 
 TMP_CAB_PLAUSIBLE_MAX: float = 70.0
@@ -325,20 +331,31 @@ class Controls(FimerComponent):
     OutPFSet_RmpTms = uint16(13, writable=True)
     OutPFSet_Ena = enum16(14, Enabled, writable=True)
 
-    async def set_power_limit(self, percent: float | None) -> None:
-        """Limit the output to ``percent`` of the rated power, or lift the limit.
+    async def apply_power_limit(
+        self, *, percent: float | None = None, enabled: bool | None = None
+    ) -> None:
+        """Write the power limit and/or its enable flag, verified by readback.
 
-        The model is refreshed first so the scale factor is known and a
-        shifted register map is caught before anything is written.
+        ``percent`` sets ``WMaxLimPct``; ``enabled`` sets ``WMaxLim_Ena``.
+        Either may be left out to keep the current value. The model is
+        refreshed first so the scale factor is known and a shifted register
+        map is caught before anything is written.
         """
-        await self.async_update()
+        writes: dict[str, Any] = {}
+        if percent is not None:
+            if not 0 <= percent <= 100:
+                raise ValueError(f"percent must be 0..100, got {percent}")
+            writes["WMaxLimPct"] = percent
+        if enabled is not None:
+            writes["WMaxLim_Ena"] = Enabled.ENABLED if enabled else Enabled.DISABLED
+        await self._write_verified(writes)
+
+    async def set_power_limit(self, percent: float | None) -> None:
+        """Limit the output to ``percent`` of the rated power, or lift the limit."""
         if percent is None:
-            await self.write("WMaxLim_Ena", Enabled.DISABLED)
-            return
-        if not 0 <= percent <= 100:
-            raise ValueError(f"percent must be 0..100, got {percent}")
-        await self.write("WMaxLimPct", percent)
-        await self.write("WMaxLim_Ena", Enabled.ENABLED)
+            await self.apply_power_limit(enabled=False)
+        else:
+            await self.apply_power_limit(percent=percent, enabled=True)
 
     async def set_power_factor(self, cos_phi: float | None) -> None:
         """Set the power factor setpoint, or lift it.
@@ -346,11 +363,45 @@ class Controls(FimerComponent):
         Raises ``ValueError`` when the inverter does not implement the
         setpoint's scale factor, as a PVI behind a VSN300 does not.
         """
-        await self.async_update()
         if cos_phi is None:
-            await self.write("OutPFSet_Ena", Enabled.DISABLED)
+            await self._write_verified({"OutPFSet_Ena": Enabled.DISABLED})
             return
         if not -1.0 <= cos_phi <= 1.0:
             raise ValueError(f"cos phi must be -1..1, got {cos_phi}")
-        await self.write("OutPFSet", cos_phi)
-        await self.write("OutPFSet_Ena", Enabled.ENABLED)
+        await self._write_verified({"OutPFSet": cos_phi, "OutPFSet_Ena": Enabled.ENABLED})
+
+    async def _write_verified(self, writes: dict[str, Any]) -> None:
+        """Write points and confirm them by reading the model back.
+
+        A VSN300 datalogger applies control writes but answers them with
+        Modbus exception 7 (negative acknowledge), so that reply is not an
+        error by itself: the readback decides. Any other exception response
+        propagates, and a readback that does not match raises
+        :class:`FimerWriteError`.
+        """
+        if not writes:
+            return
+        await self.async_update()
+        for name, value in writes.items():
+            try:
+                await self.write(name, value)
+            except ModbusExceptionError as err:
+                if err.exception_code != NEGATIVE_ACKNOWLEDGE:
+                    raise
+        await self.async_update()
+        for name, value in writes.items():
+            actual = getattr(self, name)
+            if not _matches(actual, value):
+                raise FimerWriteError(f"{name} reads {actual!r} after writing {value!r}")
+
+
+NEGATIVE_ACKNOWLEDGE = 7
+"""Modbus exception code a VSN300 returns for control writes it applies anyway."""
+
+
+def _matches(actual: Any, expected: Any) -> bool:
+    if actual is None:
+        return False
+    if isinstance(expected, float) or isinstance(actual, float):
+        return math.isclose(float(actual), float(expected), abs_tol=1e-3)
+    return int(actual) == int(expected)

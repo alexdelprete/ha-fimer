@@ -73,6 +73,19 @@
       "power_limit_enabled": {
         "default": "mdi:speedometer"
       }
+    },
+    "number": {
+      "power_limit": {
+        "default": "mdi:speedometer"
+      }
+    },
+    "switch": {
+      "power_limit_enabled": {
+        "default": "mdi:speedometer",
+        "state": {
+          "off": "mdi:speedometer-slow"
+        }
+      }
     }
   }
 }

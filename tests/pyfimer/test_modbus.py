@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from modbus_connection import ModbusExceptionError
 from modbus_connection.mock import MockModbusConnection, MockModbusUnit
 import pytest
 
@@ -12,6 +13,7 @@ from custom_components.fimer.pyfimer import (
     POINTS_BY_NAME,
     FimerNotDiscoveredError,
     FimerUnsupportedDeviceError,
+    FimerWriteError,
 )
 from custom_components.fimer.pyfimer.modbus import (
     Enabled,
@@ -372,3 +374,44 @@ async def test_power_factor_when_implemented(unit: MockModbusUnit) -> None:
     assert unit.holding[232 + 14] == 1
     await inverter.async_update()
     assert inverter.values()["OutPFSet"] == 0.95
+
+
+async def test_power_limit_partial_writes(unit: MockModbusUnit) -> None:
+    inverter = await discovered(unit)
+    controls = inverter.controls
+    assert controls is not None
+    await controls.apply_power_limit(percent=55)
+    assert unit.holding[232 + 5] == 55
+    assert unit.holding[232 + 9] == 0  # enable flag untouched
+    await controls.apply_power_limit(enabled=True)
+    assert unit.holding[232 + 9] == 1
+    await controls.apply_power_limit()  # nothing to write
+    assert inverter.values()["WMaxLimPct"] == 55
+
+
+async def test_power_limit_tolerates_negative_acknowledge(unit: MockModbusUnit) -> None:
+    """A VSN300 applies the enable write but answers exception 7; the readback decides."""
+    inverter = await discovered(unit)
+    controls = inverter.controls
+    assert controls is not None
+    unit.fail_write(232 + 9, ModbusExceptionError.from_code(7, "negative acknowledge"))
+
+    # the card refused to say so, but the flag is set: success
+    unit.holding[232 + 9] = 1
+    await controls.set_power_limit(40)
+    assert unit.holding[232 + 5] == 40
+    assert inverter.values()["WMaxLim_Ena"] is Enabled.ENABLED
+
+    # the flag really did not change: a write error
+    unit.holding[232 + 9] = 1
+    with pytest.raises(FimerWriteError, match="WMaxLim_Ena"):
+        await controls.set_power_limit(None)
+
+
+async def test_power_limit_other_exceptions_propagate(unit: MockModbusUnit) -> None:
+    inverter = await discovered(unit)
+    controls = inverter.controls
+    assert controls is not None
+    unit.fail_write(232 + 5, ModbusExceptionError.from_code(2, "illegal data address"))
+    with pytest.raises(ModbusExceptionError):
+        await controls.set_power_limit(40)

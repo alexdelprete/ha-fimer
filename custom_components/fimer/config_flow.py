@@ -21,14 +21,21 @@ from homeassistant.core import callback
 from homeassistant.data_entry_flow import section
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.selector import NumberSelector, NumberSelectorConfig, NumberSelectorMode
+from homeassistant.helpers.selector import (
+    BooleanSelector,
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+)
 
 from .const import (
     CONF_ADVANCED,
     CONF_BASE_ADDRESS,
+    CONF_POWER_CONTROL,
     CONF_UNIT_ID,
     DEFAULT_BASE_ADDRESS,
     DEFAULT_PORT,
+    DEFAULT_POWER_CONTROL,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_UNIT_ID,
     DOMAIN,
@@ -77,6 +84,7 @@ OPTIONS_SCHEMA = vol.Schema(
             ),
             vol.Coerce(int),
         ),
+        vol.Required(CONF_POWER_CONTROL, default=DEFAULT_POWER_CONTROL): BooleanSelector(),
     }
 )
 
@@ -176,7 +184,7 @@ class FimerConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class FimerOptionsFlow(OptionsFlowWithReload):
-    """Tune the polling interval; the entry reloads on save."""
+    """Tune the polling interval and the experimental power control; the entry reloads on save."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Show and store the options."""

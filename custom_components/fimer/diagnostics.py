@@ -36,6 +36,9 @@ async def async_get_config_entry_diagnostics(
         ],
         "vendor_model_length": inverter.vendor_model_length,
         "data": coordinator.data,
+        "settings": (
+            settings.data if (settings := entry.runtime_data.settings_coordinator) else None
+        ),
     }
 
     if inverter.discovered:

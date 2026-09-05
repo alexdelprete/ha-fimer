@@ -10,6 +10,7 @@ from modbus_connection import ModbusError
 
 from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -19,9 +20,10 @@ from .const import (
     ERROR_SCAN_INTERVAL,
     MANUFACTURER,
     MAX_FAILED_UPDATES,
+    SETTINGS_SCAN_INTERVAL,
 )
 from .pyfimer import FimerError
-from .pyfimer.modbus import FimerModbusInverter, SunSpecError, SunSpecMapShiftError
+from .pyfimer.modbus import Controls, FimerModbusInverter, SunSpecError, SunSpecMapShiftError
 
 if TYPE_CHECKING:
     from . import FimerConfigEntry
@@ -103,3 +105,75 @@ class FimerCoordinator(DataUpdateCoordinator[FimerData]):
             # a firmware update or a changed datalogger setting moved the models
             await self.inverter.discover()
             await self.inverter.async_update()
+
+
+class FimerSettingsCoordinator(DataUpdateCoordinator[FimerData]):
+    """Poll the immediate controls model and write the power limit.
+
+    Only created when the experimental power control option is on and the
+    inverter serves model 123. It reads the live component off the inverter
+    on every use, so a re-discovery by the readings coordinator after a map
+    shift is picked up without any bookkeeping here.
+    """
+
+    config_entry: FimerConfigEntry
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry: FimerConfigEntry,
+        inverter: FimerModbusInverter,
+        readings: FimerCoordinator,
+    ) -> None:
+        """Set up polling of the controls model."""
+        super().__init__(
+            hass,
+            _LOGGER,
+            config_entry=entry,
+            name=f"{DOMAIN}_{entry.data[CONF_HOST]}_settings",
+            update_interval=timedelta(seconds=SETTINGS_SCAN_INTERVAL),
+        )
+        self.inverter = inverter
+        self.readings = readings
+
+    @property
+    def device_unique_id(self) -> str:
+        """The identifier the inverter's device and entities are keyed by."""
+        return self.readings.device_unique_id
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Describe the inverter, the same device the readings belong to."""
+        return self.readings.device_info
+
+    def _controls(self) -> Controls:
+        if (controls := self.inverter.controls) is None:
+            raise FimerError("The inverter does not serve the immediate controls model")
+        return controls
+
+    async def _async_update_data(self) -> FimerData:
+        """Refresh the controls model and return its readings."""
+        try:
+            controls = self._controls()
+            await controls.async_update()
+        except (ModbusError, SunSpecError, FimerError) as err:
+            raise UpdateFailed(
+                translation_domain=DOMAIN,
+                translation_key="update_failed",
+                translation_placeholders={"error": str(err)},
+            ) from err
+        return controls.values()
+
+    async def async_apply_power_limit(
+        self, *, percent: float | None = None, enabled: bool | None = None
+    ) -> None:
+        """Write the power limit and/or its enable flag, then refresh the entities."""
+        try:
+            await self._controls().apply_power_limit(percent=percent, enabled=enabled)
+        except (ModbusError, SunSpecError, FimerError, ValueError) as err:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="write_failed",
+                translation_placeholders={"error": str(err)},
+            ) from err
+        await self.async_refresh()

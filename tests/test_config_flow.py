@@ -12,7 +12,13 @@ from modbus_connection.mock import MockModbusUnit
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.fimer.const import CONF_ADVANCED, CONF_BASE_ADDRESS, CONF_UNIT_ID, DOMAIN
+from custom_components.fimer.const import (
+    CONF_ADVANCED,
+    CONF_BASE_ADDRESS,
+    CONF_POWER_CONTROL,
+    CONF_UNIT_ID,
+    DOMAIN,
+)
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
@@ -196,9 +202,9 @@ async def test_options_flow(hass: HomeAssistant, init_integration: MockConfigEnt
     assert result["step_id"] == "init"
 
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {CONF_SCAN_INTERVAL: 60}
+        result["flow_id"], {CONF_SCAN_INTERVAL: 60, CONF_POWER_CONTROL: False}
     )
     await hass.async_block_till_done()
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert init_integration.options == {CONF_SCAN_INTERVAL: 60}
+    assert init_integration.options == {CONF_SCAN_INTERVAL: 60, CONF_POWER_CONTROL: False}
     assert init_integration.runtime_data.coordinator.update_interval.total_seconds() == 60

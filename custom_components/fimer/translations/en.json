@@ -72,10 +72,12 @@
       "init": {
         "title": "Polling",
         "data": {
-          "scan_interval": "Update interval"
+          "scan_interval": "Update interval",
+          "power_control": "Power limit control (experimental)"
         },
         "data_description": {
-          "scan_interval": "Seconds between polls of the inverter."
+          "scan_interval": "Seconds between polls of the inverter.",
+          "power_control": "Expose the SunSpec active power limit as a number and a switch. The datalogger accepts the writes on every inverter, but only some inverters act on them; verify with the test described in the documentation before relying on it."
         }
       }
     }
@@ -273,6 +275,16 @@
           "enabled": "Yes"
         }
       }
+    },
+    "number": {
+      "power_limit": {
+        "name": "Power limit"
+      }
+    },
+    "switch": {
+      "power_limit_enabled": {
+        "name": "Power limit"
+      }
     }
   },
   "exceptions": {
@@ -281,6 +293,9 @@
     },
     "modbus_link_conflict": {
       "message": "Another integration already uses {host} with different Modbus link settings: {error}"
+    },
+    "write_failed": {
+      "message": "Writing to the inverter failed: {error}"
     }
   }
 }

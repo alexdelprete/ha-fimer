@@ -31,9 +31,7 @@ rules:
   config-entry-unloading: done
   log-when-unavailable: done
   entity-unavailable: done
-  action-exceptions:
-    status: exempt
-    comment: The integration registers no actions.
+  action-exceptions: done
   reauthentication-flow:
     status: exempt
     comment: Modbus TCP has no authentication.
