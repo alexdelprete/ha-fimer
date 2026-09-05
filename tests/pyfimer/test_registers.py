@@ -122,4 +122,4 @@ async def test_invalid_arguments(unit: MockModbusUnit, registers: ModbusRegister
     with pytest.raises(OverflowError):
         await registers.write_register(0, 70000)
     with pytest.raises(OverflowError):
-        await registers.write_int16(0, 40000)
+        await registers.write_int16(0, -40000)
