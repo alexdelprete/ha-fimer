@@ -294,6 +294,13 @@ class Controls(FimerComponent):
     A VSN300 in front of a PVI implements the power limit (``WMaxLimPct``
     with its revert and ramp times and enable flag) and leaves the power
     factor and reactive power setpoints unimplemented.
+
+    Tested live on a PVI-10.0-OUTD (firmware C008) behind a VSN300 on
+    firmware 2.0.1: the card stores the limit and the enable flag, and
+    reads them back, but answers every write of the enable flag with a
+    Modbus negative acknowledge (exception 7) and the inverter keeps
+    producing at full power. Treat the write helpers as functional only
+    on devices that have been seen to honour them.
     """
 
     POINT_NAMES = (

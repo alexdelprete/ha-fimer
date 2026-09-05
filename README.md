@@ -181,7 +181,9 @@ actions:
 ## Known limitations
 
 The integration is read-only. It exposes what the SunSpec models implement on the device and does
-not write to the inverter.
+not write to the inverter. The SunSpec immediate controls model is read, but on the hardware tested
+so far (a PVI-10.0-OUTD behind a VSN300 on firmware 2.0.1) the datalogger stores a power limit
+written to it without the inverter acting on it, so no control entity is offered.
 
 The SunSpec register map of a device can change with a firmware update or when a datalogger is
 reconfigured. The integration verifies the model headers on every poll and re-discovers the models
