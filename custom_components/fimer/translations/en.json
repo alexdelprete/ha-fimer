@@ -1332,24 +1332,22 @@
     },
     "partial_discovery": {
       "title": "{title}: devices missing from the datalogger",
-      "description": "The datalogger of {title} at {host} reported these devices before but does not report them now:\n\n{missing_devices}\n\nTheir entities are unavailable meanwhile.\n\n**Possible causes**\n- The device is off, for example an inverter at night\n- The device is disconnected from the datalogger\n- The device was removed from the plant\n\nThe issue clears by itself once every device is reported again. If a device is gone for good, submit this repair to forget it and remove it from Home Assistant.",
       "fix_flow": {
         "step": {
           "confirm": {
             "title": "Forget the missing devices",
-            "description": "These devices and their entities will be removed from Home Assistant:\n\n{missing_devices}\n\nIf the datalogger reports one of them again later, it is added back as a new device."
+            "description": "The datalogger of {title} at {host} reported these devices before but does not report them now:\n\n{missing_devices}\n\nTheir entities are unavailable meanwhile. Possible causes: the device is off (an inverter at night), disconnected from the datalogger, or removed from the plant. The issue clears by itself once every device is reported again.\n\nSubmit only if the devices are gone for good: they and their entities are removed from Home Assistant. A device the datalogger reports again later is added back as new."
           }
         }
       }
     },
     "takeover_incomplete": {
       "title": "{title}: {count} legacy sensors were not carried over",
-      "description": "The entry of the earlier ABB/FIMER PVI VSN REST integration was removed and its sensors were re-registered here, except these, which have no counterpart in this integration:\n\n{entities}\n\nTheir history is kept in the recorder under the old entity IDs but no entity provides them any more. If you used them in automations or dashboards, point those at the entities of this integration.",
       "fix_flow": {
         "step": {
           "confirm": {
             "title": "Acknowledge",
-            "description": "Dismiss this notice. The listed sensors are not restored."
+            "description": "The entry of the earlier ABB/FIMER PVI VSN REST integration was removed and its sensors were re-registered here, except these, which have no counterpart in this integration:\n\n{entities}\n\nTheir history stays in the recorder under the old entity IDs but no entity provides them any more. If you used them in automations or dashboards, point those at the entities of this integration.\n\nSubmit to dismiss this notice; the listed sensors are not restored."
           }
         }
       }

@@ -259,6 +259,7 @@ async def test_unsupported_firmware(
     """A VSN300 on firmware 2.0.0 fails setup for good, with an issue carrying the fix."""
     fake = fake_vsn300()
     fake.status["keys"]["fw.release_number"]["value"] = "2.0.0"
+    fake.livedata_status = 500  # that firmware drops every livedata connection
     host = await serve_rest(fake)
     entry = rest_entry(host, use_modbus=False, title="PVI-10.0-OUTD", unique_id=SERIAL_NUMBER)
     await _setup(hass, entry)
@@ -269,6 +270,7 @@ async def test_unsupported_firmware(
     assert issue.severity is ir.IssueSeverity.ERROR
 
     fake.status["keys"]["fw.release_number"]["value"] = "2.0.1"
+    fake.livedata_status = 200
     await hass.config_entries.async_reload(entry.entry_id)
     await hass.async_block_till_done()
     assert entry.state is ConfigEntryState.LOADED

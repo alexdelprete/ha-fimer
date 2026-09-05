@@ -14,8 +14,11 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.fimer.const import (
     CONF_BASE_ADDRESS,
+    CONF_CONNECTION_ISSUES,
+    CONF_FAILURES_THRESHOLD,
     CONF_MIGRATE_FROM,
     CONF_MODBUS_SECTION,
+    CONF_NOTIFY_RECOVERY,
     CONF_POWER_CONTROL,
     CONF_REST_MODEL,
     CONF_REST_REQUIRES_AUTH,
@@ -244,7 +247,13 @@ async def test_options_flow(hass: HomeAssistant, init_integration: MockConfigEnt
     )
     await hass.async_block_till_done()
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert init_integration.options == {CONF_SCAN_INTERVAL: 60, CONF_POWER_CONTROL: False}
+    assert init_integration.options == {
+        CONF_SCAN_INTERVAL: 60,
+        CONF_POWER_CONTROL: False,
+        CONF_CONNECTION_ISSUES: True,
+        CONF_FAILURES_THRESHOLD: 3,
+        CONF_NOTIFY_RECOVERY: True,
+    }
     assert init_integration.runtime_data.coordinator.update_interval.total_seconds() == 60
 
 
