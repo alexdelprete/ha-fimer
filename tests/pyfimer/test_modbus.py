@@ -188,7 +188,11 @@ async def test_no_sunspec_marker(unit: MockModbusUnit) -> None:
 async def test_no_inverter_model(unit: MockModbusUnit) -> None:
     unit.holding.update(
         build_register_map(
-            include_inverter_model=False, include_mppt_model=False, include_vendor_model=False
+            include_inverter_model=False,
+            include_mppt_model=False,
+            include_nameplate_model=False,
+            include_settings_model=False,
+            include_controls_model=False,
         )
     )
     with pytest.raises(FimerUnsupportedDeviceError, match="models \\[1\\]"):
