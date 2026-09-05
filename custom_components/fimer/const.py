@@ -30,3 +30,20 @@ CONF_POWER_CONTROL: Final = "power_control"
 DEFAULT_POWER_CONTROL: Final = False
 SETTINGS_SCAN_INTERVAL: Final = 60
 """Seconds between polls of the immediate controls model when power control is on."""
+
+CONF_USE_MODBUS: Final = "use_modbus"
+CONF_USE_REST: Final = "use_rest"
+CONF_REST_MODEL: Final = "rest_model"
+"""The detected datalogger family, cached so setup skips detection."""
+CONF_REST_REQUIRES_AUTH: Final = "rest_requires_auth"
+CONF_MODBUS_SECTION: Final = "modbus"
+CONF_REST_SECTION: Final = "rest"
+CONF_MIGRATE_FROM: Final = "migrate_from"
+"""Entry ID of the earlier REST integration whose entities this entry takes over."""
+DEFAULT_REST_USERNAME: Final = "guest"
+LEGACY_REST_DOMAIN: Final = "abb_fimer_pvi_vsn_rest"
+
+DEVICE_TYPE_INVERTER: Final = "inverter"
+DEVICE_TYPE_DATALOGGER: Final = "datalogger"
+DEVICE_TYPE_METER: Final = "meter"
+DEVICE_TYPE_BATTERY: Final = "battery"

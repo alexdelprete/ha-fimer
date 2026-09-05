@@ -196,6 +196,7 @@ def test_vsn300_normalisation() -> None:
     assert inverter.values["TmpCab"] == pytest.approx(24.744, abs=1e-3)  # tenfold quirk corrected
     assert inverter.values["ILeakDcAc"] == 0.0  # microamperes to milliamperes
     assert inverter.values["Md"] == "3G82"  # dashes stripped
+    assert inverter.values["SysTime"] == 839768821 + 946684800  # Unix time
     logger = readings["LLLLLL-3N16-BBBB"]
     assert logger.device_type == "datalogger"
     assert logger.model == "VSN300"

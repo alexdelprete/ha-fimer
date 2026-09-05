@@ -15,6 +15,7 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
+from homeassistant.components.sensor.const import DEVICE_CLASS_STATE_CLASSES, DEVICE_CLASS_UNITS
 from homeassistant.const import (
     EntityCategory,
     UnitOfApparentPower,
@@ -22,10 +23,12 @@ from homeassistant.const import (
     UnitOfElectricPotential,
     UnitOfEnergy,
     UnitOfFrequency,
+    UnitOfInformation,
     UnitOfPower,
     UnitOfRatio,
     UnitOfReactivePower,
     UnitOfTemperature,
+    UnitOfTime,
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
@@ -34,15 +37,16 @@ from homeassistant.helpers.typing import StateType
 
 from . import FimerConfigEntry
 from .const import DOMAIN
-from .coordinator import FimerCoordinator
-from .entity import FimerEntity
-from .pyfimer import DCDC_STATES, GLOBAL_STATES, INVERTER_STATES
+from .devices import FimerDevice
+from .pyfimer import ALARM_CODES, DCDC_STATES, GLOBAL_STATES, INVERTER_STATES
 from .pyfimer.modbus import Enabled, OperatingState
 from .pyfimer.points import MPPT_INPUTS
+from .pyfimer.rest import REST_POINTS, RestPoint
 
 PARALLEL_UPDATES = 0
 
 MEGA_OHM = "MΩ"
+REVOLUTIONS_PER_MINUTE = "rpm"
 
 type ValueFn = Callable[[Any], StateType | datetime]
 
@@ -79,6 +83,13 @@ def _timestamp(value: Any) -> datetime:
 
 def _alarms(value: Any) -> str:
     return ", ".join(value) if value else "No alarm"
+
+
+def _names(value: Any) -> str:
+    return ", ".join(value) if value else "None"
+
+
+WLAN_MODES = {0: "Access point", 1: "Station"}
 
 
 def _measurement(
@@ -242,6 +253,12 @@ SENSOR_DESCRIPTIONS: tuple[FimerSensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
     ),
+    FimerSensorEntityDescription(
+        key="Events",
+        translation_key="events",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_names,
+    ),
     # SunSpec multiple MPPT model
     *(
         description
@@ -273,11 +290,13 @@ SENSOR_DESCRIPTIONS: tuple[FimerSensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=_enabled_state,
     ),
-    # ABB vendor model
+    # ABB vendor model, over Modbus or REST
     _aurora("GlobalSt", "global_state", GLOBAL_STATES),
     _aurora("InverterSt", "inverter_state", INVERTER_STATES),
     _aurora("DcSt1", "dc_input_1_state", DCDC_STATES),
     _aurora("DcSt2", "dc_input_2_state", DCDC_STATES),
+    _aurora("DcSt3", "dc_input_3_state", DCDC_STATES),
+    _aurora("AlarmSt", "alarm_state", ALARM_CODES),
     FimerSensorEntityDescription(key="Alarms", translation_key="alarms", value_fn=_alarms),
     FimerSensorEntityDescription(
         key="SysTime",
@@ -331,6 +350,87 @@ SENSOR_DESCRIPTIONS: tuple[FimerSensorEntityDescription, ...] = (
         precision=0,
         category=EntityCategory.DIAGNOSTIC,
     ),
+    # datalogger points that carry a state table
+    FimerSensorEntityDescription(
+        key="wlan0_mode",
+        translation_key="wlan0_mode",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_aurora_state(WLAN_MODES),
+    ),
+)
+
+_REST_UNITS: dict[str, str | None] = {
+    "W": UnitOfPower.WATT,
+    "Wh": UnitOfEnergy.WATT_HOUR,
+    "V": UnitOfElectricPotential.VOLT,
+    "A": UnitOfElectricCurrent.AMPERE,
+    "mA": UnitOfElectricCurrent.MILLIAMPERE,
+    "Hz": UnitOfFrequency.HERTZ,
+    "var": UnitOfReactivePower.VOLT_AMPERE_REACTIVE,
+    "%": UnitOfRatio.PERCENTAGE,
+    "°C": UnitOfTemperature.CELSIUS,
+    "MB": UnitOfInformation.MEGABYTES,
+    "RPM": REVOLUTIONS_PER_MINUTE,
+    "MΩ": MEGA_OHM,
+    "s": UnitOfTime.SECONDS,
+    "VAh": "VAh",
+    "kVAh": "kVAh",
+    "channels": None,
+}
+_REST_CATEGORIES = {
+    "diagnostic": EntityCategory.DIAGNOSTIC,
+    "config": EntityCategory.CONFIG,
+}
+
+
+def _rest_description(point: RestPoint) -> FimerSensorEntityDescription:
+    """Build a description for a point only the REST feeds provide, from the mapping."""
+    unit = _REST_UNITS.get(point.unit or "", point.unit)
+    device_class: SensorDeviceClass | None = None
+    if point.device_class:
+        try:
+            device_class = SensorDeviceClass(point.device_class)
+        except ValueError:
+            device_class = None
+    if device_class is not None and (
+        (device_class in DEVICE_CLASS_UNITS and unit not in DEVICE_CLASS_UNITS[device_class])
+        or (device_class is SensorDeviceClass.ENUM)
+    ):
+        device_class = None
+    state_class: SensorStateClass | None = None
+    if point.state_class:
+        try:
+            state_class = SensorStateClass(point.state_class)
+        except ValueError:
+            state_class = None
+    if (
+        state_class is not None
+        and device_class is not None
+        and device_class in DEVICE_CLASS_STATE_CLASSES
+        and state_class not in DEVICE_CLASS_STATE_CLASSES[device_class]
+    ):
+        state_class = None
+    energy = device_class is SensorDeviceClass.ENERGY
+    return FimerSensorEntityDescription(
+        key=point.name,
+        translation_key=point.ha_name,
+        native_unit_of_measurement=unit,
+        suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR if energy else None,
+        device_class=device_class,
+        state_class=state_class,
+        suggested_display_precision=3 if energy else point.precision,
+        entity_category=_REST_CATEGORIES.get(point.entity_category or ""),
+        invalid_when_zero=energy and point.scope == "lifetime",
+    )
+
+
+_HAND_WRITTEN = {description.key for description in SENSOR_DESCRIPTIONS}
+REST_SENSOR_DESCRIPTIONS: tuple[FimerSensorEntityDescription, ...] = tuple(
+    _rest_description(point) for point in REST_POINTS if point.name not in _HAND_WRITTEN
+)
+ALL_DESCRIPTIONS: tuple[FimerSensorEntityDescription, ...] = (
+    *SENSOR_DESCRIPTIONS,
+    *REST_SENSOR_DESCRIPTIONS,
 )
 
 
@@ -339,55 +439,75 @@ async def async_setup_entry(
     entry: FimerConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Add a sensor for every point the inverter reports, as it reports it.
+    """Add a sensor for every point each device reports, as it reports it.
 
     An inverter only implements some of the SunSpec points, and a point
     can appear later (a counter that reads as not implemented until the
     inverter has fully booted), so sensors are created for the points seen
-    so far and every later refresh adds the newly seen ones.
+    so far and every later refresh adds the newly seen ones. Sensors
+    registered by an earlier run come back right away, so an energy counter
+    not yet reported shows its restored value.
     """
-    coordinator = entry.runtime_data.coordinator
-    pending = {description.key: description for description in SENSOR_DESCRIPTIONS}
-
-    # sensors registered by an earlier run come back right away, so an energy
-    # counter the inverter has not reported yet shows its restored value
     entity_registry = er.async_get(hass)
-    known = {
-        key
-        for key in pending
-        if entity_registry.async_get_entity_id(
-            SENSOR_DOMAIN, DOMAIN, f"{coordinator.device_unique_id}_{key}"
-        )
-    }
+    for device in entry.runtime_data.devices:
+        pending = {description.key: description for description in ALL_DESCRIPTIONS}
+        known = {
+            key
+            for key in pending
+            if entity_registry.async_get_entity_id(
+                SENSOR_DOMAIN, DOMAIN, f"{device.unique_id}_{key}"
+            )
+        }
 
-    @callback
-    def _async_add_seen_sensors() -> None:
-        seen = [key for key in pending if key in known or coordinator.data.get(key) is not None]
-        if seen:
-            async_add_entities(_sensor_for(coordinator, pending.pop(key)) for key in seen)
+        @callback
+        def _async_add_seen_sensors(
+            device: FimerDevice = device,
+            pending: dict[str, FimerSensorEntityDescription] = pending,
+            known: set[str] = known,
+        ) -> None:
+            seen = [key for key in pending if key in known or device.value(key) is not None]
+            if seen:
+                async_add_entities(_sensor_for(device, pending.pop(key)) for key in seen)
 
-    _async_add_seen_sensors()
-    entry.async_on_unload(coordinator.async_add_listener(_async_add_seen_sensors))
+        _async_add_seen_sensors()
+        entry.async_on_unload(device.async_add_listener(_async_add_seen_sensors))
 
 
-def _sensor_for(
-    coordinator: FimerCoordinator, description: FimerSensorEntityDescription
-) -> FimerSensor:
+def _sensor_for(device: FimerDevice, description: FimerSensorEntityDescription) -> FimerSensor:
     if description.state_class is SensorStateClass.TOTAL_INCREASING:
-        return FimerEnergySensor(coordinator, description)
-    return FimerSensor(coordinator, description)
+        return FimerEnergySensor(device, description)
+    return FimerSensor(device, description)
 
 
-class FimerSensor(FimerEntity, SensorEntity):
-    """A sensor reading one point of the inverter."""
+class FimerSensor(SensorEntity):
+    """A sensor reading one point of a device, from whichever source has it."""
 
     entity_description: FimerSensorEntityDescription
+    _attr_has_entity_name = True
+    _attr_should_poll = False
+
+    def __init__(self, device: FimerDevice, description: FimerSensorEntityDescription) -> None:
+        """Set up the sensor for a point of the device."""
+        self.device = device
+        self.entity_description = description
+        self._attr_unique_id = f"{device.unique_id}_{description.key}"
+        self._attr_device_info = device.device_info
+
+    async def async_added_to_hass(self) -> None:
+        """Refresh whenever either source of the device refreshes."""
+        await super().async_added_to_hass()
+        self.async_on_remove(self.device.async_add_listener(self.async_write_ha_state))
+
+    @property
+    def available(self) -> bool:
+        """Available while a working source reports the point."""
+        return self.device.provides(self.entity_description.key)
 
     @property
     def native_value(self) -> StateType | datetime:
         """Return the point's last reading."""
         description = self.entity_description
-        value = self.coordinator.data.get(description.key)
+        value = self.device.value(description.key)
         if value is None or (description.invalid_when_zero and not value):
             return None
         if description.value_fn is not None:
@@ -396,7 +516,7 @@ class FimerSensor(FimerEntity, SensorEntity):
 
 
 class FimerEnergySensor(FimerSensor, RestoreSensor):
-    """An energy counter that keeps its last value while the inverter sleeps.
+    """An energy counter that keeps its last value while the device sleeps.
 
     A PVI without grid power at night answers nothing, and an energy
     sensor going unavailable every evening would leave gaps in the
@@ -407,7 +527,7 @@ class FimerEnergySensor(FimerSensor, RestoreSensor):
     _last_value: float | None = None
 
     async def async_added_to_hass(self) -> None:
-        """Restore the last reading if the coordinator has none yet."""
+        """Restore the last reading if no source has one yet."""
         await super().async_added_to_hass()
         if (
             self._last_value is not None
@@ -419,14 +539,12 @@ class FimerEnergySensor(FimerSensor, RestoreSensor):
 
     @property
     def available(self) -> bool:
-        """Stay available with the last reading while the inverter is offline."""
+        """Stay available with the last reading while the device is offline."""
         return super().available or self._last_value is not None
 
     @property
     def native_value(self) -> float | None:
-        """Return the latest reading, or the last one while the inverter is offline."""
-        if self.coordinator.last_update_success and isinstance(
-            value := super().native_value, (int, float)
-        ):
+        """Return the latest reading, or the last one while the device is offline."""
+        if isinstance(value := super().native_value, (int, float)):
             self._last_value = value
         return self._last_value

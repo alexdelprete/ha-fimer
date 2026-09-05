@@ -20,6 +20,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 MAPPING = ROOT / "docs" / "vsn-sunspec-point-mapping.json"
 OUTPUT = ROOT / "custom_components" / "fimer" / "pyfimer" / "rest" / "_mapping_data.py"
+TRANSLATIONS = ROOT / "custom_components" / "fimer" / "translations" / "en.json"
+ICONS = ROOT / "custom_components" / "fimer" / "icons.json"
 
 # Points whose value is a code from an Aurora state table.
 STATE_POINTS = {
@@ -71,9 +73,9 @@ def main() -> None:
         "# fmt: off",
         "# ruff: noqa: E501",
         "",
-        "REST_POINT_ROWS: tuple[tuple[str, str | None, str | None, str | None, str, str, str, str, str | None, str | None, str | None, int | None, str | None, str | None, str | None], ...] = (",
+        "REST_POINT_ROWS: tuple[tuple[str, str | None, str | None, str | None, str, str, str, str, str | None, str | None, str | None, int | None, str | None, str | None, str | None, str], ...] = (",
         "    # (name, vsn300, vsn700, unit, kind, category, models, display_name,",
-        "    #  device_class, state_class, entity_category, precision, icon, scope, accumulation)",
+        "    #  device_class, state_class, entity_category, precision, icon, scope, accumulation, ha_name)",
     ]
     seen: dict[str, str] = {}
     for row in rows:
@@ -100,11 +102,32 @@ def main() -> None:
             row["HA Icon"] or None,
             row["Sensor Scope"] or None,
             row["Accumulation Mode"] or None,
+            row["HA Name"],
         )
         lines.append(f"    {values!r},")
     lines += [")", "", "# fmt: on", ""]
     OUTPUT.write_text("\n".join(lines), encoding="utf-8")
     print(f"wrote {len(rows)} rows to {OUTPUT.relative_to(ROOT)}")  # noqa: T201
+    _merge_presentation(rows)
+
+
+def _merge_presentation(rows: list[dict]) -> None:
+    """Add entity names and icons for REST points; hand-written keys win."""
+    translations = json.loads(TRANSLATIONS.read_text(encoding="utf-8"))
+    sensors = translations["entity"].setdefault("sensor", {})
+    icons = json.loads(ICONS.read_text(encoding="utf-8"))
+    icon_sensors = icons["entity"].setdefault("sensor", {})
+    added = 0
+    for row in rows:
+        key = row["HA Name"]
+        if key not in sensors:
+            sensors[key] = {"name": row["HA Display Name"]}
+            added += 1
+        if row["HA Icon"] and key not in icon_sensors:
+            icon_sensors[key] = {"default": row["HA Icon"]}
+    TRANSLATIONS.write_text(json.dumps(translations, indent=2, ensure_ascii=False) + "\n")
+    ICONS.write_text(json.dumps(icons, indent=2, ensure_ascii=False) + "\n")
+    print(f"added {added} entity names to {TRANSLATIONS.relative_to(ROOT)}")  # noqa: T201
 
 
 if __name__ == "__main__":

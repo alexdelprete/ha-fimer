@@ -553,6 +553,7 @@ async def test_trio_models(unit: MockModbusUnit) -> None:
             CombinerSpec([2.0, 2.1, 2.2, None, None], total_current=6.3, voltage=548.0),
         ],
         trio_boards=True,
+        include_vendor_model=False,
     )
     assert [m.model_id for m in inverter.model_chain][-4:] == [64062, 403, 403, 64063]
     assert len(inverter.combiners) == 2

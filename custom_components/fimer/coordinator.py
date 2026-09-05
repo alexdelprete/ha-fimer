@@ -24,6 +24,7 @@ from .const import (
 )
 from .pyfimer import FimerError
 from .pyfimer.modbus import Controls, FimerModbusInverter, SunSpecError, SunSpecMapShiftError
+from .pyfimer.rest import FimerRestLogger
 
 if TYPE_CHECKING:
     from . import FimerConfigEntry
@@ -177,3 +178,52 @@ class FimerSettingsCoordinator(DataUpdateCoordinator[FimerData]):
                 translation_placeholders={"error": str(err)},
             ) from err
         await self.async_refresh()
+
+
+type FimerRestData = dict[str, dict[str, Any]]
+"""Readings keyed by REST device ID, then by pyfimer point name."""
+
+
+class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
+    """Poll a VSN datalogger over its REST API."""
+
+    config_entry: FimerConfigEntry
+
+    def __init__(
+        self, hass: HomeAssistant, entry: FimerConfigEntry, logger: FimerRestLogger
+    ) -> None:
+        """Set up polling at the configured interval."""
+        self._default_interval = timedelta(
+            seconds=entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+        )
+        super().__init__(
+            hass,
+            _LOGGER,
+            config_entry=entry,
+            name=f"{DOMAIN}_{entry.data[CONF_HOST]}_rest",
+            update_interval=self._default_interval,
+        )
+        self.logger = logger
+        self._failed_update_count = 0
+
+    async def _async_update_data(self) -> FimerRestData:
+        """Discover on first use, then refresh every device's readings."""
+        try:
+            if not self.logger.discovered:
+                await self.logger.discover()
+            else:
+                await self.logger.async_update()
+        except FimerError as err:
+            self._failed_update_count += 1
+            if self._failed_update_count == MAX_FAILED_UPDATES:
+                self.update_interval = timedelta(seconds=ERROR_SCAN_INTERVAL)
+            raise UpdateFailed(
+                translation_domain=DOMAIN,
+                translation_key="update_failed",
+                translation_placeholders={"error": str(err)},
+            ) from err
+
+        if self._failed_update_count:
+            self._failed_update_count = 0
+            self.update_interval = self._default_interval
+        return self.logger.values()

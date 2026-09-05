@@ -28,6 +28,8 @@ class RestPoint:
     icon: str | None
     scope: str | None
     accumulation: str | None
+    ha_name: str
+    """The entity key the earlier REST integration used, for migrating its entities."""
 
 
 REST_POINTS: Final[tuple[RestPoint, ...]] = tuple(
@@ -47,6 +49,7 @@ REST_POINTS: Final[tuple[RestPoint, ...]] = tuple(
         icon=row[12],
         scope=row[13],
         accumulation=row[14],
+        ha_name=row[15],
     )
     for row in REST_POINT_ROWS
 )

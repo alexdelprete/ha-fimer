@@ -72,6 +72,198 @@
       },
       "power_limit_enabled": {
         "default": "mdi:speedometer"
+      },
+      "manufacturer": {
+        "default": "mdi:information-box-outline"
+      },
+      "model": {
+        "default": "mdi:information-box-outline"
+      },
+      "options": {
+        "default": "mdi:information-box-outline"
+      },
+      "version": {
+        "default": "mdi:information-box-outline"
+      },
+      "serial_number": {
+        "default": "mdi:information-box-outline"
+      },
+      "device_address": {
+        "default": "mdi:information-box-outline"
+      },
+      "battery_mode": {
+        "default": "mdi:information-box-outline"
+      },
+      "alarm_state": {
+        "default": "mdi:information-box-outline"
+      },
+      "country_std": {
+        "default": "mdi:information-box-outline"
+      },
+      "sys_time": {
+        "default": "mdi:information-box-outline"
+      },
+      "isolation_ohm1": {
+        "default": "mdi:omega"
+      },
+      "dc_st2": {
+        "default": "mdi:information-box-outline"
+      },
+      "sn": {
+        "default": "mdi:information-box-outline"
+      },
+      "dc_st1": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan0_ipaddr_local": {
+        "default": "mdi:wifi-cog"
+      },
+      "wlan0_mode": {
+        "default": "mdi:wifi-cog"
+      },
+      "system_load": {
+        "default": "mdi:gauge"
+      },
+      "alarm_st": {
+        "default": "mdi:information-box-outline"
+      },
+      "inverter_st": {
+        "default": "mdi:information-box-outline"
+      },
+      "pn": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan0_link_quality": {
+        "default": "mdi:wifi-cog"
+      },
+      "global_st": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan0_essid": {
+        "default": "mdi:wifi-cog"
+      },
+      "type": {
+        "default": "mdi:information-box-outline"
+      },
+      "firmware_version": {
+        "default": "mdi:information-box-outline"
+      },
+      "batt_ext_ctrl_state": {
+        "default": "mdi:information-box-outline"
+      },
+      "e2_since_restart": {
+        "default": "mdi:lightning-bolt"
+      },
+      "e2_last_month": {
+        "default": "mdi:lightning-bolt"
+      },
+      "inv_state": {
+        "default": "mdi:information-box-outline"
+      },
+      "e2_last_week": {
+        "default": "mdi:lightning-bolt"
+      },
+      "d_c2_state": {
+        "default": "mdi:information-box-outline"
+      },
+      "batt_ext_ctrl_ena": {
+        "default": "mdi:information-box-outline"
+      },
+      "d_c1_state": {
+        "default": "mdi:information-box-outline"
+      },
+      "d_c3_state": {
+        "default": "mdi:information-box-outline"
+      },
+      "clock_state": {
+        "default": "mdi:information-box-outline"
+      },
+      "glob_state": {
+        "default": "mdi:information-box-outline"
+      },
+      "mfg_part_number": {
+        "default": "mdi:information-box-outline"
+      },
+      "mfg_serial_number": {
+        "default": "mdi:information-box-outline"
+      },
+      "mfg_week_year": {
+        "default": "mdi:information-box-outline"
+      },
+      "logger_sn": {
+        "default": "mdi:information-box-outline"
+      },
+      "fw_build_date": {
+        "default": "mdi:information-box-outline"
+      },
+      "fw_release_number": {
+        "default": "mdi:information-box-outline"
+      },
+      "fw_build_number": {
+        "default": "mdi:information-box-outline"
+      },
+      "fw_revision": {
+        "default": "mdi:information-box-outline"
+      },
+      "logger_board_model": {
+        "default": "mdi:information-box-outline"
+      },
+      "device_name": {
+        "default": "mdi:information-box-outline"
+      },
+      "device_type": {
+        "default": "mdi:information-box-outline"
+      },
+      "fw_version": {
+        "default": "mdi:information-box-outline"
+      },
+      "logger_hostname": {
+        "default": "mdi:information-box-outline"
+      },
+      "model_type": {
+        "default": "mdi:information-box-outline"
+      },
+      "inverter_id": {
+        "default": "mdi:information-box-outline"
+      },
+      "communication_protocol": {
+        "default": "mdi:information-box-outline"
+      },
+      "model_description": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan_fsm_status": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan_0_status": {
+        "default": "mdi:information-box-outline"
+      },
+      "inverter_time": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan_ap_status": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan_0_dhcp_state": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan_0_ipaddr": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan_0_netmask": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan_0_broadcast": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan_0_gateway": {
+        "default": "mdi:information-box-outline"
+      },
+      "wlan_0_dns": {
+        "default": "mdi:information-box-outline"
+      },
+      "logger_logger_id": {
+        "default": "mdi:information-box-outline"
       }
     },
     "number": {

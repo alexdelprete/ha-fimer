@@ -14,7 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Final
 
-from ..aurora import inverter_model_from_options
+from ..aurora import AURORA_EPOCH_OFFSET, inverter_model_from_options
 from .client import VsnModel
 from .mapping import BY_VSN300_NAME, BY_VSN700_NAME, SHARED_NAME_ALIASES, RestPoint
 
@@ -55,6 +55,8 @@ _STATE_POINTS: Final = frozenset(
         "m64061_1_AlarmSt",
     }
 )
+# The inverter clock counts from the Aurora epoch; the vocabulary wants Unix time.
+_AURORA_TIME_POINTS: Final = frozenset({"m64061_1_SysTime", "SysTime"})
 # Names some VSN700 firmwares use for points the mapping knows under another name.
 _VSN700_ALIASES: Final = {"TSoc": "Soc", "VgridR": "Vgrid"}
 # Status keys of a VSN300 that describe the datalogger but never appear in livedata.
@@ -162,6 +164,8 @@ def _transform(name: str, value: Any, mapping: RestPoint) -> Any:
         return value / 10
     if name in _BYTES_POINTS:
         return value / _MEGABYTE
+    if name in _AURORA_TIME_POINTS:
+        return int(value) + AURORA_EPOCH_OFFSET
     if mapping.kind == "state" and isinstance(value, float):
         return int(value)
     return value

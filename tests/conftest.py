@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Generator
+from collections.abc import AsyncIterator, Awaitable, Callable, Generator
 from contextlib import asynccontextmanager
+import json
+from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
@@ -11,15 +13,26 @@ from modbus_connection.mock import MockModbusConnection, MockModbusUnit
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.fimer.const import CONF_BASE_ADDRESS, CONF_UNIT_ID, DOMAIN
+from custom_components.fimer.const import (
+    CONF_BASE_ADDRESS,
+    CONF_UNIT_ID,
+    CONF_USE_MODBUS,
+    CONF_USE_REST,
+    DOMAIN,
+)
 from custom_components.fimer.pyfimer.modbus.testing import (
     InverterSpec,
     MpptInputSpec,
     VendorSpec,
     build_register_map,
 )
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 from homeassistant.core import HomeAssistant
+
+from .pyfimer.fake_vsn import FakeVsn
+
+FIXTURES = Path(__file__).parent / "fixtures" / "rest"
+REST_PASSWORD = "secret"  # noqa: S105
 
 SERIAL_NUMBER = "123456-3N01-1234"
 HOST = "192.0.2.10"
@@ -129,3 +142,60 @@ async def init_integration(
     await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
     return mock_config_entry
+
+
+def load_capture(name: str) -> dict[str, Any]:
+    """Load a REST capture fixture."""
+    return json.loads(FIXTURES.joinpath(f"{name}.json").read_text())
+
+
+def fake_vsn300() -> FakeVsn:
+    """A fake VSN300 in front of the test PVI, as captured."""
+    return FakeVsn(
+        "VSN300",
+        load_capture("alexdelprete_vsn300_fw201_status"),
+        load_capture("alexdelprete_vsn300_fw201_livedata"),
+        password=REST_PASSWORD,
+    )
+
+
+def fake_vsn700() -> FakeVsn:
+    """A fake VSN700 with a REACT2, two batteries and a meter, as captured."""
+    return FakeVsn(
+        "VSN700",
+        load_capture("giannicoderani_vsn700_status"),
+        load_capture("giannicoderani_vsn700_livedata"),
+        password=REST_PASSWORD,
+    )
+
+
+@pytest.fixture
+async def serve_rest(
+    aiohttp_server: Callable[..., Awaitable[Any]], socket_enabled: None
+) -> Callable[[FakeVsn], Awaitable[str]]:
+    """Start a fake card on the loopback interface and return ``host:port``."""
+
+    async def start(fake: FakeVsn) -> str:
+        server = await aiohttp_server(fake.app())
+        return f"{server.host}:{server.port}"
+
+    return start
+
+
+def rest_entry(host: str, *, use_modbus: bool, title: str, unique_id: str) -> MockConfigEntry:
+    """A config entry reading the REST API at ``host``, with or without Modbus."""
+    return MockConfigEntry(
+        domain=DOMAIN,
+        title=title,
+        unique_id=unique_id,
+        data={
+            CONF_HOST: host,
+            CONF_PORT: 502,
+            CONF_USE_MODBUS: use_modbus,
+            CONF_UNIT_ID: 2,
+            CONF_BASE_ADDRESS: 0,
+            CONF_USE_REST: True,
+            CONF_USERNAME: "guest",
+            CONF_PASSWORD: REST_PASSWORD,
+        },
+    )
