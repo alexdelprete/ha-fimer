@@ -19,11 +19,14 @@ __all__ = [
     "BASE_ADDRESS_DATALOGGER",
     "BASE_ADDRESS_NATIVE",
     "COMMON_MODEL_ID",
+    "CONTROLS_MODEL_ID",
     "DEFAULT_UNIT_ID_DATALOGGER",
     "DEFAULT_UNIT_ID_NATIVE",
     "INVERTER_MODEL_IDS",
     "MAX_READ_SPAN",
     "MPPT_MODEL_ID",
+    "NAMEPLATE_MODEL_ID",
+    "SETTINGS_MODEL_ID",
     "SunSpecComponent",
     "SunSpecError",
     "SunSpecMapShiftError",
@@ -45,10 +48,16 @@ DEFAULT_UNIT_ID_NATIVE: Final = 1
 
 COMMON_MODEL_ID: Final = 1
 INVERTER_MODEL_IDS: Final = frozenset({101, 102, 103})
+NAMEPLATE_MODEL_ID: Final = 120
+SETTINGS_MODEL_ID: Final = 121
+CONTROLS_MODEL_ID: Final = 123
 MPPT_MODEL_ID: Final = 160
 ABB_VENDOR_MODEL_ID: Final = 64061
 ABB_VENDOR_MODEL_LENGTH: Final = 124
-"""Length of the vendor model in the 2013 Power-One map this library implements."""
+"""Length of the vendor model in the 2013 Power-One map this library implements.
+
+A VSN300 on firmware 2.0.1 does not serve this model at all; it serves the
+standard models 120, 121 and 123 instead."""
 
 MAX_READ_SPAN: Final = 64
 """Registers per read. Older PVI firmware rejects the Modbus maximum of 125."""

@@ -1,4 +1,4 @@
-"""SunSpec models 1, 101/102/103 and 160 as read from FIMER inverters.
+"""SunSpec models 1, 101/102/103, 120, 121, 123 and 160 as read from FIMER inverters.
 
 Attribute names are the point names of :mod:`pyfimer.points`, not Python
 style, so a component's readings can be emitted without a rename table.
@@ -236,3 +236,114 @@ class Mppt(FimerComponent):
             for name in self.INPUT_POINT_NAMES:
                 values[f"{name}_{number}"] = getattr(mppt_input, name)
         return values
+
+
+class DerType(IntEnum):
+    """SunSpec DER type (``DERTyp``)."""
+
+    PV = 4
+    PV_STORAGE = 82
+
+
+class Nameplate(FimerComponent):
+    """SunSpec model 120: the inverter's ratings.
+
+    A VSN300 in front of a PVI implements only the rated power.
+    """
+
+    POINT_NAMES = ("DERTyp", "WRtg", "VARtg", "ARtg", "WhRtg")
+
+    DERTyp = enum16(2, DerType)
+    WRtg = uint16(3, scale_register=4, unit="W")
+    VARtg = uint16(5, scale_register=6, unit="VA")
+    ARtg = uint16(12, scale_register=13, unit="A")
+    WhRtg = uint16(19, scale_register=20, unit="Wh")
+
+
+class Settings(FimerComponent):
+    """SunSpec model 121: basic settings, largely unimplemented on PVI inverters."""
+
+    POINT_NAMES = ("WMax", "VRef", "VMax", "VMin", "VAMax", "WGra", "ECPNomHz")
+
+    WMax = uint16(2, scale_register=22, writable=True, unit="W")
+    VRef = uint16(3, scale_register=23, writable=True, unit="V")
+    VMax = uint16(5, scale_register=25, writable=True, unit="V")
+    VMin = uint16(6, scale_register=25, writable=True, unit="V")
+    VAMax = uint16(7, scale_register=26, writable=True, unit="VA")
+    WGra = uint16(12, scale_register=28, writable=True, unit="%")
+    ECPNomHz = uint16(20, scale_register=31, writable=True, unit="Hz")
+
+
+class Connection(IntEnum):
+    """Grid connection command and state (``Conn``)."""
+
+    DISCONNECT = 0
+    CONNECT = 1
+
+
+class Enabled(IntEnum):
+    """Enable flag of a control (``WMaxLim_Ena``, ``OutPFSet_Ena``)."""
+
+    DISABLED = 0
+    ENABLED = 1
+
+
+class Controls(FimerComponent):
+    """SunSpec model 123: immediate controls, the standard way to limit power.
+
+    A VSN300 in front of a PVI implements the power limit (``WMaxLimPct``
+    with its revert and ramp times and enable flag) and leaves the power
+    factor and reactive power setpoints unimplemented.
+    """
+
+    POINT_NAMES = (
+        "Conn",
+        "WMaxLimPct",
+        "WMaxLimPct_RvrtTms",
+        "WMaxLimPct_RmpTms",
+        "WMaxLim_Ena",
+        "OutPFSet",
+        "OutPFSet_Ena",
+    )
+
+    Conn = enum16(4, Connection, writable=True)
+    WMaxLimPct = uint16(5, scale_register=23, writable=True, unit="%")
+    WMaxLimPct_WinTms = uint16(6, writable=True)
+    WMaxLimPct_RvrtTms = uint16(7, writable=True)
+    WMaxLimPct_RmpTms = uint16(8, writable=True)
+    WMaxLim_Ena = enum16(9, Enabled, writable=True)
+    OutPFSet = int16(10, scale_register=24, writable=True)
+    OutPFSet_WinTms = uint16(11, writable=True)
+    OutPFSet_RvrtTms = uint16(12, writable=True)
+    OutPFSet_RmpTms = uint16(13, writable=True)
+    OutPFSet_Ena = enum16(14, Enabled, writable=True)
+
+    async def set_power_limit(self, percent: float | None) -> None:
+        """Limit the output to ``percent`` of the rated power, or lift the limit.
+
+        The model is refreshed first so the scale factor is known and a
+        shifted register map is caught before anything is written.
+        """
+        await self.async_update()
+        if percent is None:
+            await self.write("WMaxLim_Ena", Enabled.DISABLED)
+            return
+        if not 0 <= percent <= 100:
+            raise ValueError(f"percent must be 0..100, got {percent}")
+        await self.write("WMaxLimPct", percent)
+        await self.write("WMaxLim_Ena", Enabled.ENABLED)
+
+    async def set_power_factor(self, cos_phi: float | None) -> None:
+        """Set the power factor setpoint, or lift it.
+
+        Raises ``ValueError`` when the inverter does not implement the
+        setpoint's scale factor, as a PVI behind a VSN300 does not.
+        """
+        await self.async_update()
+        if cos_phi is None:
+            await self.write("OutPFSet_Ena", Enabled.DISABLED)
+            return
+        if not -1.0 <= cos_phi <= 1.0:
+            raise ValueError(f"cos phi must be -1..1, got {cos_phi}")
+        await self.write("OutPFSet", cos_phi)
+        await self.write("OutPFSet_Ena", Enabled.ENABLED)

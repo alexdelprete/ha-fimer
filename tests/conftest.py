@@ -75,6 +75,7 @@ def default_register_map(**overrides: Any) -> dict[int, int]:
         "inverter": INVERTER_SPEC,
         "mppt_inputs": MPPT_INPUTS,
         "vendor": VENDOR_SPEC,
+        "include_vendor_model": True,
     }
     kwargs.update(overrides)
     return build_register_map(**kwargs)

@@ -53,6 +53,9 @@ from .conftest import INVERTER_SPEC, default_register_map
         ("sensor.pvi_10_0_outd_isolation_resistance_input_1", "12.5"),
         ("sensor.pvi_10_0_outd_cos_phi", "0.995"),
         ("sensor.pvi_10_0_outd_power_limit_permanent", "100"),
+        ("sensor.pvi_10_0_outd_rated_power", "10000"),
+        ("sensor.pvi_10_0_outd_power_limit", "100"),
+        ("sensor.pvi_10_0_outd_power_limit_active", "disabled"),
     ],
 )
 async def test_sensor_states(

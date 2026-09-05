@@ -33,11 +33,15 @@ The SunSpec models read are:
 | ------- | ------------------------------------------------------------------------------- |
 | 1       | Manufacturer, model, options, firmware version and serial number                |
 | 101/103 | Single or three phase inverter: AC and DC readings, energy, temperatures, state |
+| 120     | Nameplate: rated power                                                          |
+| 121     | Basic settings                                                                  |
+| 123     | Immediate controls: the active power limit                                      |
 | 160     | Per-input DC current, voltage and power (up to three MPPT inputs)               |
 | 64061   | ABB vendor model: Aurora states, alarms, daily to yearly energy, extra readings |
 
 Models the device does not serve are skipped, and readings the inverter reports as not
-implemented create no entity.
+implemented create no entity. A VSN300 on firmware 2.0.1 in front of a PVI serves models 1,
+103, 160, 120, 121 and 123; the ABB vendor model is read when a device exposes it.
 
 ## Prerequisites
 
@@ -114,7 +118,12 @@ get their sensor on the next poll.
   `DC current input <n>`, `DC voltage input <n>` and `DC power input <n>` for each input the
   inverter reports. Per-input energy is exposed only on inverters that implement it.
 
-- Aurora states and vendor readings (model 64061)
+- Ratings and controls (models 120 and 123)
+
+  The rated power, the active power limit in percent and whether it is enabled, as diagnostic
+  entities.
+
+- Aurora states and vendor readings (model 64061, where the device serves it)
 
   Global, inverter and DC input states with their Aurora names, the active alarms, energy today,
   this week, this month and this year, inverter and booster temperatures, isolation resistance,

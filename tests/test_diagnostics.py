@@ -26,12 +26,20 @@ async def test_diagnostics(
     assert diag["identity"]["serial_number"] == REDACTED
     assert diag["identity"]["inverter_model"] == "PVI-10.0-OUTD"
     assert diag["phases"] == 3
-    assert [model["model_id"] for model in diag["model_chain"]] == [1, 103, 160, 64061]
+    assert [model["model_id"] for model in diag["model_chain"]] == [
+        1,
+        103,
+        160,
+        120,
+        121,
+        123,
+        64061,
+    ]
     assert diag["vendor_model_length"] == 124
     assert diag["data"]["W"] == 1500
     assert diag["data"]["SN"] == REDACTED
     assert diag["registers"]["holding"]["2"] == 1
-    assert diag["registers"]["holding"]["172"] == 64061
+    assert diag["registers"]["holding"]["258"] == 64061
 
 
 async def test_diagnostics_offline(

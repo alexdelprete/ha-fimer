@@ -37,7 +37,7 @@ from .const import DOMAIN
 from .coordinator import FimerCoordinator
 from .entity import FimerEntity
 from .pyfimer import DCDC_STATES, GLOBAL_STATES, INVERTER_STATES
-from .pyfimer.modbus import OperatingState
+from .pyfimer.modbus import Enabled, OperatingState
 from .pyfimer.points import MPPT_INPUTS
 
 PARALLEL_UPDATES = 0
@@ -67,6 +67,10 @@ def _aurora_state(states: dict[int, str]) -> ValueFn:
 
 def _operating_state(value: Any) -> str | None:
     return value.name.lower() if isinstance(value, OperatingState) else None
+
+
+def _enabled_state(value: Any) -> str | None:
+    return value.name.lower() if isinstance(value, Enabled) else None
 
 
 def _timestamp(value: Any) -> datetime:
@@ -243,6 +247,31 @@ SENSOR_DESCRIPTIONS: tuple[FimerSensorEntityDescription, ...] = (
         description
         for number in range(1, MPPT_INPUTS + 1)
         for description in _mppt_descriptions(number)
+    ),
+    # SunSpec nameplate and immediate controls models
+    FimerSensorEntityDescription(
+        key="WRtg",
+        translation_key="rated_power",
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
+        suggested_display_precision=0,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    _measurement(
+        "WMaxLimPct",
+        "power_limit",
+        unit=UnitOfRatio.PERCENTAGE,
+        device_class=None,
+        precision=0,
+        category=EntityCategory.DIAGNOSTIC,
+    ),
+    FimerSensorEntityDescription(
+        key="WMaxLim_Ena",
+        translation_key="power_limit_enabled",
+        device_class=SensorDeviceClass.ENUM,
+        options=[state.name.lower() for state in Enabled],
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_enabled_state,
     ),
     # ABB vendor model
     _aurora("GlobalSt", "global_state", GLOBAL_STATES),

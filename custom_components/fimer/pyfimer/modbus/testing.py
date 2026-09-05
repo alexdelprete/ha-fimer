@@ -22,7 +22,10 @@ from .sunspec import (
     ABB_VENDOR_MODEL_LENGTH,
     BASE_ADDRESS_DATALOGGER,
     COMMON_MODEL_ID,
+    CONTROLS_MODEL_ID,
     MPPT_MODEL_ID,
+    NAMEPLATE_MODEL_ID,
+    SETTINGS_MODEL_ID,
 )
 
 NOT_IMPLEMENTED_UINT16 = 0xFFFF
@@ -246,6 +249,45 @@ def _mppt_model_data(inputs: list[MpptInputSpec], *, energy_implemented: bool) -
     return data
 
 
+# Models 120, 121 and 123 exactly as a VSN300 (firmware 2.0.1) serves them
+# for a PVI-10.0-OUTD, captured 2026-09-05: nearly everything unimplemented.
+_NAMEPLATE_TEMPLATE = [
+    NOT_IMPLEMENTED_ENUM16, 10000, 0, 0xFFFF, 0x8000, 0x8000, 0x8000, 0x8000, 0x8000, 0x8000,
+    0xFFFF, 0x8000, 0x8000, 0x8000, 0x8000, 0x8000, 0x8000, 0xFFFF, 0x8000, 0xFFFF,
+    0x8000, 0xFFFF, 0x8000, 0xFFFF, 0x8000, 0xFFFF,
+]  # fmt: skip
+_SETTINGS_TEMPLATE = [
+    0, 0xFFFF, 0x8000, 0xFFFF, 0xFFFF, 0xFFFF, 0x8000, 0x8000, 0x8000, 0x8000,
+    0xFFFF, 0x8000, 0x8000, 0x8000, 0x8000, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
+    0, 0x8000, 0x8000, 0x8000, 0x8000, 0x8000, 0x8000, 0x8000, 0x8000, 0x8000,
+]  # fmt: skip
+_CONTROLS_TEMPLATE = [
+    0xFFFF, 0xFFFF, 0xFFFF, 100, 0xFFFF, 60, 60, 0, 0x8000, 0xFFFF,
+    0xFFFF, 0xFFFF, 0xFFFF, 0x8000, 0x8000, 0x8000, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
+    0xFFFF, 0, 0x8000, 0x8000,
+]  # fmt: skip
+
+
+def _nameplate_model_data(rated_power: int | None, der_type: int | None) -> list[int]:
+    data = list(_NAMEPLATE_TEMPLATE)
+    data[0] = _enum_word(der_type)
+    data[1] = NOT_IMPLEMENTED_UINT16 if rated_power is None else rated_power
+    return data
+
+
+def _controls_model_data(
+    power_limit_pct: int | None, power_limit_enabled: bool, pf_implemented: bool
+) -> list[int]:
+    data = list(_CONTROLS_TEMPLATE)
+    data[3] = NOT_IMPLEMENTED_UINT16 if power_limit_pct is None else power_limit_pct
+    data[7] = int(power_limit_enabled)
+    if pf_implemented:
+        data[8] = 1000  # OutPFSet: cos phi 1.000
+        data[12] = 0  # OutPFSet_Ena: disabled
+        data[22] = _sf_word(-3)  # OutPFSet_SF
+    return data
+
+
 def _alarm_words(codes: list[int]) -> list[int]:
     registers = [0, 0, 0]
     for code in codes:
@@ -345,12 +387,24 @@ def build_register_map(
     mppt_inputs: list[MpptInputSpec] | None = None,
     mppt_energy_implemented: bool = False,
     include_mppt_model: bool = True,
+    include_nameplate_model: bool = True,
+    rated_power: int | None = 10000,
+    der_type: int | None = 4,
+    include_settings_model: bool = True,
+    include_controls_model: bool = True,
+    power_limit_pct: int | None = 100,
+    power_limit_enabled: bool = False,
+    power_factor_implemented: bool = False,
     vendor: VendorSpec | None = None,
-    include_vendor_model: bool = True,
+    include_vendor_model: bool = False,
     vendor_model_length: int = ABB_VENDOR_MODEL_LENGTH,
     include_inverter_model: bool = True,
 ) -> dict[int, int]:
     """Build the holding registers of a SunSpec chain as a VSN300 serves it.
+
+    The default chain is the one a VSN300 on firmware 2.0.1 serves for a
+    PVI: models 1, 103, 160, 120, 121 and 123. The ABB vendor model 64061
+    from the 2013 map is added only on request.
 
     The default ``options`` "X" decodes to a PVI-10.0-OUTD; pass ``"0x01"``
     for an UNO-DM-4.0-TL-PLUS, ``"0x0D"`` for a REACT2-UNO-5.0-TL, or an
@@ -384,6 +438,15 @@ def build_register_map(
         )
         add_model(
             MPPT_MODEL_ID, _mppt_model_data(inputs, energy_implemented=mppt_energy_implemented)
+        )
+    if include_nameplate_model:
+        add_model(NAMEPLATE_MODEL_ID, _nameplate_model_data(rated_power, der_type))
+    if include_settings_model:
+        add_model(SETTINGS_MODEL_ID, list(_SETTINGS_TEMPLATE))
+    if include_controls_model:
+        add_model(
+            CONTROLS_MODEL_ID,
+            _controls_model_data(power_limit_pct, power_limit_enabled, power_factor_implemented),
         )
     if include_vendor_model:
         add_model(

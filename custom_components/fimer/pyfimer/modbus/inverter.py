@@ -13,15 +13,18 @@ from modbus_connection.model import ComponentGroup
 
 from ..aurora import inverter_model_from_options
 from ..exceptions import FimerNotDiscoveredError, FimerUnsupportedDeviceError
-from .models import Common, FimerComponent, Inverter, Mppt
+from .models import Common, Controls, FimerComponent, Inverter, Mppt, Nameplate, Settings
 from .registers import ModbusRegisters
 from .sunspec import (
     ABB_VENDOR_MODEL_ID,
     ABB_VENDOR_MODEL_LENGTH,
     BASE_ADDRESS_DATALOGGER,
     COMMON_MODEL_ID,
+    CONTROLS_MODEL_ID,
     INVERTER_MODEL_IDS,
     MPPT_MODEL_ID,
+    NAMEPLATE_MODEL_ID,
+    SETTINGS_MODEL_ID,
     SunSpecModel,
     SunSpecModels,
     scan,
@@ -66,9 +69,9 @@ class FimerModbusInverter:
         await inverter.async_update()
         inverter.values()["W"]
 
-    Writable points (the vendor model's control block) go through
-    :meth:`async_write`, and anything outside the SunSpec map through
-    :attr:`registers`.
+    The power limit is set through ``controls.set_power_limit()``. Any
+    writable point goes through :meth:`async_write`, and anything outside
+    the SunSpec map through :attr:`registers`.
 
     Every component verifies its model header on each read and raises
     ``SunSpecMapShiftError`` when the map moved (a firmware update, a
@@ -86,6 +89,9 @@ class FimerModbusInverter:
         self.common: Common | None = None
         self.inverter: Inverter | None = None
         self.mppt: Mppt | None = None
+        self.nameplate: Nameplate | None = None
+        self.settings: Settings | None = None
+        self.controls: Controls | None = None
         self.vendor: AbbVendor | None = None
         self.vendor_model_length: int | None = None
         """The length the device reports for model 64061, for diagnostics."""
@@ -129,6 +135,12 @@ class FimerModbusInverter:
         self.inverter = Inverter(unit, inverter)
         mppt = self._models.first(MPPT_MODEL_ID)
         self.mppt = Mppt(unit, mppt) if mppt else None
+        nameplate = self._models.first(NAMEPLATE_MODEL_ID)
+        self.nameplate = Nameplate(unit, nameplate) if nameplate else None
+        settings = self._models.first(SETTINGS_MODEL_ID)
+        self.settings = Settings(unit, settings) if settings else None
+        controls = self._models.first(CONTROLS_MODEL_ID)
+        self.controls = Controls(unit, controls) if controls else None
         vendor = self._models.first(ABB_VENDOR_MODEL_ID)
         self.vendor_model_length = vendor.length if vendor else None
         if vendor is not None and vendor.length != ABB_VENDOR_MODEL_LENGTH:
@@ -148,7 +160,15 @@ class FimerModbusInverter:
         """Every discovered model component, in chain order."""
         return tuple(
             component
-            for component in (self.common, self.inverter, self.mppt, self.vendor)
+            for component in (
+                self.common,
+                self.inverter,
+                self.mppt,
+                self.nameplate,
+                self.settings,
+                self.controls,
+                self.vendor,
+            )
             if component is not None
         )
 

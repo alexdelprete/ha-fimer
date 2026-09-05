@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from modbus_connection.mock import MockModbusConnection, MockModbusUnit
 import pytest
 
@@ -11,6 +14,7 @@ from custom_components.fimer.pyfimer import (
     FimerUnsupportedDeviceError,
 )
 from custom_components.fimer.pyfimer.modbus import (
+    Enabled,
     FimerModbusInverter,
     OperatingState,
     SunSpecError,
@@ -23,6 +27,8 @@ from custom_components.fimer.pyfimer.modbus.testing import (
     build_register_map,
 )
 from tests.conftest import INVERTER_SPEC, MPPT_INPUTS, SERIAL_NUMBER, VENDOR_SPEC
+
+FIXTURES = Path(__file__).parent.parent / "fixtures"
 
 
 @pytest.fixture
@@ -37,6 +43,7 @@ async def discovered(unit: MockModbusUnit, **overrides: object) -> FimerModbusIn
         "inverter": INVERTER_SPEC,
         "mppt_inputs": MPPT_INPUTS,
         "vendor": VENDOR_SPEC,
+        "include_vendor_model": True,
     }
     kwargs.update(overrides)
     unit.holding.update(build_register_map(**kwargs))  # type: ignore[arg-type]
@@ -64,7 +71,10 @@ async def test_discover_and_values(unit: MockModbusUnit) -> None:
         (1, 2, 66),
         (103, 70, 50),
         (160, 122, 48),
-        (64061, 172, 124),
+        (120, 172, 26),
+        (121, 200, 30),
+        (123, 232, 24),
+        (64061, 258, 124),
     ]
     assert inverter.phases == 3
     assert inverter.vendor_model_length == 124
@@ -109,7 +119,7 @@ async def test_discover_and_values(unit: MockModbusUnit) -> None:
 
     raw = await inverter.async_read_raw()
     assert raw["holding"][2] == 1
-    assert raw["holding"][172] == 64061
+    assert raw["holding"][258] == 64061
 
 
 async def test_reads_are_pooled_and_capped(unit: MockModbusUnit) -> None:
@@ -117,7 +127,7 @@ async def test_reads_are_pooled_and_capped(unit: MockModbusUnit) -> None:
     inverter = await discovered(unit)
     unit.read_events.clear()
     await inverter.async_update()
-    assert 0 < len(unit.read_events) <= 8
+    assert 0 < len(unit.read_events) <= 10
     assert all(event.count <= 64 for event in unit.read_events)
 
 
@@ -200,11 +210,13 @@ async def test_map_shift_is_detected_and_recovered(unit: MockModbusUnit) -> None
 
 
 def test_builder_specs_default_to_not_implemented() -> None:
-    registers = build_register_map(inverter=InverterSpec(), vendor=VendorSpec())
+    registers = build_register_map(
+        inverter=InverterSpec(), vendor=VendorSpec(), include_vendor_model=True
+    )
     assert registers[70] == 103
     assert registers[70 + 2] == 0xFFFF  # A not implemented
-    assert registers[172 + 1] == 124
-    assert registers[registers[1 + 1] and 298] == 0xFFFF  # end marker
+    assert registers[258 + 1] == 124
+    assert registers[258 + 2 + 124] == 0xFFFF  # end marker
 
 
 async def test_write_points(unit: MockModbusUnit) -> None:
@@ -214,9 +226,9 @@ async def test_write_points(unit: MockModbusUnit) -> None:
 
     inverter = await discovered(unit)
     await inverter.async_write("OutputW_Dynamic", 50)
-    assert unit.holding[172 + 104] == 50
+    assert unit.holding[258 + 104] == 50
     await inverter.async_write("PF_Perm", 0.5)
-    assert (unit.holding[172 + 96], unit.holding[172 + 97]) == (0x3F00, 0)
+    assert (unit.holding[258 + 96], unit.holding[258 + 97]) == (0x3F00, 0)
 
     with pytest.raises(AttributeError):
         await inverter.async_write("W", 1)  # read-only
@@ -238,9 +250,9 @@ async def test_vendor_control_helpers(unit: MockModbusUnit) -> None:
     await vendor.set_power_factor(0.9)
     await vendor.set_power_factor(-0.95, permanent=True)
     await vendor.set_system_time(946684800 + 100)
-    assert unit.holding[172 + 104] == 80
-    assert unit.holding[172 + 94] == 60
-    assert (unit.holding[172 + 20], unit.holding[172 + 21]) == (0, 100)
+    assert unit.holding[258 + 104] == 80
+    assert unit.holding[258 + 94] == 60
+    assert (unit.holding[258 + 20], unit.holding[258 + 21]) == (0, 100)
     await inverter.async_update()
     values = inverter.values()
     assert values["OutputW_Dynamic"] == 80
@@ -251,8 +263,8 @@ async def test_vendor_control_helpers(unit: MockModbusUnit) -> None:
 
     await vendor.reset_output_power_limit()
     await vendor.reset_power_factor()
-    assert unit.holding[172 + 114] == 1
-    assert unit.holding[172 + 116] == 1
+    assert unit.holding[258 + 114] == 1
+    assert unit.holding[258 + 116] == 1
 
     with pytest.raises(ValueError):
         await vendor.set_output_power_limit(101)
@@ -268,3 +280,91 @@ async def test_registers_available_before_discovery(unit: MockModbusUnit) -> Non
     assert await inverter.registers.read_uint16(500) == 7
     await inverter.registers.write_uint16(501, 9)
     assert unit.holding[501] == 9
+
+
+async def test_real_vsn300_capture(unit: MockModbusUnit) -> None:
+    """The chain a VSN300 (firmware 2.0.1) serves for a PVI-10.0-OUTD, as captured."""
+    fixture = json.loads(FIXTURES.joinpath("vsn300_pvi10_fw201.json").read_text())
+    unit.load_raw(
+        {"holding": {int(address): value for address, value in fixture["holding"].items()}}
+    )
+    inverter = FimerModbusInverter(unit, base_address=fixture["base_address"])
+    await inverter.discover()
+    await inverter.async_update()
+
+    assert [model.model_id for model in inverter.model_chain] == [1, 103, 160, 120, 121, 123]
+    assert inverter.vendor is None
+    assert inverter.vendor_model_length is None
+    identity = inverter.identity
+    assert identity.manufacturer == "Power-One"
+    assert identity.device_model == "-3G82-"
+    assert identity.model == "PVI-10.0-OUTD"
+    assert identity.firmware_version == "C008"
+    assert inverter.phases == 3
+
+    values = inverter.values()
+    assert values["W"] == 3076
+    assert values["WH"] == 114903600
+    assert values["Hz"] == 50.02
+    assert values["TmpCab"] == 24.82  # served with the wrong scale factor
+    assert values["TmpOt"] == 48.6
+    assert values["St"] is OperatingState.MPPT
+    assert values["N"] == 2
+    assert values["DCW_1"] == 1685
+    assert values["DCW_2"] == 1487
+    assert values["WRtg"] == 10000
+    assert values["WMaxLimPct"] == 100
+    assert values["WMaxLimPct_RvrtTms"] == 60
+    assert values["WMaxLim_Ena"] is Enabled.DISABLED
+    unimplemented = {name for name, value in values.items() if value is None}
+    assert {
+        "VA",
+        "VAr",
+        "PF",
+        "DCA",
+        "DCV",
+        "TmpSnk",
+        "TmpTrns",
+        "DCWH_1",
+        "OutPFSet",
+    } <= unimplemented
+    assert "GlobalSt" not in values
+
+
+async def test_power_limit(unit: MockModbusUnit) -> None:
+    inverter = await discovered(unit)
+    controls = inverter.controls
+    assert controls is not None
+    assert inverter.nameplate is not None
+    assert inverter.settings is not None
+
+    await controls.set_power_limit(70)
+    assert unit.holding[232 + 5] == 70
+    assert unit.holding[232 + 9] == 1
+    await inverter.async_update()
+    assert inverter.values()["WMaxLimPct"] == 70
+    assert inverter.values()["WMaxLim_Ena"] is Enabled.ENABLED
+
+    await controls.set_power_limit(None)
+    assert unit.holding[232 + 9] == 0
+
+    with pytest.raises(ValueError):
+        await controls.set_power_limit(101)
+    # the PVI does not implement the power factor setpoint's scale factor
+    with pytest.raises(ValueError):
+        await controls.set_power_factor(0.9)
+    with pytest.raises(ValueError):
+        await controls.set_power_factor(1.5)
+    await controls.set_power_factor(None)
+    assert unit.holding[232 + 14] == 0
+
+
+async def test_power_factor_when_implemented(unit: MockModbusUnit) -> None:
+    inverter = await discovered(unit, power_factor_implemented=True)
+    controls = inverter.controls
+    assert controls is not None
+    await controls.set_power_factor(0.95)
+    assert unit.holding[232 + 10] == 950
+    assert unit.holding[232 + 14] == 1
+    await inverter.async_update()
+    assert inverter.values()["OutPFSet"] == 0.95

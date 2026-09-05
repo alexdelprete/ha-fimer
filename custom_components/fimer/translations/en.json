@@ -82,29 +82,75 @@
   },
   "entity": {
     "sensor": {
-      "ac_power": { "name": "AC power" },
-      "ac_current": { "name": "AC current" },
-      "ac_current_phase_a": { "name": "AC current phase A" },
-      "ac_current_phase_b": { "name": "AC current phase B" },
-      "ac_current_phase_c": { "name": "AC current phase C" },
-      "ac_voltage_phase_a": { "name": "AC voltage phase A" },
-      "ac_voltage_phase_b": { "name": "AC voltage phase B" },
-      "ac_voltage_phase_c": { "name": "AC voltage phase C" },
-      "ac_voltage_phase_ab": { "name": "AC voltage phase A-B" },
-      "ac_voltage_phase_bc": { "name": "AC voltage phase B-C" },
-      "ac_voltage_phase_ca": { "name": "AC voltage phase C-A" },
-      "ac_frequency": { "name": "AC frequency" },
-      "apparent_power": { "name": "Apparent power" },
-      "reactive_power": { "name": "Reactive power" },
-      "power_factor": { "name": "Power factor" },
-      "ac_energy_total": { "name": "Total energy" },
-      "dc_current": { "name": "DC current" },
-      "dc_voltage": { "name": "DC voltage" },
-      "dc_power": { "name": "DC power" },
-      "cabinet_temperature": { "name": "Cabinet temperature" },
-      "heat_sink_temperature": { "name": "Heat sink temperature" },
-      "transformer_temperature": { "name": "Transformer temperature" },
-      "other_temperature": { "name": "Other temperature" },
+      "ac_power": {
+        "name": "AC power"
+      },
+      "ac_current": {
+        "name": "AC current"
+      },
+      "ac_current_phase_a": {
+        "name": "AC current phase A"
+      },
+      "ac_current_phase_b": {
+        "name": "AC current phase B"
+      },
+      "ac_current_phase_c": {
+        "name": "AC current phase C"
+      },
+      "ac_voltage_phase_a": {
+        "name": "AC voltage phase A"
+      },
+      "ac_voltage_phase_b": {
+        "name": "AC voltage phase B"
+      },
+      "ac_voltage_phase_c": {
+        "name": "AC voltage phase C"
+      },
+      "ac_voltage_phase_ab": {
+        "name": "AC voltage phase A-B"
+      },
+      "ac_voltage_phase_bc": {
+        "name": "AC voltage phase B-C"
+      },
+      "ac_voltage_phase_ca": {
+        "name": "AC voltage phase C-A"
+      },
+      "ac_frequency": {
+        "name": "AC frequency"
+      },
+      "apparent_power": {
+        "name": "Apparent power"
+      },
+      "reactive_power": {
+        "name": "Reactive power"
+      },
+      "power_factor": {
+        "name": "Power factor"
+      },
+      "ac_energy_total": {
+        "name": "Total energy"
+      },
+      "dc_current": {
+        "name": "DC current"
+      },
+      "dc_voltage": {
+        "name": "DC voltage"
+      },
+      "dc_power": {
+        "name": "DC power"
+      },
+      "cabinet_temperature": {
+        "name": "Cabinet temperature"
+      },
+      "heat_sink_temperature": {
+        "name": "Heat sink temperature"
+      },
+      "transformer_temperature": {
+        "name": "Transformer temperature"
+      },
+      "other_temperature": {
+        "name": "Other temperature"
+      },
       "operating_state": {
         "name": "Operating state",
         "state": {
@@ -118,38 +164,115 @@
           "standby": "Standby"
         }
       },
-      "vendor_operating_state": { "name": "Vendor operating state" },
-      "dc_current_input_1": { "name": "DC current input 1" },
-      "dc_voltage_input_1": { "name": "DC voltage input 1" },
-      "dc_power_input_1": { "name": "DC power input 1" },
-      "dc_energy_input_1": { "name": "DC energy input 1" },
-      "dc_current_input_2": { "name": "DC current input 2" },
-      "dc_voltage_input_2": { "name": "DC voltage input 2" },
-      "dc_power_input_2": { "name": "DC power input 2" },
-      "dc_energy_input_2": { "name": "DC energy input 2" },
-      "dc_current_input_3": { "name": "DC current input 3" },
-      "dc_voltage_input_3": { "name": "DC voltage input 3" },
-      "dc_power_input_3": { "name": "DC power input 3" },
-      "dc_energy_input_3": { "name": "DC energy input 3" },
-      "global_state": { "name": "Global state" },
-      "inverter_state": { "name": "Inverter state" },
-      "dc_input_1_state": { "name": "DC input 1 state" },
-      "dc_input_2_state": { "name": "DC input 2 state" },
-      "alarms": { "name": "Alarms" },
-      "system_time": { "name": "System time" },
-      "energy_today": { "name": "Energy today" },
-      "energy_this_week": { "name": "Energy this week" },
-      "energy_this_month": { "name": "Energy this month" },
-      "energy_this_year": { "name": "Energy this year" },
-      "energy_total_vendor": { "name": "Total energy (vendor model)" },
-      "energy_partial": { "name": "Partial energy" },
-      "inverter_temperature": { "name": "Inverter temperature" },
-      "booster_temperature": { "name": "Booster temperature" },
-      "isolation_resistance_input_1": { "name": "Isolation resistance input 1" },
-      "isolation_resistance_input_2": { "name": "Isolation resistance input 2" },
-      "cos_phi": { "name": "Cos phi" },
-      "power_limit_permanent": { "name": "Power limit (permanent)" },
-      "power_limit_dynamic": { "name": "Power limit (dynamic)" }
+      "vendor_operating_state": {
+        "name": "Vendor operating state"
+      },
+      "dc_current_input_1": {
+        "name": "DC current input 1"
+      },
+      "dc_voltage_input_1": {
+        "name": "DC voltage input 1"
+      },
+      "dc_power_input_1": {
+        "name": "DC power input 1"
+      },
+      "dc_energy_input_1": {
+        "name": "DC energy input 1"
+      },
+      "dc_current_input_2": {
+        "name": "DC current input 2"
+      },
+      "dc_voltage_input_2": {
+        "name": "DC voltage input 2"
+      },
+      "dc_power_input_2": {
+        "name": "DC power input 2"
+      },
+      "dc_energy_input_2": {
+        "name": "DC energy input 2"
+      },
+      "dc_current_input_3": {
+        "name": "DC current input 3"
+      },
+      "dc_voltage_input_3": {
+        "name": "DC voltage input 3"
+      },
+      "dc_power_input_3": {
+        "name": "DC power input 3"
+      },
+      "dc_energy_input_3": {
+        "name": "DC energy input 3"
+      },
+      "global_state": {
+        "name": "Global state"
+      },
+      "inverter_state": {
+        "name": "Inverter state"
+      },
+      "dc_input_1_state": {
+        "name": "DC input 1 state"
+      },
+      "dc_input_2_state": {
+        "name": "DC input 2 state"
+      },
+      "alarms": {
+        "name": "Alarms"
+      },
+      "system_time": {
+        "name": "System time"
+      },
+      "energy_today": {
+        "name": "Energy today"
+      },
+      "energy_this_week": {
+        "name": "Energy this week"
+      },
+      "energy_this_month": {
+        "name": "Energy this month"
+      },
+      "energy_this_year": {
+        "name": "Energy this year"
+      },
+      "energy_total_vendor": {
+        "name": "Total energy (vendor model)"
+      },
+      "energy_partial": {
+        "name": "Partial energy"
+      },
+      "inverter_temperature": {
+        "name": "Inverter temperature"
+      },
+      "booster_temperature": {
+        "name": "Booster temperature"
+      },
+      "isolation_resistance_input_1": {
+        "name": "Isolation resistance input 1"
+      },
+      "isolation_resistance_input_2": {
+        "name": "Isolation resistance input 2"
+      },
+      "cos_phi": {
+        "name": "Cos phi"
+      },
+      "power_limit_permanent": {
+        "name": "Power limit (permanent)"
+      },
+      "power_limit_dynamic": {
+        "name": "Power limit (dynamic)"
+      },
+      "rated_power": {
+        "name": "Rated power"
+      },
+      "power_limit": {
+        "name": "Power limit"
+      },
+      "power_limit_enabled": {
+        "name": "Power limit active",
+        "state": {
+          "disabled": "No",
+          "enabled": "Yes"
+        }
+      }
     }
   },
   "exceptions": {

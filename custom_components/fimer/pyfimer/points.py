@@ -56,6 +56,9 @@ class Point:
 
 MODEL_COMMON: Final = 1
 MODEL_INVERTER: Final = 100
+MODEL_NAMEPLATE: Final = 120
+MODEL_SETTINGS: Final = 121
+MODEL_CONTROLS: Final = 123
 MODEL_MPPT: Final = 160
 MODEL_ABB_VENDOR: Final = 64061
 
@@ -138,6 +141,30 @@ POINTS: Final[tuple[Point, ...]] = (
     # SunSpec multiple MPPT model (160)
     Point("N", PointKind.INFO, None, MODEL_MPPT, "Number of MPPT inputs"),
     *_mppt_points(),
+    # SunSpec nameplate model (120)
+    Point("DERTyp", PointKind.STATE, None, MODEL_NAMEPLATE, "DER type"),
+    Point("WRtg", PointKind.INFO, "W", MODEL_NAMEPLATE, "Rated power"),
+    Point("VARtg", PointKind.INFO, "VA", MODEL_NAMEPLATE, "Rated apparent power"),
+    Point("ARtg", PointKind.INFO, "A", MODEL_NAMEPLATE, "Rated current"),
+    Point("WhRtg", PointKind.INFO, "Wh", MODEL_NAMEPLATE, "Rated energy"),
+    # SunSpec basic settings model (121)
+    Point("WMax", PointKind.INFO, "W", MODEL_SETTINGS, "Maximum power"),
+    Point("VRef", PointKind.INFO, "V", MODEL_SETTINGS, "Reference voltage"),
+    Point("VMax", PointKind.INFO, "V", MODEL_SETTINGS, "Maximum voltage"),
+    Point("VMin", PointKind.INFO, "V", MODEL_SETTINGS, "Minimum voltage"),
+    Point("VAMax", PointKind.INFO, "VA", MODEL_SETTINGS, "Maximum apparent power"),
+    Point("WGra", PointKind.INFO, "%", MODEL_SETTINGS, "Power ramp rate"),
+    Point("ECPNomHz", PointKind.INFO, "Hz", MODEL_SETTINGS, "Nominal frequency"),
+    # SunSpec immediate controls model (123)
+    Point("Conn", PointKind.STATE, None, MODEL_CONTROLS, "Grid connection"),
+    Point("WMaxLimPct", PointKind.MEASUREMENT, "%", MODEL_CONTROLS, "Power limit"),
+    Point(
+        "WMaxLimPct_RvrtTms", PointKind.MEASUREMENT, "s", MODEL_CONTROLS, "Power limit revert time"
+    ),
+    Point("WMaxLimPct_RmpTms", PointKind.MEASUREMENT, "s", MODEL_CONTROLS, "Power limit ramp time"),
+    Point("WMaxLim_Ena", PointKind.STATE, None, MODEL_CONTROLS, "Power limit enabled"),
+    Point("OutPFSet", PointKind.MEASUREMENT, None, MODEL_CONTROLS, "Power factor setpoint"),
+    Point("OutPFSet_Ena", PointKind.STATE, None, MODEL_CONTROLS, "Power factor setpoint enabled"),
     # ABB vendor model (64061)
     Point("HwVersion", PointKind.INFO, None, MODEL_ABB_VENDOR, "Hardware version"),
     Point("Parent", PointKind.INFO, None, MODEL_ABB_VENDOR, "Parent device"),
