@@ -64,8 +64,17 @@ def vsn700() -> FakeVsn:
 type Serve = Callable[[FakeVsn], Awaitable[str]]
 
 
+@pytest.fixture(autouse=True)
+def _loopback_sockets(socket_enabled: None) -> None:
+    """Allow sockets for this module: the fake card listens on the loopback interface.
+
+    The Home Assistant test plugin blocks sockets by default; its own HTTP
+    fixtures opt back in through ``socket_enabled`` the same way.
+    """
+
+
 @pytest.fixture
-async def serve(aiohttp_server: Callable[..., Awaitable[Any]], socket_enabled: None) -> Serve:
+async def serve(aiohttp_server: Callable[..., Awaitable[Any]]) -> Serve:
     """Start a fake card on the loopback interface and return its base URL."""
 
     async def start(fake: FakeVsn) -> str:
@@ -76,8 +85,8 @@ async def serve(aiohttp_server: Callable[..., Awaitable[Any]], socket_enabled: N
 
 
 @pytest.fixture
-async def session(socket_enabled: None) -> Any:
-    """A client session allowed to reach the loopback interface."""
+async def session() -> Any:
+    """A client session for the fake card."""
     async with ClientSession() as client_session:
         yield client_session
 
