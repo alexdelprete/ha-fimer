@@ -1109,6 +1109,181 @@
     },
     "write_failed": {
       "message": "Writing to the inverter failed: {error}"
+    },
+    "entry_not_found": {
+      "message": "No FIMER config entry {entry_id}."
+    },
+    "entry_not_loaded": {
+      "message": "The entry {title} is not loaded."
+    },
+    "modbus_not_enabled": {
+      "message": "This entry does not read over Modbus, so it cannot access registers."
+    },
+    "no_controls": {
+      "message": "The inverter does not serve the immediate controls model."
+    },
+    "unknown_point": {
+      "message": "Cannot write point {point}: {error}"
+    },
+    "invalid_value": {
+      "message": "Invalid value: {error}"
+    },
+    "value_required": {
+      "message": "Give either a value or a list of raw registers."
+    },
+    "device_not_found": {
+      "message": "No device {device} in this entry."
+    }
+  },
+  "services": {
+    "read_registers": {
+      "name": "Read registers",
+      "description": "Reads registers at an absolute Modbus address and decodes them. Returns the raw registers and the decoded value.",
+      "fields": {
+        "config_entry": {
+          "name": "Config entry",
+          "description": "The inverter to address."
+        },
+        "address": {
+          "name": "Address",
+          "description": "The first register address."
+        },
+        "count": {
+          "name": "Count",
+          "description": "How many registers to read; ignored for the fixed-size data types."
+        },
+        "register_type": {
+          "name": "Register type",
+          "description": "Holding or input registers."
+        },
+        "data_type": {
+          "name": "Data type",
+          "description": "How to decode the registers; raw returns them undecoded."
+        },
+        "word_order": {
+          "name": "Word order",
+          "description": "Which register holds the high word of a 32-bit value."
+        }
+      }
+    },
+    "write_registers": {
+      "name": "Write registers",
+      "description": "Writes one value encoded as the given type, or a list of raw registers, at an absolute Modbus address.",
+      "fields": {
+        "config_entry": {
+          "name": "Config entry",
+          "description": "The inverter to address."
+        },
+        "address": {
+          "name": "Address",
+          "description": "The first register address."
+        },
+        "value": {
+          "name": "Value",
+          "description": "The value to encode and write."
+        },
+        "values": {
+          "name": "Raw registers",
+          "description": "A list of 16-bit register values to write as they are, instead of a value."
+        },
+        "data_type": {
+          "name": "Data type",
+          "description": "How to encode the value."
+        },
+        "word_order": {
+          "name": "Word order",
+          "description": "Which register gets the high word of a 32-bit value."
+        },
+        "count": {
+          "name": "Length",
+          "description": "Registers a string spans; defaults to what the string needs."
+        }
+      }
+    },
+    "write_point": {
+      "name": "Write point",
+      "description": "Writes a writable SunSpec point by its name, for example WMaxLimPct or OutPFSet, and refreshes the readings.",
+      "fields": {
+        "config_entry": {
+          "name": "Config entry",
+          "description": "The inverter to address."
+        },
+        "point": {
+          "name": "Point",
+          "description": "The point name."
+        },
+        "value": {
+          "name": "Value",
+          "description": "The value in the point's engineering unit."
+        }
+      }
+    },
+    "set_power_limit": {
+      "name": "Set power limit",
+      "description": "Sets the active power limit and whether it is applied, verified by reading back. Leave a field out to keep its current value.",
+      "fields": {
+        "config_entry": {
+          "name": "Config entry",
+          "description": "The inverter to address."
+        },
+        "percent": {
+          "name": "Limit",
+          "description": "The limit as a percentage of the rated power."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Whether the limit is applied."
+        }
+      }
+    },
+    "get_readings": {
+      "name": "Get readings",
+      "description": "Returns every point each device of the entry currently reports.",
+      "fields": {
+        "config_entry": {
+          "name": "Config entry",
+          "description": "The inverter to address."
+        },
+        "device": {
+          "name": "Device",
+          "description": "Only this device, by its serial number or identifier."
+        }
+      }
+    },
+    "rediscover": {
+      "name": "Rediscover",
+      "description": "Walks the SunSpec model chain and the datalogger's devices again without reloading, and refreshes the readings. The entry is reloaded only when new devices appeared.",
+      "fields": {
+        "config_entry": {
+          "name": "Config entry",
+          "description": "The inverter to address."
+        }
+      }
+    }
+  },
+  "selector": {
+    "register_type": {
+      "options": {
+        "holding": "Holding registers",
+        "input": "Input registers"
+      }
+    },
+    "data_type": {
+      "options": {
+        "raw": "Raw registers",
+        "uint16": "Unsigned 16-bit",
+        "int16": "Signed 16-bit",
+        "uint32": "Unsigned 32-bit",
+        "int32": "Signed 32-bit",
+        "float32": "Float (32-bit)",
+        "string": "String"
+      }
+    },
+    "word_order": {
+      "options": {
+        "big": "High word first",
+        "little": "Low word first"
+      }
     }
   }
 }

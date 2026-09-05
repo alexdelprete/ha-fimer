@@ -12,8 +12,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError, HomeAssistantError
-from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import config_validation as cv, device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.typing import ConfigType
 
 from .const import (
     CONF_BASE_ADDRESS,
@@ -32,8 +33,10 @@ from .devices import FimerDevice, build_devices
 from .migration import async_take_over_legacy_entities
 from .pyfimer.modbus import FimerModbusInverter
 from .pyfimer.rest import FimerRestLogger, VsnModel
+from .services import async_setup_services
 
 PLATFORMS: Final = [Platform.NUMBER, Platform.SENSOR, Platform.SWITCH]
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 @dataclass
@@ -50,6 +53,12 @@ class FimerRuntimeData:
 
 
 type FimerConfigEntry = ConfigEntry[FimerRuntimeData]
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Register the integration's actions; entries are set up separately."""
+    async_setup_services(hass)
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> bool:

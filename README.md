@@ -272,6 +272,37 @@ outcome in an issue:
 Report the inverter model and firmware (both shown on the device page), the datalogger model and
 firmware, whether the AC power followed the limit, and attach the diagnostics download.
 
+## Actions
+
+The integration provides these actions, all addressed to a config entry. The register and point
+actions need the Modbus source; the others work with either source.
+
+- `fimer.read_registers`: read holding or input registers at an absolute address and decode them
+  as a 16- or 32-bit integer, a float or a string. Returns the raw registers and the decoded value.
+- `fimer.write_registers`: write one value encoded as a chosen type, or a list of raw registers, at
+  an absolute address.
+- `fimer.write_point`: write a writable SunSpec point by name, for example `WMaxLimPct`, in its
+  engineering unit.
+- `fimer.set_power_limit`: set the active power limit in percent and whether it is applied,
+  verified by reading back.
+- `fimer.get_readings`: return every point each device of the entry currently reports, with the
+  device type and availability.
+- `fimer.rediscover`: walk the SunSpec chain and the datalogger's devices again without a reload,
+  and refresh both sources. The entry is reloaded only when new devices appeared.
+
+Register writes go straight to the device: use them only with the register map at hand. An
+example reading the power limit register of model 123 on a VSN300 (header at 232, limit at
+offset 5):
+
+```yaml
+action: fimer.read_registers
+data:
+  config_entry: 01ABCDEF0123456789ABCDEF01
+  address: 237
+  data_type: uint16
+response_variable: limit
+```
+
 ## Known limitations
 
 The integration is read-only unless the experimental power limit control is switched on (see

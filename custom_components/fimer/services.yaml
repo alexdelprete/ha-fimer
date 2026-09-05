@@ -1,0 +1,158 @@
+read_registers:
+  fields:
+    config_entry:
+      required: true
+      selector:
+        config_entry:
+          integration: fimer
+    address:
+      required: true
+      example: 237
+      selector:
+        number:
+          min: 0
+          max: 65535
+          mode: box
+    count:
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 125
+          mode: box
+    register_type:
+      default: holding
+      selector:
+        select:
+          options:
+            - holding
+            - input
+          translation_key: register_type
+    data_type:
+      default: raw
+      selector:
+        select:
+          options:
+            - raw
+            - uint16
+            - int16
+            - uint32
+            - int32
+            - float32
+            - string
+          translation_key: data_type
+    word_order:
+      default: big
+      selector:
+        select:
+          options:
+            - big
+            - little
+          translation_key: word_order
+
+write_registers:
+  fields:
+    config_entry:
+      required: true
+      selector:
+        config_entry:
+          integration: fimer
+    address:
+      required: true
+      example: 237
+      selector:
+        number:
+          min: 0
+          max: 65535
+          mode: box
+    value:
+      example: 80
+      selector:
+        text:
+    values:
+      example: "[80, 1]"
+      selector:
+        object:
+    data_type:
+      default: uint16
+      selector:
+        select:
+          options:
+            - uint16
+            - int16
+            - uint32
+            - int32
+            - float32
+            - string
+          translation_key: data_type
+    word_order:
+      default: big
+      selector:
+        select:
+          options:
+            - big
+            - little
+          translation_key: word_order
+    count:
+      selector:
+        number:
+          min: 1
+          max: 123
+          mode: box
+
+write_point:
+  fields:
+    config_entry:
+      required: true
+      selector:
+        config_entry:
+          integration: fimer
+    point:
+      required: true
+      example: WMaxLimPct
+      selector:
+        text:
+    value:
+      required: true
+      example: 80
+      selector:
+        text:
+
+set_power_limit:
+  fields:
+    config_entry:
+      required: true
+      selector:
+        config_entry:
+          integration: fimer
+    percent:
+      example: 80
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+          mode: box
+    enabled:
+      selector:
+        boolean:
+
+get_readings:
+  fields:
+    config_entry:
+      required: true
+      selector:
+        config_entry:
+          integration: fimer
+    device:
+      example: 077909-3G82-3112
+      selector:
+        text:
+
+rediscover:
+  fields:
+    config_entry:
+      required: true
+      selector:
+        config_entry:
+          integration: fimer
