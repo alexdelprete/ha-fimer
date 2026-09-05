@@ -156,77 +156,29 @@
   },
   "entity": {
     "sensor": {
-      "ac_power": {
-        "name": "Potencia CA"
-      },
-      "ac_current": {
-        "name": "Corriente CA"
-      },
-      "ac_current_phase_a": {
-        "name": "Corriente CA fase A"
-      },
-      "ac_current_phase_b": {
-        "name": "Corriente CA fase B"
-      },
-      "ac_current_phase_c": {
-        "name": "Corriente CA fase C"
-      },
-      "ac_voltage_phase_a": {
-        "name": "Tensión CA fase A"
-      },
-      "ac_voltage_phase_b": {
-        "name": "Tensión CA fase B"
-      },
-      "ac_voltage_phase_c": {
-        "name": "Tensión CA fase C"
-      },
-      "ac_voltage_phase_ab": {
-        "name": "Tensión CA fase A-B"
-      },
-      "ac_voltage_phase_bc": {
-        "name": "Tensión CA fase B-C"
-      },
-      "ac_voltage_phase_ca": {
-        "name": "Tensión CA fase C-A"
-      },
-      "ac_frequency": {
-        "name": "Frecuencia CA"
-      },
       "apparent_power": {
-        "name": "Potencia aparente"
-      },
-      "reactive_power": {
-        "name": "Potencia reactiva"
-      },
-      "power_factor": {
-        "name": "Factor de potencia"
-      },
-      "ac_energy_total": {
-        "name": "Energía total"
+        "name": "Potencia AC - Aparente"
       },
       "dc_current": {
-        "name": "Corriente CC"
+        "name": "Corriente DC"
       },
       "dc_voltage": {
-        "name": "Tensión CC"
-      },
-      "dc_power": {
-        "name": "Potencia CC"
+        "name": "Tensión DC"
       },
       "cabinet_temperature": {
         "name": "Temperatura del armario"
       },
       "heat_sink_temperature": {
-        "name": "Temperatura del disipador"
+        "name": "Temperatura - Disipador"
       },
       "transformer_temperature": {
-        "name": "Temperatura del transformador"
+        "name": "Temperatura - Transformador"
       },
       "other_temperature": {
         "name": "Otra temperatura"
       },
       "operating_state": {
-        "name": "Estado de funcionamiento",
+        "name": "Estado - Funcionamiento",
         "state": {
           "off": "Off",
           "sleeping": "Sleeping",
@@ -239,109 +191,46 @@
         }
       },
       "vendor_operating_state": {
-        "name": "Estado de funcionamiento (fabricante)"
-      },
-      "dc_current_input_1": {
-        "name": "Corriente CC entrada 1"
-      },
-      "dc_voltage_input_1": {
-        "name": "Tensión CC entrada 1"
-      },
-      "dc_power_input_1": {
-        "name": "Potencia CC entrada 1"
+        "name": "Estado - Funcionamiento (fabricante)"
       },
       "dc_energy_input_1": {
-        "name": "Energía CC entrada 1"
-      },
-      "dc_current_input_2": {
-        "name": "Corriente CC entrada 2"
-      },
-      "dc_voltage_input_2": {
-        "name": "Tensión CC entrada 2"
-      },
-      "dc_power_input_2": {
-        "name": "Potencia CC entrada 2"
+        "name": "Energía DC - Entrada 1 (Total)"
       },
       "dc_energy_input_2": {
-        "name": "Energía CC entrada 2"
-      },
-      "dc_current_input_3": {
-        "name": "Corriente CC entrada 3"
-      },
-      "dc_voltage_input_3": {
-        "name": "Tensión CC entrada 3"
-      },
-      "dc_power_input_3": {
-        "name": "Potencia CC entrada 3"
+        "name": "Energía DC - Entrada 2 (Total)"
       },
       "dc_energy_input_3": {
-        "name": "Energía CC entrada 3"
-      },
-      "global_state": {
-        "name": "Estado global"
-      },
-      "inverter_state": {
-        "name": "Estado del inversor"
-      },
-      "dc_input_1_state": {
-        "name": "Estado entrada CC 1"
-      },
-      "dc_input_2_state": {
-        "name": "Estado entrada CC 2"
+        "name": "Energía DC - Entrada 3 (Total)"
       },
       "alarms": {
-        "name": "Alarmas"
-      },
-      "system_time": {
-        "name": "Hora del sistema"
-      },
-      "energy_today": {
-        "name": "Energía hoy"
-      },
-      "energy_this_week": {
-        "name": "Energía esta semana"
-      },
-      "energy_this_month": {
-        "name": "Energía este mes"
-      },
-      "energy_this_year": {
-        "name": "Energía este año"
+        "name": "Alarmas - Activas"
       },
       "energy_total_vendor": {
-        "name": "Energía total (modelo del fabricante)"
+        "name": "Energía AC - Producida (Total modelo fabricante)"
       },
       "energy_partial": {
-        "name": "Energía parcial"
+        "name": "Energía AC - Producida (Parcial)"
       },
       "inverter_temperature": {
-        "name": "Temperatura del inversor"
-      },
-      "booster_temperature": {
-        "name": "Temperatura del booster"
-      },
-      "isolation_resistance_input_1": {
-        "name": "Resistencia de aislamiento entrada 1"
+        "name": "Temperatura - Inversor"
       },
       "isolation_resistance_input_2": {
-        "name": "Resistencia de aislamiento entrada 2"
+        "name": "Resistencia - Aislamiento (Entrada 2)"
       },
       "cos_phi": {
         "name": "Cos phi"
       },
       "power_limit_permanent": {
-        "name": "Límite de potencia (permanente)"
+        "name": "Límite de potencia - Permanente"
       },
       "power_limit_dynamic": {
-        "name": "Límite de potencia (dinámico)"
-      },
-      "rated_power": {
-        "name": "Potencia nominal"
+        "name": "Límite de potencia - Dinámico"
       },
       "power_limit": {
-        "name": "Límite de potencia"
+        "name": "Límite de potencia - Potencia activa"
       },
       "power_limit_enabled": {
-        "name": "Límite de potencia activo",
+        "name": "Límite de potencia - Habilitado",
         "state": {
           "disabled": "No",
           "enabled": "Yes"
@@ -1104,20 +993,17 @@
         "name": "ID del logger"
       },
       "events": {
-        "name": "Eventos"
-      },
-      "dc_input_3_state": {
-        "name": "Estado entrada CC 3"
+        "name": "Estado - Eventos"
       }
     },
     "number": {
       "power_limit": {
-        "name": "Límite de potencia"
+        "name": "Límite de potencia - Potencia activa"
       }
     },
     "switch": {
       "power_limit_enabled": {
-        "name": "Límite de potencia"
+        "name": "Límite de potencia - Habilitado"
       }
     }
   },

@@ -156,77 +156,29 @@
   },
   "entity": {
     "sensor": {
-      "ac_power": {
-        "name": "AC power"
-      },
-      "ac_current": {
-        "name": "AC current"
-      },
-      "ac_current_phase_a": {
-        "name": "AC current phase A"
-      },
-      "ac_current_phase_b": {
-        "name": "AC current phase B"
-      },
-      "ac_current_phase_c": {
-        "name": "AC current phase C"
-      },
-      "ac_voltage_phase_a": {
-        "name": "AC voltage phase A"
-      },
-      "ac_voltage_phase_b": {
-        "name": "AC voltage phase B"
-      },
-      "ac_voltage_phase_c": {
-        "name": "AC voltage phase C"
-      },
-      "ac_voltage_phase_ab": {
-        "name": "AC voltage phase A-B"
-      },
-      "ac_voltage_phase_bc": {
-        "name": "AC voltage phase B-C"
-      },
-      "ac_voltage_phase_ca": {
-        "name": "AC voltage phase C-A"
-      },
-      "ac_frequency": {
-        "name": "AC frequency"
-      },
       "apparent_power": {
-        "name": "Apparent power"
-      },
-      "reactive_power": {
-        "name": "Reactive power"
-      },
-      "power_factor": {
-        "name": "Power factor"
-      },
-      "ac_energy_total": {
-        "name": "Total energy"
+        "name": "Power AC - Apparent"
       },
       "dc_current": {
-        "name": "DC current"
+        "name": "Current DC"
       },
       "dc_voltage": {
-        "name": "DC voltage"
-      },
-      "dc_power": {
-        "name": "DC power"
+        "name": "Voltage DC"
       },
       "cabinet_temperature": {
         "name": "Cabinet temperature"
       },
       "heat_sink_temperature": {
-        "name": "Heat sink temperature"
+        "name": "Temperature - Heat Sink"
       },
       "transformer_temperature": {
-        "name": "Transformer temperature"
+        "name": "Temperature - Transformer"
       },
       "other_temperature": {
         "name": "Other temperature"
       },
       "operating_state": {
-        "name": "Operating state",
+        "name": "Status - Operating",
         "state": {
           "off": "Off",
           "sleeping": "Sleeping",
@@ -239,109 +191,46 @@
         }
       },
       "vendor_operating_state": {
-        "name": "Vendor operating state"
-      },
-      "dc_current_input_1": {
-        "name": "DC current input 1"
-      },
-      "dc_voltage_input_1": {
-        "name": "DC voltage input 1"
-      },
-      "dc_power_input_1": {
-        "name": "DC power input 1"
+        "name": "Status - Operating (Vendor)"
       },
       "dc_energy_input_1": {
-        "name": "DC energy input 1"
-      },
-      "dc_current_input_2": {
-        "name": "DC current input 2"
-      },
-      "dc_voltage_input_2": {
-        "name": "DC voltage input 2"
-      },
-      "dc_power_input_2": {
-        "name": "DC power input 2"
+        "name": "Energy DC - Input 1 (Lifetime)"
       },
       "dc_energy_input_2": {
-        "name": "DC energy input 2"
-      },
-      "dc_current_input_3": {
-        "name": "DC current input 3"
-      },
-      "dc_voltage_input_3": {
-        "name": "DC voltage input 3"
-      },
-      "dc_power_input_3": {
-        "name": "DC power input 3"
+        "name": "Energy DC - Input 2 (Lifetime)"
       },
       "dc_energy_input_3": {
-        "name": "DC energy input 3"
-      },
-      "global_state": {
-        "name": "Global state"
-      },
-      "inverter_state": {
-        "name": "Inverter state"
-      },
-      "dc_input_1_state": {
-        "name": "DC input 1 state"
-      },
-      "dc_input_2_state": {
-        "name": "DC input 2 state"
+        "name": "Energy DC - Input 3 (Lifetime)"
       },
       "alarms": {
-        "name": "Alarms"
-      },
-      "system_time": {
-        "name": "System time"
-      },
-      "energy_today": {
-        "name": "Energy today"
-      },
-      "energy_this_week": {
-        "name": "Energy this week"
-      },
-      "energy_this_month": {
-        "name": "Energy this month"
-      },
-      "energy_this_year": {
-        "name": "Energy this year"
+        "name": "Alarms - Active"
       },
       "energy_total_vendor": {
-        "name": "Total energy (vendor model)"
+        "name": "Energy AC - Produced (Vendor Lifetime)"
       },
       "energy_partial": {
-        "name": "Partial energy"
+        "name": "Energy AC - Produced (Partial)"
       },
       "inverter_temperature": {
-        "name": "Inverter temperature"
-      },
-      "booster_temperature": {
-        "name": "Booster temperature"
-      },
-      "isolation_resistance_input_1": {
-        "name": "Isolation resistance input 1"
+        "name": "Temperature - Inverter"
       },
       "isolation_resistance_input_2": {
-        "name": "Isolation resistance input 2"
+        "name": "Resistance - Insulation (Input 2)"
       },
       "cos_phi": {
         "name": "Cos phi"
       },
       "power_limit_permanent": {
-        "name": "Power limit (permanent)"
+        "name": "Power Limit - Permanent"
       },
       "power_limit_dynamic": {
-        "name": "Power limit (dynamic)"
-      },
-      "rated_power": {
-        "name": "Rated power"
+        "name": "Power Limit - Dynamic"
       },
       "power_limit": {
-        "name": "Power limit"
+        "name": "Power Limit - Active Power"
       },
       "power_limit_enabled": {
-        "name": "Power limit active",
+        "name": "Power Limit - Enabled",
         "state": {
           "disabled": "No",
           "enabled": "Yes"
@@ -1104,20 +993,17 @@
         "name": "Logger ID"
       },
       "events": {
-        "name": "Events"
-      },
-      "dc_input_3_state": {
-        "name": "DC input 3 state"
+        "name": "Status - Events"
       }
     },
     "number": {
       "power_limit": {
-        "name": "Power limit"
+        "name": "Power Limit - Active Power"
       }
     },
     "switch": {
       "power_limit_enabled": {
-        "name": "Power limit"
+        "name": "Power Limit - Enabled"
       }
     }
   },

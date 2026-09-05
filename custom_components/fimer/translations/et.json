@@ -156,77 +156,29 @@
   },
   "entity": {
     "sensor": {
-      "ac_power": {
-        "name": "AC-võimsus"
-      },
-      "ac_current": {
-        "name": "AC-vool"
-      },
-      "ac_current_phase_a": {
-        "name": "AC-vool faas A"
-      },
-      "ac_current_phase_b": {
-        "name": "AC-vool faas B"
-      },
-      "ac_current_phase_c": {
-        "name": "AC-vool faas C"
-      },
-      "ac_voltage_phase_a": {
-        "name": "AC-pinge faas A"
-      },
-      "ac_voltage_phase_b": {
-        "name": "AC-pinge faas B"
-      },
-      "ac_voltage_phase_c": {
-        "name": "AC-pinge faas C"
-      },
-      "ac_voltage_phase_ab": {
-        "name": "AC-pinge faas A-B"
-      },
-      "ac_voltage_phase_bc": {
-        "name": "AC-pinge faas B-C"
-      },
-      "ac_voltage_phase_ca": {
-        "name": "AC-pinge faas C-A"
-      },
-      "ac_frequency": {
-        "name": "AC-sagedus"
-      },
       "apparent_power": {
-        "name": "Näivvõimsus"
-      },
-      "reactive_power": {
-        "name": "Reaktiivvõimsus"
-      },
-      "power_factor": {
-        "name": "Võimsustegur"
-      },
-      "ac_energy_total": {
-        "name": "Koguenergia"
+        "name": "Võimsus AC - Näiv"
       },
       "dc_current": {
-        "name": "DC-vool"
+        "name": "Vool DC"
       },
       "dc_voltage": {
-        "name": "DC-pinge"
-      },
-      "dc_power": {
-        "name": "DC-võimsus"
+        "name": "Pinge DC"
       },
       "cabinet_temperature": {
         "name": "Korpuse temperatuur"
       },
       "heat_sink_temperature": {
-        "name": "Jahutusradiaatori temperatuur"
+        "name": "Temperatuur - Jahutusradiaator"
       },
       "transformer_temperature": {
-        "name": "Trafo temperatuur"
+        "name": "Temperatuur - Trafo"
       },
       "other_temperature": {
         "name": "Muu temperatuur"
       },
       "operating_state": {
-        "name": "Tööolek",
+        "name": "Olek - Töö",
         "state": {
           "off": "Off",
           "sleeping": "Sleeping",
@@ -239,109 +191,46 @@
         }
       },
       "vendor_operating_state": {
-        "name": "Tööolek (tootja)"
-      },
-      "dc_current_input_1": {
-        "name": "DC-vool sisend 1"
-      },
-      "dc_voltage_input_1": {
-        "name": "DC-pinge sisend 1"
-      },
-      "dc_power_input_1": {
-        "name": "DC-võimsus sisend 1"
+        "name": "Olek - Töö (tootja)"
       },
       "dc_energy_input_1": {
-        "name": "DC-energia sisend 1"
-      },
-      "dc_current_input_2": {
-        "name": "DC-vool sisend 2"
-      },
-      "dc_voltage_input_2": {
-        "name": "DC-pinge sisend 2"
-      },
-      "dc_power_input_2": {
-        "name": "DC-võimsus sisend 2"
+        "name": "Energia DC - Sisend 1 (Kokku)"
       },
       "dc_energy_input_2": {
-        "name": "DC-energia sisend 2"
-      },
-      "dc_current_input_3": {
-        "name": "DC-vool sisend 3"
-      },
-      "dc_voltage_input_3": {
-        "name": "DC-pinge sisend 3"
-      },
-      "dc_power_input_3": {
-        "name": "DC-võimsus sisend 3"
+        "name": "Energia DC - Sisend 2 (Kokku)"
       },
       "dc_energy_input_3": {
-        "name": "DC-energia sisend 3"
-      },
-      "global_state": {
-        "name": "Üldolek"
-      },
-      "inverter_state": {
-        "name": "Inverteri olek"
-      },
-      "dc_input_1_state": {
-        "name": "DC-sisendi 1 olek"
-      },
-      "dc_input_2_state": {
-        "name": "DC-sisendi 2 olek"
+        "name": "Energia DC - Sisend 3 (Kokku)"
       },
       "alarms": {
-        "name": "Häired"
-      },
-      "system_time": {
-        "name": "Süsteemi aeg"
-      },
-      "energy_today": {
-        "name": "Energia täna"
-      },
-      "energy_this_week": {
-        "name": "Energia sel nädalal"
-      },
-      "energy_this_month": {
-        "name": "Energia sel kuul"
-      },
-      "energy_this_year": {
-        "name": "Energia sel aastal"
+        "name": "Häired - Aktiivsed"
       },
       "energy_total_vendor": {
-        "name": "Koguenergia (tootja mudel)"
+        "name": "Energia AC - Toodetud (Kokku, tootja mudel)"
       },
       "energy_partial": {
-        "name": "Osaline energia"
+        "name": "Energia AC - Toodetud (Osaline)"
       },
       "inverter_temperature": {
-        "name": "Inverteri temperatuur"
-      },
-      "booster_temperature": {
-        "name": "Boosteri temperatuur"
-      },
-      "isolation_resistance_input_1": {
-        "name": "Isolatsioonitakistus sisend 1"
+        "name": "Temperatuur - Inverter"
       },
       "isolation_resistance_input_2": {
-        "name": "Isolatsioonitakistus sisend 2"
+        "name": "Takistus - Isolatsioon (Sisend 2)"
       },
       "cos_phi": {
         "name": "Cos phi"
       },
       "power_limit_permanent": {
-        "name": "Võimsuspiirang (püsiv)"
+        "name": "Võimsuspiirang - Püsiv"
       },
       "power_limit_dynamic": {
-        "name": "Võimsuspiirang (dünaamiline)"
-      },
-      "rated_power": {
-        "name": "Nimivõimsus"
+        "name": "Võimsuspiirang - Dünaamiline"
       },
       "power_limit": {
-        "name": "Võimsuspiirang"
+        "name": "Võimsuspiirang - Aktiivvõimsus"
       },
       "power_limit_enabled": {
-        "name": "Võimsuspiirang aktiivne",
+        "name": "Võimsuspiirang - Lubatud",
         "state": {
           "disabled": "No",
           "enabled": "Yes"
@@ -1104,20 +993,17 @@
         "name": "Logeri ID"
       },
       "events": {
-        "name": "Sündmused"
-      },
-      "dc_input_3_state": {
-        "name": "DC-sisendi 3 olek"
+        "name": "Olek - Sündmused"
       }
     },
     "number": {
       "power_limit": {
-        "name": "Võimsuspiirang"
+        "name": "Võimsuspiirang - Aktiivvõimsus"
       }
     },
     "switch": {
       "power_limit_enabled": {
-        "name": "Võimsuspiirang"
+        "name": "Võimsuspiirang - Lubatud"
       }
     }
   },

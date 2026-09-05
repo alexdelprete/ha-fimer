@@ -53,13 +53,13 @@ async def test_both_sources_on_a_vsn300(
     assert logger.configuration_url == "http://ABB-YYYYYY-3G82-XXXX.local"
 
     # Modbus wins for a point both sources report
-    assert hass.states.get("sensor.pvi_10_0_outd_ac_power").state == "1500"
+    assert hass.states.get("sensor.pvi_10_0_outd_power_ac").state == "1500"
     # REST-only points on the inverter and on the datalogger
     assert hass.states.get("sensor.pvi_10_0_outd_power_peak_lifetime") is not None
     assert hass.states.get("sensor.pvi_10_0_outd_voltage_dc_bulk_capacitor") is not None
     assert hass.states.get("sensor.vsn300_wifi_link_quality").state == "100"
     assert hass.states.get("sensor.vsn300_firmware_version").state == "2.0.1"
-    energy_today = hass.states.get("sensor.pvi_10_0_outd_energy_today")
+    energy_today = hass.states.get("sensor.pvi_10_0_outd_energy_ac_produced_today")
     assert energy_today is not None  # from Modbus vendor model or REST, whichever reports it
 
 
@@ -85,8 +85,8 @@ async def test_rest_only_vsn700(
     )
     assert battery is not None and battery.via_device_id is not None
 
-    assert hass.states.get("sensor.react2_5_0_tl_ac_power") is not None
-    assert hass.states.get("sensor.react2_5_0_tl_global_state").state == "Wait Sun / Grid"
+    assert hass.states.get("sensor.react2_5_0_tl_power_ac") is not None
+    assert hass.states.get("sensor.react2_5_0_tl_status_global").state == "Wait Sun / Grid"
     assert hass.states.get("sensor.battery_113049_3p72_0221_state_of_charge") is not None
     assert hass.states.get("sensor.meter_120730_3n52_3019_power_ac_meter_total") is not None
 
@@ -107,7 +107,7 @@ async def test_rest_outage_keeps_modbus_points(
     # the REST poll suspends on the HTTP request, so it runs as a background task
     await hass.async_block_till_done(wait_background_tasks=True)
     assert hass.states.get("sensor.vsn300_wifi_link_quality").state == STATE_UNAVAILABLE
-    assert hass.states.get("sensor.pvi_10_0_outd_ac_power").state == "1500"
+    assert hass.states.get("sensor.pvi_10_0_outd_power_ac").state == "1500"
 
 
 async def test_modbus_outage_falls_back_to_rest(
@@ -117,13 +117,13 @@ async def test_modbus_outage_falls_back_to_rest(
     host = await serve_rest(fake_vsn300())
     entry = rest_entry(host, use_modbus=True, title="PVI-10.0-OUTD", unique_id=SERIAL_NUMBER)
     await _setup(hass, entry)
-    assert hass.states.get("sensor.pvi_10_0_outd_ac_power").state == "1500"
+    assert hass.states.get("sensor.pvi_10_0_outd_power_ac").state == "1500"
 
     mock_unit.fail_requests(ModbusConnectionError("asleep"))
     freezer.tick(timedelta(seconds=31))
     async_fire_time_changed(hass)
     await hass.async_block_till_done(wait_background_tasks=True)
-    state = hass.states.get("sensor.pvi_10_0_outd_ac_power")
+    state = hass.states.get("sensor.pvi_10_0_outd_power_ac")
     assert state.state != STATE_UNAVAILABLE
     assert float(state.state) != 1500  # the REST reading
 

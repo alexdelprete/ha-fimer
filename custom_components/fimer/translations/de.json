@@ -156,77 +156,29 @@
   },
   "entity": {
     "sensor": {
-      "ac_power": {
-        "name": "AC-Leistung"
-      },
-      "ac_current": {
-        "name": "AC-Strom"
-      },
-      "ac_current_phase_a": {
-        "name": "AC-Strom Phase A"
-      },
-      "ac_current_phase_b": {
-        "name": "AC-Strom Phase B"
-      },
-      "ac_current_phase_c": {
-        "name": "AC-Strom Phase C"
-      },
-      "ac_voltage_phase_a": {
-        "name": "AC-Spannung Phase A"
-      },
-      "ac_voltage_phase_b": {
-        "name": "AC-Spannung Phase B"
-      },
-      "ac_voltage_phase_c": {
-        "name": "AC-Spannung Phase C"
-      },
-      "ac_voltage_phase_ab": {
-        "name": "AC-Spannung Phase A-B"
-      },
-      "ac_voltage_phase_bc": {
-        "name": "AC-Spannung Phase B-C"
-      },
-      "ac_voltage_phase_ca": {
-        "name": "AC-Spannung Phase C-A"
-      },
-      "ac_frequency": {
-        "name": "AC-Frequenz"
-      },
       "apparent_power": {
-        "name": "Scheinleistung"
-      },
-      "reactive_power": {
-        "name": "Blindleistung"
-      },
-      "power_factor": {
-        "name": "Leistungsfaktor"
-      },
-      "ac_energy_total": {
-        "name": "Gesamtenergie"
+        "name": "Leistung AC - Scheinleistung"
       },
       "dc_current": {
-        "name": "DC-Strom"
+        "name": "Strom DC"
       },
       "dc_voltage": {
-        "name": "DC-Spannung"
-      },
-      "dc_power": {
-        "name": "DC-Leistung"
+        "name": "Spannung DC"
       },
       "cabinet_temperature": {
         "name": "Gehäusetemperatur"
       },
       "heat_sink_temperature": {
-        "name": "Kühlkörpertemperatur"
+        "name": "Temperatur - Kühlkörper"
       },
       "transformer_temperature": {
-        "name": "Transformatortemperatur"
+        "name": "Temperatur - Transformator"
       },
       "other_temperature": {
         "name": "Sonstige Temperatur"
       },
       "operating_state": {
-        "name": "Betriebszustand",
+        "name": "Status - Betrieb",
         "state": {
           "off": "Off",
           "sleeping": "Sleeping",
@@ -239,109 +191,46 @@
         }
       },
       "vendor_operating_state": {
-        "name": "Betriebszustand (Hersteller)"
-      },
-      "dc_current_input_1": {
-        "name": "DC-Strom Eingang 1"
-      },
-      "dc_voltage_input_1": {
-        "name": "DC-Spannung Eingang 1"
-      },
-      "dc_power_input_1": {
-        "name": "DC-Leistung Eingang 1"
+        "name": "Status - Betrieb (Hersteller)"
       },
       "dc_energy_input_1": {
-        "name": "DC-Energie Eingang 1"
-      },
-      "dc_current_input_2": {
-        "name": "DC-Strom Eingang 2"
-      },
-      "dc_voltage_input_2": {
-        "name": "DC-Spannung Eingang 2"
-      },
-      "dc_power_input_2": {
-        "name": "DC-Leistung Eingang 2"
+        "name": "Energie DC - Eingang 1 (Gesamt)"
       },
       "dc_energy_input_2": {
-        "name": "DC-Energie Eingang 2"
-      },
-      "dc_current_input_3": {
-        "name": "DC-Strom Eingang 3"
-      },
-      "dc_voltage_input_3": {
-        "name": "DC-Spannung Eingang 3"
-      },
-      "dc_power_input_3": {
-        "name": "DC-Leistung Eingang 3"
+        "name": "Energie DC - Eingang 2 (Gesamt)"
       },
       "dc_energy_input_3": {
-        "name": "DC-Energie Eingang 3"
-      },
-      "global_state": {
-        "name": "Globaler Zustand"
-      },
-      "inverter_state": {
-        "name": "Wechselrichterzustand"
-      },
-      "dc_input_1_state": {
-        "name": "Zustand DC-Eingang 1"
-      },
-      "dc_input_2_state": {
-        "name": "Zustand DC-Eingang 2"
+        "name": "Energie DC - Eingang 3 (Gesamt)"
       },
       "alarms": {
-        "name": "Alarme"
-      },
-      "system_time": {
-        "name": "Systemzeit"
-      },
-      "energy_today": {
-        "name": "Energie heute"
-      },
-      "energy_this_week": {
-        "name": "Energie diese Woche"
-      },
-      "energy_this_month": {
-        "name": "Energie diesen Monat"
-      },
-      "energy_this_year": {
-        "name": "Energie dieses Jahr"
+        "name": "Alarme - Aktiv"
       },
       "energy_total_vendor": {
-        "name": "Gesamtenergie (Herstellermodell)"
+        "name": "Energie AC - Erzeugt (Gesamt, Herstellermodell)"
       },
       "energy_partial": {
-        "name": "Teilenergie"
+        "name": "Energie AC - Erzeugt (Teilzähler)"
       },
       "inverter_temperature": {
-        "name": "Wechselrichtertemperatur"
-      },
-      "booster_temperature": {
-        "name": "Booster-Temperatur"
-      },
-      "isolation_resistance_input_1": {
-        "name": "Isolationswiderstand Eingang 1"
+        "name": "Temperatur - Wechselrichter"
       },
       "isolation_resistance_input_2": {
-        "name": "Isolationswiderstand Eingang 2"
+        "name": "Widerstand - Isolation (Eingang 2)"
       },
       "cos_phi": {
         "name": "Cos phi"
       },
       "power_limit_permanent": {
-        "name": "Leistungsbegrenzung (dauerhaft)"
+        "name": "Leistungsbegrenzung - Dauerhaft"
       },
       "power_limit_dynamic": {
-        "name": "Leistungsbegrenzung (dynamisch)"
-      },
-      "rated_power": {
-        "name": "Nennleistung"
+        "name": "Leistungsbegrenzung - Dynamisch"
       },
       "power_limit": {
-        "name": "Leistungsbegrenzung"
+        "name": "Leistungsbegrenzung - Wirkleistung"
       },
       "power_limit_enabled": {
-        "name": "Leistungsbegrenzung aktiv",
+        "name": "Leistungsbegrenzung - Aktiviert",
         "state": {
           "disabled": "No",
           "enabled": "Yes"
@@ -1104,20 +993,17 @@
         "name": "Logger-ID"
       },
       "events": {
-        "name": "Ereignisse"
-      },
-      "dc_input_3_state": {
-        "name": "Zustand DC-Eingang 3"
+        "name": "Status - Ereignisse"
       }
     },
     "number": {
       "power_limit": {
-        "name": "Leistungsbegrenzung"
+        "name": "Leistungsbegrenzung - Wirkleistung"
       }
     },
     "switch": {
       "power_limit_enabled": {
-        "name": "Leistungsbegrenzung"
+        "name": "Leistungsbegrenzung - Aktiviert"
       }
     }
   },

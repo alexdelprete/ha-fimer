@@ -156,77 +156,29 @@
   },
   "entity": {
     "sensor": {
-      "ac_power": {
-        "name": "AC-effekt"
-      },
-      "ac_current": {
-        "name": "AC-ström"
-      },
-      "ac_current_phase_a": {
-        "name": "AC-ström fas A"
-      },
-      "ac_current_phase_b": {
-        "name": "AC-ström fas B"
-      },
-      "ac_current_phase_c": {
-        "name": "AC-ström fas C"
-      },
-      "ac_voltage_phase_a": {
-        "name": "AC-spänning fas A"
-      },
-      "ac_voltage_phase_b": {
-        "name": "AC-spänning fas B"
-      },
-      "ac_voltage_phase_c": {
-        "name": "AC-spänning fas C"
-      },
-      "ac_voltage_phase_ab": {
-        "name": "AC-spänning fas A-B"
-      },
-      "ac_voltage_phase_bc": {
-        "name": "AC-spänning fas B-C"
-      },
-      "ac_voltage_phase_ca": {
-        "name": "AC-spänning fas C-A"
-      },
-      "ac_frequency": {
-        "name": "AC-frekvens"
-      },
       "apparent_power": {
-        "name": "Skenbar effekt"
-      },
-      "reactive_power": {
-        "name": "Reaktiv effekt"
-      },
-      "power_factor": {
-        "name": "Effektfaktor"
-      },
-      "ac_energy_total": {
-        "name": "Total energi"
+        "name": "Effekt AC - Skenbar"
       },
       "dc_current": {
-        "name": "DC-ström"
+        "name": "Ström DC"
       },
       "dc_voltage": {
-        "name": "DC-spänning"
-      },
-      "dc_power": {
-        "name": "DC-effekt"
+        "name": "Spänning DC"
       },
       "cabinet_temperature": {
         "name": "Skåptemperatur"
       },
       "heat_sink_temperature": {
-        "name": "Kylflänstemperatur"
+        "name": "Temperatur - Kylfläns"
       },
       "transformer_temperature": {
-        "name": "Transformatortemperatur"
+        "name": "Temperatur - Transformator"
       },
       "other_temperature": {
         "name": "Övrig temperatur"
       },
       "operating_state": {
-        "name": "Driftläge",
+        "name": "Status - Drift",
         "state": {
           "off": "Off",
           "sleeping": "Sleeping",
@@ -239,109 +191,46 @@
         }
       },
       "vendor_operating_state": {
-        "name": "Driftläge (tillverkare)"
-      },
-      "dc_current_input_1": {
-        "name": "DC-ström ingång 1"
-      },
-      "dc_voltage_input_1": {
-        "name": "DC-spänning ingång 1"
-      },
-      "dc_power_input_1": {
-        "name": "DC-effekt ingång 1"
+        "name": "Status - Drift (tillverkare)"
       },
       "dc_energy_input_1": {
-        "name": "DC-energi ingång 1"
-      },
-      "dc_current_input_2": {
-        "name": "DC-ström ingång 2"
-      },
-      "dc_voltage_input_2": {
-        "name": "DC-spänning ingång 2"
-      },
-      "dc_power_input_2": {
-        "name": "DC-effekt ingång 2"
+        "name": "Energi DC - Ingång 1 (Totalt)"
       },
       "dc_energy_input_2": {
-        "name": "DC-energi ingång 2"
-      },
-      "dc_current_input_3": {
-        "name": "DC-ström ingång 3"
-      },
-      "dc_voltage_input_3": {
-        "name": "DC-spänning ingång 3"
-      },
-      "dc_power_input_3": {
-        "name": "DC-effekt ingång 3"
+        "name": "Energi DC - Ingång 2 (Totalt)"
       },
       "dc_energy_input_3": {
-        "name": "DC-energi ingång 3"
-      },
-      "global_state": {
-        "name": "Globalt läge"
-      },
-      "inverter_state": {
-        "name": "Växelriktarläge"
-      },
-      "dc_input_1_state": {
-        "name": "Läge DC-ingång 1"
-      },
-      "dc_input_2_state": {
-        "name": "Läge DC-ingång 2"
+        "name": "Energi DC - Ingång 3 (Totalt)"
       },
       "alarms": {
-        "name": "Larm"
-      },
-      "system_time": {
-        "name": "Systemtid"
-      },
-      "energy_today": {
-        "name": "Energi idag"
-      },
-      "energy_this_week": {
-        "name": "Energi denna vecka"
-      },
-      "energy_this_month": {
-        "name": "Energi denna månad"
-      },
-      "energy_this_year": {
-        "name": "Energi i år"
+        "name": "Larm - Aktiva"
       },
       "energy_total_vendor": {
-        "name": "Total energi (tillverkarmodell)"
+        "name": "Energi AC - Producerad (Totalt, tillverkarmodell)"
       },
       "energy_partial": {
-        "name": "Delenergi"
+        "name": "Energi AC - Producerad (Delräknare)"
       },
       "inverter_temperature": {
-        "name": "Växelriktartemperatur"
-      },
-      "booster_temperature": {
-        "name": "Boostertemperatur"
-      },
-      "isolation_resistance_input_1": {
-        "name": "Isolationsresistans ingång 1"
+        "name": "Temperatur - Växelriktare"
       },
       "isolation_resistance_input_2": {
-        "name": "Isolationsresistans ingång 2"
+        "name": "Resistans - Isolation (Ingång 2)"
       },
       "cos_phi": {
         "name": "Cos phi"
       },
       "power_limit_permanent": {
-        "name": "Effektbegränsning (permanent)"
+        "name": "Effektbegränsning - Permanent"
       },
       "power_limit_dynamic": {
-        "name": "Effektbegränsning (dynamisk)"
-      },
-      "rated_power": {
-        "name": "Märkeffekt"
+        "name": "Effektbegränsning - Dynamisk"
       },
       "power_limit": {
-        "name": "Effektbegränsning"
+        "name": "Effektbegränsning - Aktiv effekt"
       },
       "power_limit_enabled": {
-        "name": "Effektbegränsning aktiv",
+        "name": "Effektbegränsning - Aktiverad",
         "state": {
           "disabled": "No",
           "enabled": "Yes"
@@ -1104,20 +993,17 @@
         "name": "Logger-ID"
       },
       "events": {
-        "name": "Händelser"
-      },
-      "dc_input_3_state": {
-        "name": "Läge DC-ingång 3"
+        "name": "Status - Händelser"
       }
     },
     "number": {
       "power_limit": {
-        "name": "Effektbegränsning"
+        "name": "Effektbegränsning - Aktiv effekt"
       }
     },
     "switch": {
       "power_limit_enabled": {
-        "name": "Effektbegränsning"
+        "name": "Effektbegränsning - Aktiverad"
       }
     }
   },

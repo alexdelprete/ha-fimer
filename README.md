@@ -162,7 +162,7 @@ sensors on the next poll as well.
 
 - MPPT inputs, over Modbus (model 160)
 
-  `DC current input <n>`, `DC voltage input <n>` and `DC power input <n>` for each input the
+  `Current DC - Input <n>`, `Voltage DC - Input <n>` and `Power DC - Input <n>` for each input the
   inverter reports. Per-input energy is exposed only on inverters that implement it.
 
 - Ratings and controls, over Modbus (models 120 and 123)
@@ -231,13 +231,13 @@ mode: single
 triggers:
   - trigger: state
     entity_id:
-      - sensor.pvi_10_0_outd_ac_power
+      - sensor.pvi_10_0_outd_power_ac
 conditions: []
 actions:
   - choose:
       - conditions:
           - condition: numeric_state
-            entity_id: sensor.pvi_10_0_outd_ac_power
+            entity_id: sensor.pvi_10_0_outd_power_ac
             above: 1000
         sequence:
           - action: switch.turn_on
@@ -245,7 +245,7 @@ actions:
               entity_id: switch.my_load
       - conditions:
           - condition: numeric_state
-            entity_id: sensor.pvi_10_0_outd_ac_power
+            entity_id: sensor.pvi_10_0_outd_power_ac
             below: 50
         sequence:
           - action: switch.turn_off
@@ -256,8 +256,9 @@ actions:
 ## Power limit control (experimental)
 
 The SunSpec immediate controls model (123) carries an active power limit in percent of the rated
-power and a flag that enables it. The integration can expose them as a `Power limit` number and
-switch, off by default: enable **Power limit control (experimental)** in the integration's options.
+power and a flag that enables it. The integration can expose them as a `Power Limit - Active Power`
+number and a `Power Limit - Enabled` switch, off by default: enable **Power limit control
+(experimental)** in the integration's options.
 The entities appear only when the inverter serves model 123.
 
 Whether the inverter acts on the limit depends on the inverter, not on the datalogger. A VSN300
@@ -270,8 +271,8 @@ honour it, but this has not been verified yet. If you try it, please run this te
 outcome in an issue:
 
 1. Note the AC power while the inverter is producing well above 10 % of its rated power.
-1. Set `Power limit` to 10 and switch it on. Watch the AC power for three minutes; the datalogger
-   refreshes its readings about once a minute.
+1. Set `Power Limit - Active Power` to 10 and switch `Power Limit - Enabled` on. Watch the AC power
+   for three minutes; the datalogger refreshes its readings about once a minute.
 1. Switch the limit off and check that production recovers within a few minutes.
 
 Report the inverter model and firmware (both shown on the device page), the datalogger model and

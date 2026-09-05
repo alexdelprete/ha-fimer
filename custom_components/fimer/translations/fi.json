@@ -156,77 +156,29 @@
   },
   "entity": {
     "sensor": {
-      "ac_power": {
-        "name": "AC-teho"
-      },
-      "ac_current": {
-        "name": "AC-virta"
-      },
-      "ac_current_phase_a": {
-        "name": "AC-virta vaihe A"
-      },
-      "ac_current_phase_b": {
-        "name": "AC-virta vaihe B"
-      },
-      "ac_current_phase_c": {
-        "name": "AC-virta vaihe C"
-      },
-      "ac_voltage_phase_a": {
-        "name": "AC-jännite vaihe A"
-      },
-      "ac_voltage_phase_b": {
-        "name": "AC-jännite vaihe B"
-      },
-      "ac_voltage_phase_c": {
-        "name": "AC-jännite vaihe C"
-      },
-      "ac_voltage_phase_ab": {
-        "name": "AC-jännite vaihe A-B"
-      },
-      "ac_voltage_phase_bc": {
-        "name": "AC-jännite vaihe B-C"
-      },
-      "ac_voltage_phase_ca": {
-        "name": "AC-jännite vaihe C-A"
-      },
-      "ac_frequency": {
-        "name": "AC-taajuus"
-      },
       "apparent_power": {
-        "name": "Näennäisteho"
-      },
-      "reactive_power": {
-        "name": "Loisteho"
-      },
-      "power_factor": {
-        "name": "Tehokerroin"
-      },
-      "ac_energy_total": {
-        "name": "Kokonaisenergia"
+        "name": "Teho AC - Näennäinen"
       },
       "dc_current": {
-        "name": "DC-virta"
+        "name": "Virta DC"
       },
       "dc_voltage": {
-        "name": "DC-jännite"
-      },
-      "dc_power": {
-        "name": "DC-teho"
+        "name": "Jännite DC"
       },
       "cabinet_temperature": {
         "name": "Kotelon lämpötila"
       },
       "heat_sink_temperature": {
-        "name": "Jäähdytyselementin lämpötila"
+        "name": "Lämpötila - Jäähdytyselementti"
       },
       "transformer_temperature": {
-        "name": "Muuntajan lämpötila"
+        "name": "Lämpötila - Muuntaja"
       },
       "other_temperature": {
         "name": "Muu lämpötila"
       },
       "operating_state": {
-        "name": "Toimintatila",
+        "name": "Tila - Toiminta",
         "state": {
           "off": "Off",
           "sleeping": "Sleeping",
@@ -239,109 +191,46 @@
         }
       },
       "vendor_operating_state": {
-        "name": "Toimintatila (valmistaja)"
-      },
-      "dc_current_input_1": {
-        "name": "DC-virta tulo 1"
-      },
-      "dc_voltage_input_1": {
-        "name": "DC-jännite tulo 1"
-      },
-      "dc_power_input_1": {
-        "name": "DC-teho tulo 1"
+        "name": "Tila - Toiminta (valmistaja)"
       },
       "dc_energy_input_1": {
-        "name": "DC-energia tulo 1"
-      },
-      "dc_current_input_2": {
-        "name": "DC-virta tulo 2"
-      },
-      "dc_voltage_input_2": {
-        "name": "DC-jännite tulo 2"
-      },
-      "dc_power_input_2": {
-        "name": "DC-teho tulo 2"
+        "name": "Energia DC - Tulo 1 (Yhteensä)"
       },
       "dc_energy_input_2": {
-        "name": "DC-energia tulo 2"
-      },
-      "dc_current_input_3": {
-        "name": "DC-virta tulo 3"
-      },
-      "dc_voltage_input_3": {
-        "name": "DC-jännite tulo 3"
-      },
-      "dc_power_input_3": {
-        "name": "DC-teho tulo 3"
+        "name": "Energia DC - Tulo 2 (Yhteensä)"
       },
       "dc_energy_input_3": {
-        "name": "DC-energia tulo 3"
-      },
-      "global_state": {
-        "name": "Yleistila"
-      },
-      "inverter_state": {
-        "name": "Invertterin tila"
-      },
-      "dc_input_1_state": {
-        "name": "DC-tulon 1 tila"
-      },
-      "dc_input_2_state": {
-        "name": "DC-tulon 2 tila"
+        "name": "Energia DC - Tulo 3 (Yhteensä)"
       },
       "alarms": {
-        "name": "Hälytykset"
-      },
-      "system_time": {
-        "name": "Järjestelmän aika"
-      },
-      "energy_today": {
-        "name": "Energia tänään"
-      },
-      "energy_this_week": {
-        "name": "Energia tällä viikolla"
-      },
-      "energy_this_month": {
-        "name": "Energia tässä kuussa"
-      },
-      "energy_this_year": {
-        "name": "Energia tänä vuonna"
+        "name": "Hälytykset - Aktiiviset"
       },
       "energy_total_vendor": {
-        "name": "Kokonaisenergia (valmistajan malli)"
+        "name": "Energia AC - Tuotettu (Yhteensä, valmistajan malli)"
       },
       "energy_partial": {
-        "name": "Osittainen energia"
+        "name": "Energia AC - Tuotettu (Osalaskuri)"
       },
       "inverter_temperature": {
-        "name": "Invertterin lämpötila"
-      },
-      "booster_temperature": {
-        "name": "Boosterin lämpötila"
-      },
-      "isolation_resistance_input_1": {
-        "name": "Eristysvastus tulo 1"
+        "name": "Lämpötila - Invertteri"
       },
       "isolation_resistance_input_2": {
-        "name": "Eristysvastus tulo 2"
+        "name": "Resistanssi - Eristys (Tulo 2)"
       },
       "cos_phi": {
         "name": "Cos phi"
       },
       "power_limit_permanent": {
-        "name": "Tehorajoitus (pysyvä)"
+        "name": "Tehorajoitus - Pysyvä"
       },
       "power_limit_dynamic": {
-        "name": "Tehorajoitus (dynaaminen)"
-      },
-      "rated_power": {
-        "name": "Nimellisteho"
+        "name": "Tehorajoitus - Dynaaminen"
       },
       "power_limit": {
-        "name": "Tehorajoitus"
+        "name": "Tehorajoitus - Pätöteho"
       },
       "power_limit_enabled": {
-        "name": "Tehorajoitus käytössä",
+        "name": "Tehorajoitus - Käytössä",
         "state": {
           "disabled": "No",
           "enabled": "Yes"
@@ -1104,20 +993,17 @@
         "name": "Loggerin tunnus"
       },
       "events": {
-        "name": "Tapahtumat"
-      },
-      "dc_input_3_state": {
-        "name": "DC-tulon 3 tila"
+        "name": "Tila - Tapahtumat"
       }
     },
     "number": {
       "power_limit": {
-        "name": "Tehorajoitus"
+        "name": "Tehorajoitus - Pätöteho"
       }
     },
     "switch": {
       "power_limit_enabled": {
-        "name": "Tehorajoitus"
+        "name": "Tehorajoitus - Käytössä"
       }
     }
   },

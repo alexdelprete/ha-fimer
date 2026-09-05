@@ -156,77 +156,29 @@
   },
   "entity": {
     "sensor": {
-      "ac_power": {
-        "name": "AC-effekt"
-      },
-      "ac_current": {
-        "name": "AC-strøm"
-      },
-      "ac_current_phase_a": {
-        "name": "AC-strøm fase A"
-      },
-      "ac_current_phase_b": {
-        "name": "AC-strøm fase B"
-      },
-      "ac_current_phase_c": {
-        "name": "AC-strøm fase C"
-      },
-      "ac_voltage_phase_a": {
-        "name": "AC-spenning fase A"
-      },
-      "ac_voltage_phase_b": {
-        "name": "AC-spenning fase B"
-      },
-      "ac_voltage_phase_c": {
-        "name": "AC-spenning fase C"
-      },
-      "ac_voltage_phase_ab": {
-        "name": "AC-spenning fase A-B"
-      },
-      "ac_voltage_phase_bc": {
-        "name": "AC-spenning fase B-C"
-      },
-      "ac_voltage_phase_ca": {
-        "name": "AC-spenning fase C-A"
-      },
-      "ac_frequency": {
-        "name": "AC-frekvens"
-      },
       "apparent_power": {
-        "name": "Tilsynelatende effekt"
-      },
-      "reactive_power": {
-        "name": "Reaktiv effekt"
-      },
-      "power_factor": {
-        "name": "Effektfaktor"
-      },
-      "ac_energy_total": {
-        "name": "Total energi"
+        "name": "Effekt AC - Tilsynelatende"
       },
       "dc_current": {
-        "name": "DC-strøm"
+        "name": "Strøm DC"
       },
       "dc_voltage": {
-        "name": "DC-spenning"
-      },
-      "dc_power": {
-        "name": "DC-effekt"
+        "name": "Spenning DC"
       },
       "cabinet_temperature": {
         "name": "Skaptemperatur"
       },
       "heat_sink_temperature": {
-        "name": "Kjøleribbetemperatur"
+        "name": "Temperatur - Kjøleribbe"
       },
       "transformer_temperature": {
-        "name": "Transformatortemperatur"
+        "name": "Temperatur - Transformator"
       },
       "other_temperature": {
         "name": "Annen temperatur"
       },
       "operating_state": {
-        "name": "Driftstilstand",
+        "name": "Status - Drift",
         "state": {
           "off": "Off",
           "sleeping": "Sleeping",
@@ -239,109 +191,46 @@
         }
       },
       "vendor_operating_state": {
-        "name": "Driftstilstand (produsent)"
-      },
-      "dc_current_input_1": {
-        "name": "DC-strøm inngang 1"
-      },
-      "dc_voltage_input_1": {
-        "name": "DC-spenning inngang 1"
-      },
-      "dc_power_input_1": {
-        "name": "DC-effekt inngang 1"
+        "name": "Status - Drift (produsent)"
       },
       "dc_energy_input_1": {
-        "name": "DC-energi inngang 1"
-      },
-      "dc_current_input_2": {
-        "name": "DC-strøm inngang 2"
-      },
-      "dc_voltage_input_2": {
-        "name": "DC-spenning inngang 2"
-      },
-      "dc_power_input_2": {
-        "name": "DC-effekt inngang 2"
+        "name": "Energi DC - Inngang 1 (Totalt)"
       },
       "dc_energy_input_2": {
-        "name": "DC-energi inngang 2"
-      },
-      "dc_current_input_3": {
-        "name": "DC-strøm inngang 3"
-      },
-      "dc_voltage_input_3": {
-        "name": "DC-spenning inngang 3"
-      },
-      "dc_power_input_3": {
-        "name": "DC-effekt inngang 3"
+        "name": "Energi DC - Inngang 2 (Totalt)"
       },
       "dc_energy_input_3": {
-        "name": "DC-energi inngang 3"
-      },
-      "global_state": {
-        "name": "Global tilstand"
-      },
-      "inverter_state": {
-        "name": "Vekselrettertilstand"
-      },
-      "dc_input_1_state": {
-        "name": "Tilstand DC-inngang 1"
-      },
-      "dc_input_2_state": {
-        "name": "Tilstand DC-inngang 2"
+        "name": "Energi DC - Inngang 3 (Totalt)"
       },
       "alarms": {
-        "name": "Alarmer"
-      },
-      "system_time": {
-        "name": "Systemtid"
-      },
-      "energy_today": {
-        "name": "Energi i dag"
-      },
-      "energy_this_week": {
-        "name": "Energi denne uken"
-      },
-      "energy_this_month": {
-        "name": "Energi denne måneden"
-      },
-      "energy_this_year": {
-        "name": "Energi i år"
+        "name": "Alarmer - Aktive"
       },
       "energy_total_vendor": {
-        "name": "Total energi (produsentmodell)"
+        "name": "Energi AC - Produsert (Totalt, produsentmodell)"
       },
       "energy_partial": {
-        "name": "Delenergi"
+        "name": "Energi AC - Produsert (Delteller)"
       },
       "inverter_temperature": {
-        "name": "Vekselrettertemperatur"
-      },
-      "booster_temperature": {
-        "name": "Boostertemperatur"
-      },
-      "isolation_resistance_input_1": {
-        "name": "Isolasjonsmotstand inngang 1"
+        "name": "Temperatur - Vekselretter"
       },
       "isolation_resistance_input_2": {
-        "name": "Isolasjonsmotstand inngang 2"
+        "name": "Motstand - Isolasjon (Inngang 2)"
       },
       "cos_phi": {
         "name": "Cos phi"
       },
       "power_limit_permanent": {
-        "name": "Effektbegrensning (permanent)"
+        "name": "Effektbegrensning - Permanent"
       },
       "power_limit_dynamic": {
-        "name": "Effektbegrensning (dynamisk)"
-      },
-      "rated_power": {
-        "name": "Merkeeffekt"
+        "name": "Effektbegrensning - Dynamisk"
       },
       "power_limit": {
-        "name": "Effektbegrensning"
+        "name": "Effektbegrensning - Aktiv effekt"
       },
       "power_limit_enabled": {
-        "name": "Effektbegrensning aktiv",
+        "name": "Effektbegrensning - Aktivert",
         "state": {
           "disabled": "No",
           "enabled": "Yes"
@@ -1104,20 +993,17 @@
         "name": "Logger-ID"
       },
       "events": {
-        "name": "Hendelser"
-      },
-      "dc_input_3_state": {
-        "name": "Tilstand DC-inngang 3"
+        "name": "Status - Hendelser"
       }
     },
     "number": {
       "power_limit": {
-        "name": "Effektbegrensning"
+        "name": "Effektbegrensning - Aktiv effekt"
       }
     },
     "switch": {
       "power_limit_enabled": {
-        "name": "Effektbegrensning"
+        "name": "Effektbegrensning - Aktivert"
       }
     }
   },
