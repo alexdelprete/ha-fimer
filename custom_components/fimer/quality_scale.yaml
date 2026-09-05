@@ -35,8 +35,16 @@ rules:
   # Gold
   devices: done
   diagnostics: done
-  discovery: done
-  discovery-update-info: done
+  discovery:
+    status: exempt
+    comment: >-
+      Verified against a VSN300 (firmware 2.0.1) with dnsmasq packet logging: its udhcpc
+      client sends no hostname or FQDN option in any DHCP message, and the VSN300 and
+      VSN700 MAC prefixes belong to Texas Instruments, so neither a DHCP hostname nor a
+      MAC matcher can identify the card. Whether it advertises an mDNS service is open.
+  discovery-update-info:
+    status: exempt
+    comment: No discovery, so no discovered address to update.
   docs-data-update: done
   docs-examples: done
   docs-known-limitations: done

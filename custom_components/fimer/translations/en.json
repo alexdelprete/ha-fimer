@@ -1,6 +1,5 @@
 {
   "config": {
-    "flow_title": "FIMER inverter {serial} at {host}",
     "step": {
       "user": {
         "title": "FIMER (ABB / Power-One)",

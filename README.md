@@ -124,15 +124,6 @@ The inverter's serial number becomes the unique identifier of the config entry (
 when no inverter is found), so changing the host, the credentials or the sources later, through
 **Reconfigure** on the integration page, does not affect entities or their history.
 
-### Discovery
-
-A VSN300 card registers on the network as `ABB-<inverter serial>` (for example
-`ABB-077909-3G82-3112`). When Home Assistant sees that name in a DHCP request, the integration
-shows up under **Discovered** on the integrations page with the card's address already filled in.
-Sources and credentials are still chosen on the form. If the inverter is already set up with an
-IP address and the card obtains a new one, the entry follows it; a host name you entered yourself
-is left alone. Whether a VSN700 announces itself the same way is not yet known.
-
 ### Taking over the ABB/FIMER PVI VSN REST integration
 
 If the earlier `abb_fimer_pvi_vsn_rest` integration is installed, the setup starts with a choice

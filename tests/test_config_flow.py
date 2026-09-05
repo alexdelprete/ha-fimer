@@ -12,7 +12,6 @@ from modbus_connection.mock import MockModbusUnit
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.fimer.config_flow import serial_from_hostname
 from custom_components.fimer.const import (
     CONF_BASE_ADDRESS,
     CONF_MIGRATE_FROM,
@@ -38,7 +37,6 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 
 from .conftest import HOST, REST_PASSWORD, SERIAL_NUMBER, default_register_map, fake_vsn300
 
@@ -365,89 +363,3 @@ async def test_legacy_takeover_menu(hass: HomeAssistant, serve_rest: Any) -> Non
         result["flow_id"], {"next_step_id": "manual"}
     )
     assert result["step_id"] == "manual"
-
-
-DHCP_INFO = DhcpServiceInfo(
-    ip="192.0.2.20", hostname="abb-123456-3n01-1234", macaddress="0c1c57fdc62c"
-)
-
-
-async def test_dhcp_discovery_prefills_host(hass: HomeAssistant) -> None:
-    """A card announcing itself over DHCP starts the form with its address and serial."""
-    result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_DHCP}, data=DHCP_INFO
-    )
-    assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "manual"
-    flow = hass.config_entries.flow.async_get(result["flow_id"])
-    assert flow["context"]["title_placeholders"] == {
-        "serial": SERIAL_NUMBER,
-        "host": "192.0.2.20",
-    }
-    assert flow["context"]["unique_id"] == SERIAL_NUMBER
-
-    with patch("custom_components.fimer.async_setup_entry", return_value=True):
-        result = await hass.config_entries.flow.async_configure(result["flow_id"], USER_INPUT)
-        await hass.async_block_till_done()
-    assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["result"].unique_id == SERIAL_NUMBER
-
-
-async def test_dhcp_discovery_updates_ip_of_configured_inverter(
-    hass: HomeAssistant, mock_config_entry: MockConfigEntry
-) -> None:
-    """A known inverter that moved to a new IP address is followed, not added twice."""
-    mock_config_entry.add_to_hass(hass)
-    assert mock_config_entry.data[CONF_HOST] == HOST
-    result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_DHCP}, data=DHCP_INFO
-    )
-    assert result["type"] is FlowResultType.ABORT
-    assert result["reason"] == "already_configured"
-    assert mock_config_entry.data[CONF_HOST] == "192.0.2.20"
-
-
-async def test_dhcp_discovery_keeps_dns_name(hass: HomeAssistant) -> None:
-    """A host name the user chose is not replaced by the discovered IP address."""
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        unique_id=SERIAL_NUMBER,
-        data={**ENTRY_DATA, CONF_HOST: "abb-vsn300.example.test"},
-    )
-    entry.add_to_hass(hass)
-    result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_DHCP}, data=DHCP_INFO
-    )
-    assert result["type"] is FlowResultType.ABORT
-    assert result["reason"] == "already_configured"
-    assert entry.data[CONF_HOST] == "abb-vsn300.example.test"
-
-
-async def test_dhcp_discovery_unexpected_hostname(
-    hass: HomeAssistant, mock_config_entry: MockConfigEntry
-) -> None:
-    """A card whose host name carries no serial still opens the form, once per address."""
-    odd = DhcpServiceInfo(
-        ip="192.0.2.20", hostname="abb-vsn300-xxxx-yyyy", macaddress="0c1c57fdc62c"
-    )
-    result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_DHCP}, data=odd
-    )
-    assert result["type"] is FlowResultType.FORM
-    flow = hass.config_entries.flow.async_get(result["flow_id"])
-    assert flow["context"]["title_placeholders"]["serial"] == "abb-vsn300-xxxx-yyyy"
-
-    mock_config_entry.add_to_hass(hass)
-    odd = DhcpServiceInfo(ip=HOST, hostname="abb-vsn300-xxxx-yyyy", macaddress="0c1c57fdc62c")
-    result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_DHCP}, data=odd
-    )
-    assert result["type"] is FlowResultType.ABORT
-    assert result["reason"] == "already_configured"
-
-
-def test_serial_from_hostname() -> None:
-    """The serial is taken from the card's host name whatever the case or suffix."""
-    assert serial_from_hostname("ABB-077909-3G82-3112.local") == "077909-3G82-3112"
-    assert serial_from_hostname("abb-077909-3g82-3112") == "077909-3G82-3112"
-    assert serial_from_hostname("vsn300") is None
