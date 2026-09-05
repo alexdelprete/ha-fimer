@@ -11,47 +11,63 @@
 
 <!-- END SHARED:repo-sync:badges -->
 
-The **FIMER (ABB / Power-One)** integration polls an ABB, Power-One, or FIMER solar inverter over
-Modbus TCP using the [SunSpec](https://sunspec.org/) information models, and integrates it in your
-Home Assistant installation.
+The **FIMER (ABB / Power-One)** integration reads FIMER, ABB and Power-One solar inverters and the
+VSN300 / VSN700 datalogger cards in front of them, and integrates them in your Home Assistant
+installation. It has two sources, each optional:
 
-It is built on Home Assistant's shared Modbus connection layer
-([`modbus-connection`](https://home-assistant-libs.github.io/modbus-connection/)). The integration
+- **Modbus TCP** with the [SunSpec](https://sunspec.org/) information models, for the inverter's
+  live readings, energy and states.
+- The datalogger's **REST API**, for the card itself, the periodic energy counters, and the meters
+  and batteries a VSN700 manages.
+
+Both sources report the same readings under the same names, so an entity does not care which one
+delivered its value. Modbus is built on Home Assistant's shared Modbus connection layer
+([`modbus-connection`](https://home-assistant-libs.github.io/modbus-connection/)): the integration
 asks Home Assistant for a unit on a shared connection instead of opening its own socket, so it can
 coexist with any other integration talking to the same inverter or datalogger.
 
 ## Supported devices
 
-The integration supports inverters that expose the SunSpec Modbus TCP interface, either directly or
-through a VSN300 / VSN700 datalogger card. Behind a datalogger the inverter model is read from the
-SunSpec options string, so the device page shows the inverter (for example `PVI-10.0-OUTD`) rather
-than the card. Known model codes cover the PVI, TRIO, UNO, UNO-DM and REACT2 families.
+Inverters of the PVI, TRIO, UNO, UNO-DM and REACT2 families, read either directly (natively Modbus
+inverters such as the REACT2) or through a VSN300 or VSN700 datalogger card. Behind a datalogger the
+inverter model is decoded from the SunSpec options string, so the device page shows the inverter
+(for example `PVI-10.0-OUTD`) rather than the card. Meters and batteries connected to a VSN700 are
+read over its REST API.
 
-The SunSpec models read are:
+The SunSpec models read over Modbus are:
 
-| Model   | Content                                                                         |
-| ------- | ------------------------------------------------------------------------------- |
-| 1       | Manufacturer, model, options, firmware version and serial number                |
-| 101/103 | Single or three phase inverter: AC and DC readings, energy, temperatures, state |
-| 120     | Nameplate: rated power                                                          |
-| 121     | Basic settings                                                                  |
-| 123     | Immediate controls: the active power limit                                      |
-| 160     | Per-input DC current, voltage and power (up to three MPPT inputs)               |
-| 64061   | ABB vendor model: Aurora states, alarms, daily to yearly energy, extra readings |
+| Model       | Content                                                                         |
+| ----------- | ------------------------------------------------------------------------------- |
+| 1           | Manufacturer, model, options, firmware version and serial number                |
+| 101/103     | Single or three phase inverter: AC and DC readings, energy, temperatures, state |
+| 111/113     | The same, on inverters that serve the float variants                            |
+| 120         | Nameplate: rated power                                                          |
+| 121         | Basic settings                                                                  |
+| 123         | Immediate controls: the active power limit                                      |
+| 124         | Basic storage controls, on REACT2 hybrids                                       |
+| 160         | Per-input DC current, voltage and power (up to three MPPT inputs)               |
+| 403         | String combiners, one per DC input of a TRIO                                    |
+| 64061       | ABB vendor model: Aurora states, alarms, daily to yearly energy, extra readings |
+| 64062/64063 | TRIO communication and fuse control boards                                      |
 
 Models the device does not serve are skipped, and readings the inverter reports as not
-implemented create no entity. A VSN300 on firmware 2.0.1 in front of a PVI serves models 1,
-103, 160, 120, 121 and 123; the ABB vendor model is read when a device exposes it.
+implemented create no entity. A VSN300 on firmware 2.0.1 in front of a PVI serves models 1, 103,
+160, 120, 121 and 123; the TRIO models come from the manufacturer's register map and have not
+been seen on hardware yet.
 
 ## Prerequisites
 
 You should either set a static IP or assign a static DHCP lease for the inverter or datalogger, or
 alternatively access it through the local DNS name if your network is configured accordingly.
 
-Modbus TCP must be enabled on the device. On a VSN300 / VSN700 datalogger, open the logger's web
-interface and enable the Modbus TCP server. Behind a datalogger the SunSpec map starts at register
-`0` and the inverter answers on unit ID `2` (some firmwares use `247`); a natively Modbus inverter
-such as a REACT2 uses base address `40000` and unit ID `1`.
+For Modbus, Modbus TCP must be enabled on the device. On a VSN300 / VSN700 datalogger, open the
+logger's web interface and enable the Modbus TCP server. Behind a datalogger the SunSpec map starts
+at register `0` and the inverter answers on unit ID `2` (some firmwares use `247`); a natively
+Modbus inverter such as a REACT2 uses base address `40000` and unit ID `1`.
+
+For the REST API you need the card's credentials: the user is usually `guest`, the password the one
+set on the card, which may be empty. A VSN300 on firmware 2.0.0 cannot serve live data because of a
+firmware defect; update it to 2.0.1 or later.
 
 The inverter must be awake while you set it up: a PVI without grid power answers nothing at night.
 
@@ -84,73 +100,107 @@ The inverter must be awake while you set it up: a PVI without grid power answers
 The integration is set up from the Home Assistant UI. Go to **Settings** > **Devices & services**,
 select **Add integration**, and search for **FIMER (ABB / Power-One)**.
 
-| Parameter            | Required | Description                                                       |
-| -------------------- | -------- | ----------------------------------------------------------------- |
-| Host                 | yes      | The host name or IP address of the inverter or datalogger.        |
-| Port                 | no       | The Modbus TCP port. The default is `502`.                        |
-| Modbus unit ID       | no       | The unit (slave) ID the inverter answers on. The default is `2`.  |
-| SunSpec base address | no       | The register the SunSpec map starts at. The default is `0`.       |
-| REST API             | no       | Also read the datalogger's REST API, with its username and password. |
+| Parameter                     | Required | Description                                                        |
+| ----------------------------- | -------- | ------------------------------------------------------------------ |
+| Host                          | yes      | The host name or IP address of the inverter or datalogger.         |
+| Port                          | no       | The Modbus TCP port. The default is `502`.                         |
+| Read over Modbus TCP          | no       | Enable the Modbus source. On by default.                           |
+| Modbus unit ID                | no       | The unit (slave) ID the inverter answers on. The default is `2`.   |
+| SunSpec base address          | no       | The register the SunSpec map starts at. The default is `0`.        |
+| Read the datalogger REST API  | no       | Enable the REST source. Off by default.                            |
+| Username                      | no       | The card's user. The default is `guest`.                           |
+| Password                      | no       | The password set on the card, if any.                              |
 
-Two sources can be read, each optional but at least one enabled:
+The Modbus settings sit in the **Modbus TCP (SunSpec)** section of the form, the REST settings in the
+**Datalogger REST API** section. At least one source must be enabled. Each is validated during
+setup: Modbus by walking the SunSpec model chain, REST by identifying the card and reading its
+devices.
 
-- **Modbus TCP (SunSpec)**: fast, unauthenticated readings of the inverter's SunSpec models.
-- **Datalogger REST API**: the VSN300 / VSN700 card's own API, adding the datalogger itself, the
-  periodic energy counters, and on a VSN700 the meters and batteries. The username is usually
-  `guest`; the password is the one set on the card.
-
-When both are enabled, a reading available from both comes from Modbus, and REST fills in
+When both sources are enabled, a reading available from both comes from Modbus, and REST fills in
 whatever Modbus lacks or while Modbus is down. Each physical device becomes one Home Assistant
 device: the inverter, the datalogger, and any meter or battery, linked through the datalogger.
 
-The connection is validated during setup. The inverter's serial number becomes the unique
-identifier of the config entry, so changing the host or IP later (through **Reconfigure** on the
-integration page) does not affect entities or their history.
+The inverter's serial number becomes the unique identifier of the config entry (the datalogger's
+when no inverter is found), so changing the host, the credentials or the sources later, through
+**Reconfigure** on the integration page, does not affect entities or their history.
 
 ### Taking over the ABB/FIMER PVI VSN REST integration
 
 If the earlier `abb_fimer_pvi_vsn_rest` integration is installed, the setup starts with a choice
 to take over one of its entries. Its host and credentials are prefilled and, when the new entry
 loads, the old entry is removed and its sensors are re-registered here with their entity IDs,
-names, icons and areas, so recorded history and long-term statistics continue.
+names, icons and areas, so recorded history and long-term statistics continue. The takeover is
+one-way: removing this integration later does not bring the old entry back.
 
-The polling interval (10 to 600 seconds, default 30) can be adjusted after setup from the
-integration's options.
+### Options
+
+Open the integration's **Options** to change:
+
+| Option                              | Default | Description                                                        |
+| ----------------------------------- | ------- | ------------------------------------------------------------------ |
+| Update interval                     | `30` s  | Seconds between polls, 10 to 600, for both sources.                |
+| Power limit control (experimental)  | off     | Expose the SunSpec power limit as a number and a switch, see below. |
+
+The entry reloads when options are saved.
 
 ## Monitored data
 
-The integration reads the SunSpec models the device exposes and creates a sensor for every reading
-the inverter implements. Readings that appear later, for instance once the inverter is producing,
-get their sensor on the next poll.
+A sensor is created for every reading a device reports, from whichever source reports it.
+Readings that appear later, for instance once the inverter is producing, get their sensor on the
+next poll.
 
-- Inverter (models 101/103)
+- Inverter, over Modbus (models 101/103 or 111/113)
 
   AC power, current and voltage split among the phases on three phase inverters, frequency,
   apparent and reactive power, power factor, total energy, DC power, current and voltage, cabinet
-  and other temperatures, and the SunSpec operating state.
+  and other temperatures, the SunSpec operating state and active events.
 
-- MPPT inputs (model 160)
+- MPPT inputs, over Modbus (model 160)
 
   `DC current input <n>`, `DC voltage input <n>` and `DC power input <n>` for each input the
   inverter reports. Per-input energy is exposed only on inverters that implement it.
 
-- Ratings and controls (models 120 and 123)
+- Ratings and controls, over Modbus (models 120 and 123)
 
   The rated power, the active power limit in percent and whether it is enabled, as diagnostic
-  entities.
+  entities. REACT2 hybrids add the storage model's charge state, battery voltage and rate limits.
 
-- Aurora states and vendor readings (model 64061, where the device serves it)
+- Aurora states and vendor readings (the ABB vendor model over Modbus, or the REST API)
 
-  Global, inverter and DC input states with their Aurora names, the active alarms, energy today,
-  this week, this month and this year, inverter and booster temperatures, isolation resistance,
-  cos phi, the permanent and dynamic power limits and the inverter's clock. The vendor lifetime
-  and partial counters are available but disabled by default.
+  Global, inverter and DC input states with their Aurora names, the alarm state and active alarms,
+  energy today, this week, this month and this year, inverter and booster temperatures, isolation
+  resistance, cos phi, the permanent and dynamic power limits and the inverter's clock. The vendor
+  lifetime and partial counters are available but disabled by default.
+
+- Inverter extras, over the REST API
+
+  Bulk capacitor and midpoint voltages, ground voltage, leakage currents, peak power lifetime and
+  today, per-phase frequencies, per-string energies, the periodic counters for absorbed, apparent,
+  self-consumed and backup energy, fan speeds, derating flags and the digital inputs, as the card
+  reports them for the inverter model.
+
+- Datalogger, over the REST API
+
+  Card type, serial and part number, firmware, uptime, load, free memory and flash, WiFi mode,
+  SSID, address, link quality and connection state.
+
+- Meter, over the REST API of a VSN700
+
+  Grid voltage, current, power and reactive power per phase and in total, frequency, house
+  consumption per phase, and the energy counters for grid import and export and house consumption,
+  lifetime and periodic.
+
+- Battery, over the REST API of a VSN700
+
+  State of charge and health, voltage, current and power, cell voltage and temperature extremes,
+  charge and discharge cycles, and the charge and discharge energies, lifetime and periodic.
 
 When the inverter is powered down at night, its measurements become unavailable. Energy counters
 keep their last value, restored across restarts, so long-term statistics and the energy dashboard
-keep their history. Connection loss is handled automatically: the shared connection reconnects on
-the next poll and the integration does not reload. After three failed polls in a row the inverter
-is polled every five minutes until it answers again.
+keep their history. Connection loss is handled automatically: the shared Modbus connection
+reconnects on the next poll and the integration does not reload. After three failed polls in a
+row a source is polled every five minutes until it answers again; the other source keeps its own
+schedule.
 
 ## Energy dashboard
 
@@ -158,6 +208,10 @@ Recommended [energy dashboard](https://www.home-assistant.io/docs/energy/) confi
 
 - For _"Solar production"_, add the inverter's `Total energy` entity. That is the AC energy you can
   use or sell.
+- With a meter behind a VSN700, add the meter's `Energy AC - Grid Import (Lifetime)` and
+  `Energy AC - Grid Export (Lifetime)` entities for _"Grid consumption"_ and _"Return to grid"_.
+- With a battery behind a VSN700, add its `Energy - Battery Charge (Lifetime)` and
+  `Energy - Battery Discharge (Lifetime)` entities under _"Battery systems"_.
 
 Where the inverter reports per-input energy, `DC energy input <n>` is what the panels delivered
 before conversion losses, so it reads a few percent higher. Prefer the AC value.
@@ -221,7 +275,7 @@ firmware, whether the AC power followed the limit, and attach the diagnostics do
 ## Known limitations
 
 The integration is read-only unless the experimental power limit control is switched on (see
-below). On the hardware tested so far, a PVI-10.0-OUTD behind a VSN300 on firmware 2.0.1, the
+above). On the hardware tested so far, a PVI-10.0-OUTD behind a VSN300 on firmware 2.0.1, the
 datalogger stores the power limit written to it without the inverter acting on it.
 
 The SunSpec register map of a device can change with a firmware update or when a datalogger is
@@ -243,14 +297,20 @@ Details about Modbus registers can be found in the device documentation or on th
 - Make sure the device is connected to the network and is reachable from the Home Assistant instance.
 - Check the device's settings to ensure that Modbus TCP is enabled and the unit ID is correct.
 - If no SunSpec map is found, try base address `0` behind a VSN card or `40000` on a natively
-  Modbus inverter, under _Advanced settings_.
+  Modbus inverter, in the Modbus section of the form.
 - If another integration already uses the same host with different link settings, Home Assistant
   reports a conflict. One connection cannot honour two configurations at once.
+- If the REST API rejects the username or password, check them in the card's web interface; the
+  user is usually `guest`.
+- If no REST API answers at the host, the device is not a VSN300 / VSN700 card, or its REST server
+  is disabled.
+- A VSN300 on firmware 2.0.0 is refused: update the card to 2.0.1 or later.
 
 ### Some entities are missing after setup
 
 Some data is only provided by the inverter when it is producing. When the integration is added at
-night, some entities may be added at sunrise when the inverter begins to answer.
+night, some entities may be added at sunrise when the inverter begins to answer. Meters, batteries
+and the datalogger's own sensors need the REST source enabled.
 
 ### Entities are unavailable
 
@@ -266,6 +326,9 @@ This integration can be removed by following these steps:
 1. Go to **Settings** > **Devices & services**.
 1. Select **FIMER (ABB / Power-One)**.
 1. Open the three dots menu of the config entry and select **Delete**.
+
+Deleting the entry removes its devices and entities. If the entry took over an earlier REST entry,
+that one is not restored.
 
 <!-- BEGIN SHARED:repo-sync:contributing -->
 <!-- Synced by repo-sync on 2026-09-04 -->
