@@ -1,4 +1,4 @@
-"""SunSpec models 1, 101/102/103, 120, 121, 123 and 160 as read from FIMER inverters.
+"""SunSpec models 1, 101/102/103, 111/112/113, 120, 121, 123 and 160 as read from FIMER inverters.
 
 Attribute names are the point names of :mod:`pyfimer.points`, not Python
 style, so a component's readings can be emitted without a rename table.
@@ -23,6 +23,7 @@ from modbus_connection.model.sunspec import (
     acc32,
     bitfield32,
     enum16,
+    float32,
     int16,
     string,
     uint16,
@@ -198,6 +199,55 @@ class Inverter(FimerComponent):
         if tmp_cab is not None and tmp_cab > TMP_CAB_PLAUSIBLE_MAX:
             values["TmpCab"] = tmp_cab / 10
         return values
+
+
+class InverterFloat(FimerComponent):
+    """SunSpec models 111, 112 and 113: the float inverter models.
+
+    Natively Modbus inverters can serve these instead of the integer ones;
+    the points are the same, so :attr:`POINT_NAMES` matches :class:`Inverter`.
+    """
+
+    POINT_NAMES = Inverter.POINT_NAMES
+
+    A = float32(2, unit="A")
+    AphA = float32(4, unit="A")
+    AphB = float32(6, unit="A")
+    AphC = float32(8, unit="A")
+    PhVphAB = float32(10, unit="V")
+    PhVphBC = float32(12, unit="V")
+    PhVphCA = float32(14, unit="V")
+    PhVphA = float32(16, unit="V")
+    PhVphB = float32(18, unit="V")
+    PhVphC = float32(20, unit="V")
+    W = float32(22, unit="W")
+    Hz = float32(24, unit="Hz")
+    VA = float32(26, unit="VA")
+    VAr = float32(28, unit="var")
+    PF = float32(30, unit="%")
+    WH = float32(32, unit="Wh")
+    DCA = float32(34, unit="A")
+    DCV = float32(36, unit="V")
+    DCW = float32(38, unit="W")
+    TmpCab = float32(40, unit="°C")
+    TmpSnk = float32(42, unit="°C")
+    TmpTrns = float32(44, unit="°C")
+    TmpOt = float32(46, unit="°C")
+    St = enum16(48, OperatingState)
+    StVnd = enum16(49)
+    Evt1 = bitfield32(50, Event1)
+    Evt2 = bitfield32(52)
+    EvtVnd1 = bitfield32(54)
+    EvtVnd2 = bitfield32(56)
+    EvtVnd3 = bitfield32(58)
+    EvtVnd4 = bitfield32(60)
+
+    def values(self) -> dict[str, Any]:
+        """Return the readings trimmed to the seven significant digits of a float32."""
+        return {
+            name: float(f"{value:.7g}") if isinstance(value, float) else value
+            for name, value in super().values().items()
+        }
 
 
 class MpptInput(Component):

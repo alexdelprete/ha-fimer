@@ -64,8 +64,8 @@ type Serve = Callable[[FakeVsn], Awaitable[str]]
 
 
 @pytest.fixture
-async def serve(aiohttp_server: Callable[..., Awaitable[Any]]) -> Serve:
-    """Start a fake card and return its base URL."""
+async def serve(aiohttp_server: Callable[..., Awaitable[Any]], socket_enabled: None) -> Serve:
+    """Start a fake card on the loopback interface and return its base URL."""
 
     async def start(fake: FakeVsn) -> str:
         server = await aiohttp_server(fake.app())
@@ -75,7 +75,8 @@ async def serve(aiohttp_server: Callable[..., Awaitable[Any]]) -> Serve:
 
 
 @pytest.fixture
-async def session() -> Any:
+async def session(socket_enabled: None) -> Any:
+    """A client session allowed to reach the loopback interface."""
     async with ClientSession() as client_session:
         yield client_session
 

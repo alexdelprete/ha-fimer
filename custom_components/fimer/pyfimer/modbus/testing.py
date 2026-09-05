@@ -222,6 +222,42 @@ def _inverter_model_data(spec: InverterSpec) -> list[int]:
     ]
 
 
+def _float_inverter_model_data(spec: InverterSpec) -> list[int]:
+    return [
+        *_float32_words(spec.ac_current),
+        *_float32_words(spec.ac_current_phase_a),
+        *_float32_words(spec.ac_current_phase_b),
+        *_float32_words(spec.ac_current_phase_c),
+        *_float32_words(spec.voltage_ab),
+        *_float32_words(spec.voltage_bc),
+        *_float32_words(spec.voltage_ca),
+        *_float32_words(spec.voltage_a),
+        *_float32_words(spec.voltage_b),
+        *_float32_words(spec.voltage_c),
+        *_float32_words(spec.ac_power),
+        *_float32_words(spec.frequency),
+        *_float32_words(spec.apparent_power),
+        *_float32_words(spec.reactive_power),
+        *_float32_words(spec.power_factor),
+        *_float32_words(spec.energy_total),
+        *_float32_words(spec.dc_current),
+        *_float32_words(spec.dc_voltage),
+        *_float32_words(spec.dc_power),
+        *_float32_words(spec.cabinet_temperature),
+        *_float32_words(spec.heat_sink_temperature),
+        *_float32_words(spec.transformer_temperature),
+        *_float32_words(spec.other_temperature),
+        _enum_word(spec.operating_state),
+        _enum_word(spec.vendor_operating_state),
+        *_uint32_words(spec.events),  # Evt1
+        *_uint32_words(0),  # Evt2
+        *_uint32_words(spec.vendor_events),  # EvtVnd1
+        *_uint32_words(0),  # EvtVnd2
+        *_uint32_words(0),  # EvtVnd3
+        *_uint32_words(0),  # EvtVnd4
+    ]
+
+
 def _mppt_model_data(inputs: list[MpptInputSpec], *, energy_implemented: bool) -> list[int]:
     data = [
         _sf_word(SF_CURRENT),  # DCA_SF
@@ -384,6 +420,7 @@ def build_register_map(
     serial_number: str = "123456-3N01-1234",
     inverter: InverterSpec | None = None,
     three_phase: bool = True,
+    float_models: bool = False,
     mppt_inputs: list[MpptInputSpec] | None = None,
     mppt_energy_implemented: bool = False,
     include_mppt_model: bool = True,
@@ -429,7 +466,11 @@ def build_register_map(
         _common_model_data(manufacturer, device_model, options, version, serial_number),
     )
     if include_inverter_model:
-        add_model(103 if three_phase else 101, _inverter_model_data(inverter or InverterSpec()))
+        spec = inverter or InverterSpec()
+        if float_models:
+            add_model(113 if three_phase else 111, _float_inverter_model_data(spec))
+        else:
+            add_model(103 if three_phase else 101, _inverter_model_data(spec))
     if include_mppt_model:
         inputs = (
             mppt_inputs

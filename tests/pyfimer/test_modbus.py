@@ -415,3 +415,29 @@ async def test_power_limit_other_exceptions_propagate(unit: MockModbusUnit) -> N
     unit.fail_write(232 + 5, ModbusExceptionError.from_code(2, "illegal data address"))
     with pytest.raises(ModbusExceptionError):
         await controls.set_power_limit(40)
+
+
+async def test_float_inverter_models(unit: MockModbusUnit) -> None:
+    """A natively Modbus inverter serving model 113 reports the same points."""
+    inverter = await discovered(unit, base_address=40000, float_models=True)
+    assert inverter.float_models is True
+    assert inverter.phases == 3
+    assert [model.model_id for model in inverter.model_chain][:2] == [1, 113]
+    values = inverter.values()
+    assert values["W"] == 1500
+    assert values["A"] == 6.54
+    assert values["Hz"] == 50.02
+    assert values["WH"] == 1234567
+    assert values["DCV"] is None
+    assert values["St"] is OperatingState.MPPT
+    assert values["TmpOt"] == 41.2
+
+    unit.holding.clear()
+    inverter = await discovered(unit, three_phase=False, float_models=True)
+    assert inverter.phases == 1
+    assert inverter.float_models is True
+
+    unit.holding.clear()
+    inverter = await discovered(unit)
+    assert inverter.float_models is False
+    assert FimerModbusInverter(unit).float_models is None

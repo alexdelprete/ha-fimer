@@ -13,7 +13,16 @@ from modbus_connection.model import ComponentGroup
 
 from ..aurora import inverter_model_from_options
 from ..exceptions import FimerNotDiscoveredError, FimerUnsupportedDeviceError
-from .models import Common, Controls, FimerComponent, Inverter, Mppt, Nameplate, Settings
+from .models import (
+    Common,
+    Controls,
+    FimerComponent,
+    Inverter,
+    InverterFloat,
+    Mppt,
+    Nameplate,
+    Settings,
+)
 from .registers import ModbusRegisters
 from .sunspec import (
     ABB_VENDOR_MODEL_ID,
@@ -22,6 +31,7 @@ from .sunspec import (
     COMMON_MODEL_ID,
     CONTROLS_MODEL_ID,
     INVERTER_MODEL_IDS,
+    INVERTER_MODEL_IDS_FLOAT,
     MPPT_MODEL_ID,
     NAMEPLATE_MODEL_ID,
     SETTINGS_MODEL_ID,
@@ -33,7 +43,7 @@ from .vendor import AbbVendor
 
 _LOGGER = logging.getLogger(__name__)
 
-_PHASES_BY_MODEL_ID = {101: 1, 102: 2, 103: 3}
+_PHASES_BY_MODEL_ID = {101: 1, 102: 2, 103: 3, 111: 1, 112: 2, 113: 3}
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,7 +97,7 @@ class FimerModbusInverter:
         self._models = SunSpecModels()
         self._group: ComponentGroup | None = None
         self.common: Common | None = None
-        self.inverter: Inverter | None = None
+        self.inverter: Inverter | InverterFloat | None = None
         self.mppt: Mppt | None = None
         self.nameplate: Nameplate | None = None
         self.settings: Settings | None = None
@@ -124,7 +134,9 @@ class FimerModbusInverter:
         """
         self._models = await scan(self._unit, self._base_address)
         common = self._models.first(COMMON_MODEL_ID)
-        inverter = self._models.first(*sorted(INVERTER_MODEL_IDS))
+        inverter = self._models.first(
+            *sorted(INVERTER_MODEL_IDS), *sorted(INVERTER_MODEL_IDS_FLOAT)
+        )
         if common is None or inverter is None:
             found = [model.model_id for model in self.model_chain_of(self._models)]
             raise FimerUnsupportedDeviceError(
@@ -132,7 +144,11 @@ class FimerModbusInverter:
             )
         unit = self._unit
         self.common = Common(unit, common)
-        self.inverter = Inverter(unit, inverter)
+        self.inverter = (
+            InverterFloat(unit, inverter)
+            if inverter.model_id in INVERTER_MODEL_IDS_FLOAT
+            else Inverter(unit, inverter)
+        )
         mppt = self._models.first(MPPT_MODEL_ID)
         self.mppt = Mppt(unit, mppt) if mppt else None
         nameplate = self._models.first(NAMEPLATE_MODEL_ID)
@@ -211,6 +227,13 @@ class FimerModbusInverter:
     def model_chain(self) -> list[SunSpecModel]:
         """The discovered SunSpec models in address order."""
         return self.model_chain_of(self._models)
+
+    @property
+    def float_models(self) -> bool | None:
+        """Whether the inverter serves the float models (111 to 113)."""
+        if self.inverter is None:
+            return None
+        return isinstance(self.inverter, InverterFloat)
 
     @property
     def phases(self) -> int | None:
