@@ -32,6 +32,7 @@ from custom_components.fimer.pyfimer.rest.auth import (
     digest_response,
     parse_digest_challenge,
 )
+from custom_components.fimer.pyfimer.rest.client import _model_from_status
 
 from .fake_vsn import FakeVsn
 
@@ -344,3 +345,103 @@ async def test_logger_refuses_broken_firmware(serve: Serve, session: ClientSessi
     logger = FimerRestLogger(session, await serve(fake), password=CREDENTIAL)
     with pytest.raises(FimerConnectionError):
         await logger.discover()
+
+
+async def test_transport_edge_cases(serve: Serve, session: ClientSession) -> None:
+    # feeds endpoint, and fetching before an explicit detect()
+    fake = vsn700()
+    client = VsnRestClient(session, await serve(fake), password=CREDENTIAL)
+    assert await client.get_feeds() == {"feeds": {}}
+    assert client.model is VsnModel.VSN700
+
+    # an open card answers every fetch without credentials
+    fake = vsn300()
+    fake.requires_auth = False
+    client = VsnRestClient(session, await serve(fake))
+    await client.detect()
+    assert "YYYYYY-3G82-XXXX" in await client.get_livedata()
+
+    # unexpected status during detection
+    fake = vsn300()
+    fake.status_status = 500
+    with pytest.raises(FimerDetectionError):
+        await VsnRestClient(session, await serve(fake)).detect()
+
+    # a non-200, non-401 answer to a fetch
+    fake = vsn700()
+    fake.livedata_status = 503
+    client = VsnRestClient(session, await serve(fake), password=CREDENTIAL)
+    with pytest.raises(FimerConnectionError, match="503"):
+        await client.get_livedata()
+
+    # the card stops challenging after detection
+    fake = vsn300()
+    client = VsnRestClient(session, await serve(fake), password=CREDENTIAL)
+    await client.detect()
+    fake.requires_auth = False
+    with pytest.raises(FimerAuthenticationError, match="Expected a digest challenge"):
+        await client.get_livedata()
+
+    # a VSN300 that challenges with a non-digest scheme
+    fake = vsn300()
+    fake.challenge_scheme = "Basic"
+    client = VsnRestClient(
+        session, await serve(fake), password=CREDENTIAL, model=VsnModel.VSN300, requires_auth=True
+    )
+    with pytest.raises(FimerAuthenticationError, match="did not issue a digest challenge"):
+        await client.get_status()
+
+    # a known VSN700 that is unreachable
+    client = VsnRestClient(
+        session, "http://127.0.0.1:1", timeout=1, model=VsnModel.VSN700, requires_auth=True
+    )
+    with pytest.raises(FimerConnectionError):
+        await client.get_status()
+
+
+async def test_lenient_json(serve: Serve, session: ClientSession) -> None:
+    fake = vsn300()
+    fake.requires_auth = False
+    fake.raw_status = (
+        b'{"keys": {"logger.board_model": {"value": "WIFI LOGGER CARD"}, "label": "\xe8"}}'
+    )
+    client = VsnRestClient(session, await serve(fake))
+    assert await client.detect() is VsnModel.VSN300  # latin-1 fallback
+    fake.raw_status = b"{not json"
+    with pytest.raises(FimerConnectionError, match="Malformed JSON"):
+        await client.get_status()
+
+
+def test_model_from_status_heuristics() -> None:
+    assert (
+        _model_from_status({"keys": {"logger.sn": {"value": "111033-3N16-1421"}}})
+        is VsnModel.VSN300
+    )
+    assert (
+        _model_from_status({"keys": {"logger.loggerId": {"value": "0c:1c:57:fd:c6:2c"}}})
+        is VsnModel.VSN700
+    )
+    assert (
+        _model_from_status({"keys": {f"k{i}": {"value": i} for i in range(11)}}) is VsnModel.VSN300
+    )
+    assert _model_from_status({"keys": {"a": {"value": 1}}}) is VsnModel.VSN700
+    with pytest.raises(FimerDetectionError):
+        _model_from_status({"keys": {f"k{i}": {"value": i} for i in range(5)}})
+
+
+def test_normaliser_skips_nameless_and_keeps_null_values() -> None:
+    readings = normalize_livedata(
+        VsnModel.VSN300,
+        {
+            "I1": {
+                "device_type": "inverter_3phases",
+                "points": [
+                    {"name": "", "value": 1},
+                    {"name": "m103_1_W", "value": None},
+                    {"name": "m103_1_TmpCab", "value": 5.5},
+                    {"name": "C_Mn", "value": "Power-One"},
+                ],
+            }
+        },
+    )
+    assert readings["I1"].values == {"W": None, "TmpCab": 5.5, "Mn": "Power-One"}

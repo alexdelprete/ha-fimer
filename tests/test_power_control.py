@@ -123,3 +123,19 @@ async def test_refused_write_raises(
         await hass.services.async_call(
             SWITCH_DOMAIN, SERVICE_TURN_ON, {ATTR_ENTITY_ID: SWITCH}, blocking=True
         )
+
+
+async def test_settings_without_controls_after_rediscovery(
+    hass: HomeAssistant, mock_config_entry: MockConfigEntry, mock_unit: MockModbusUnit
+) -> None:
+    """If a re-discovery loses model 123, the settings coordinator reports the failure."""
+    await _setup(hass, mock_config_entry, power_control=True)
+    settings = mock_config_entry.runtime_data.settings_coordinator
+    assert settings is not None
+    mock_config_entry.runtime_data.inverter.controls = None
+    await settings.async_refresh()
+    assert not settings.last_update_success
+
+    settings.async_set_updated_data({})
+    await hass.async_block_till_done()
+    assert hass.states.get(SWITCH).state == "unknown"

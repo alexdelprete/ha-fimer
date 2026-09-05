@@ -31,12 +31,19 @@ class FakeVsn:
     requires_auth: bool = True
     livedata_status: int = 200
     """HTTP status for livedata, to fake a card that refuses it."""
+    status_status: int = 200
+    """HTTP status for the status endpoint."""
+    challenge_scheme: str = "X-Digest"
+    """The scheme a VSN300 challenges with; a wrong one fakes an odd firmware."""
+    raw_status: bytes | None = None
+    """A raw body for the status endpoint, to fake bad charsets or JSON."""
     requests: list[str] = field(default_factory=list)
 
     def app(self) -> web.Application:
         app = web.Application()
         app.router.add_get("/v1/status", self._handler(lambda: self.status))
         app.router.add_get("/v1/livedata", self._handler(lambda: self.livedata, "livedata"))
+        app.router.add_get("/v1/feeds", self._handler(lambda: {"feeds": {}}, "feeds"))
         return app
 
     def _handler(
@@ -44,17 +51,21 @@ class FakeVsn:
     ) -> Callable[[web.Request], Any]:
         async def handle(request: web.Request) -> web.Response:
             self.requests.append(f"{request.method} {request.path_qs}")
+            if name == "status" and self.status_status != 200:
+                return web.Response(status=self.status_status)
             if self.requires_auth and not self._authorized(request):
                 return self._challenge()
             if name == "livedata" and self.livedata_status != 200:
                 return web.Response(status=self.livedata_status)
+            if name == "status" and self.raw_status is not None:
+                return web.Response(body=self.raw_status, content_type="application/json")
             return web.json_response(payload())
 
         return handle
 
     def _challenge(self) -> web.Response:
         if self.model == "VSN300":
-            header = f'X-Digest realm="{REALM}", nonce="{NONCE}", qop="auth"'
+            header = f'{self.challenge_scheme} realm="{REALM}", nonce="{NONCE}", qop="auth"'
         else:
             header = 'Basic realm="VSN700"'
         return web.Response(status=401, headers={"WWW-Authenticate": header})
