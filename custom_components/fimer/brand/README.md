@@ -18,3 +18,12 @@ All files are PNG format. Dark variants are optional — the system falls back
 to the standard variant when dark is not available.
 
 Local brand images take priority over the CDN (home-assistant/brands repo).
+
+## Source
+
+Rendered from FIMER's own logo file, the "RGB blue positive" wordmark served
+at `https://www.fimer.com/themes/custom/fimer_corporate/logo.svg` (a white
+wordmark on a `#250e62` box). The icon keeps the box; the logo is the
+wordmark alone in brand blue, and the dark logo the same in white. FIMER is
+a trademark of FIMER S.p.A.; the images identify the manufacturer of the
+supported devices.

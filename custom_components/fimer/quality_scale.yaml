@@ -6,7 +6,9 @@ rules:
     status: exempt
     comment: The integration registers no actions.
   appropriate-polling: done
-  brands: todo
+  brands:
+    status: done
+    comment: Brand images ship in custom_components/fimer/brand, served by core since 2026.3.
   common-modules: done
   config-flow: done
   config-flow-test-coverage: done
