@@ -122,7 +122,7 @@
       "no_source": "Enable at least one source.",
       "invalid_auth": "The datalogger rejected the username or password.",
       "no_rest_api": "No VSN300 / VSN700 REST API answered at this host.",
-      "unsupported_firmware": "This VSN300 firmware cannot serve live data; update the datalogger to 2.0.1 or later."
+      "unsupported_firmware": "This VSN300 runs firmware 2.0.0, which cannot serve live data. Please upgrade the datalogger to firmware 2.0.1 or later; the upgrade is mandatory."
     },
     "abort": {
       "already_configured": "This inverter is already configured.",
@@ -1159,7 +1159,7 @@
       "message": "The datalogger rejected the credentials: {error}"
     },
     "unsupported_firmware": {
-      "message": "The VSN300 runs firmware {firmware_version}, which cannot serve live data. Update it to 2.0.1 or later."
+      "message": "The VSN300 runs firmware {firmware_version}, which cannot serve live data. Please upgrade the datalogger to firmware 2.0.1 or later; the upgrade is mandatory."
     }
   },
   "services": {
@@ -1324,7 +1324,7 @@
     },
     "unsupported_firmware": {
       "title": "{title}: datalogger firmware {firmware_version} is not supported",
-      "description": "The VSN300 datalogger of {title} at {host} runs firmware {firmware_version}. That release has a known bug: its live data API drops every connection, so nothing can be read from it.\n\nThe fix is a firmware update, available from the card's own web page:\n\n1. Open http://{host} and go to the **FW UPDATE** tab\n2. Under **Remote Update** click **Check for FW update**; it should offer 2.0.1 or later\n3. Click **Download & Update** and wait for the card to update and reboot\n4. Reload the integration from its page under Settings > Devices & services\n\nIf no update is offered, contact FIMER support. This issue clears by itself once the integration starts."
+      "description": "The VSN300 datalogger of {title} at {host} runs firmware {firmware_version}. That release has a known bug: its live data API drops every connection, so nothing can be read from it.\n\n**Please upgrade the datalogger to firmware 2.0.1 or later. The upgrade is mandatory: the integration cannot work with 2.0.0.** It is available from the card's own web page:\n\n1. Open http://{host} and go to the **FW UPDATE** tab\n2. Under **Remote Update** click **Check for FW update**; it should offer 2.0.1 or later\n3. Click **Download & Update** and wait for the card to update and reboot\n4. Reload the integration from its page under Settings > Devices & services\n\nIf no update is offered, contact FIMER support. This issue clears by itself once the integration starts."
     },
     "datalogger_silent": {
       "title": "{title}: datalogger not reporting on itself",

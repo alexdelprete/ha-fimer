@@ -341,7 +341,8 @@ Details about Modbus registers can be found in the device documentation or on th
   through a repair on the integration page.
 - If no REST API answers at the host, the device is not a VSN300 / VSN700 card, or its REST server
   is disabled.
-- A VSN300 on firmware 2.0.0 is refused: update the card to 2.0.1 or later.
+- A VSN300 on firmware 2.0.0 is refused: its live data API drops every connection. Upgrading the
+  card to firmware 2.0.1 or later is mandatory; the update is offered on the card's FW UPDATE tab.
 
 ### Some entities are missing after setup
 
@@ -360,8 +361,9 @@ one names the entry and clears by itself once the cause is gone.
   the options, where a recovery script can also be set, for example one that power-cycles the
   datalogger through a smart plug. When the source answers again, the issue disappears and a
   notification reports the recovery.
-- **Datalogger firmware not supported**: a VSN300 on firmware 2.0.0 cannot serve live data. The
-  issue carries the update steps; the entry stays in error until the card is updated and reloaded.
+- **Datalogger firmware not supported**: a VSN300 on firmware 2.0.0 cannot serve live data, and
+  upgrading it to 2.0.1 or later is mandatory. The issue carries the update steps; the entry stays
+  in error until the card is updated and reloaded.
 - **Datalogger not reporting on itself**: the card delivers inverter readings but its own readings
   (uptime, WiFi link, memory) have been missing for half an hour, typically after a reboot without
   a working clock. Power-cycling the card usually fixes it.
