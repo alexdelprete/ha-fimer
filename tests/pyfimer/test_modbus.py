@@ -75,6 +75,9 @@ async def test_discover_and_values(unit: MockModbusUnit) -> None:
     inverter = await discovered(unit)
     assert inverter.discovered
     assert inverter.base_address == 0
+    fresh = FimerModbusInverter(unit)
+    await fresh.discover()
+    assert fresh.phases == 3  # known from discovery, before any update
     assert [(m.model_id, m.address, m.length) for m in inverter.model_chain] == [
         (1, 2, 66),
         (103, 70, 50),

@@ -104,6 +104,7 @@ class FimerModbusInverter:
         self._base_address = base_address
         self._registers = ModbusRegisters(unit)
         self._models = SunSpecModels()
+        self._inverter_model: SunSpecModel | None = None
         self._group: ComponentGroup | None = None
         self.common: Common | None = None
         self.inverter: Inverter | InverterFloat | None = None
@@ -157,6 +158,7 @@ class FimerModbusInverter:
                 f"No SunSpec inverter at base address {self._base_address}: models {found}"
             )
         unit = self._unit
+        self._inverter_model = inverter
         self.common = Common(unit, common)
         self.inverter = (
             InverterFloat(unit, inverter)
@@ -279,9 +281,9 @@ class FimerModbusInverter:
     @property
     def phases(self) -> int | None:
         """The number of AC phases, from the inverter model found."""
-        if self.inverter is None:
+        if self._inverter_model is None:
             return None
-        return _PHASES_BY_MODEL_ID.get(self.inverter.model_id)
+        return _PHASES_BY_MODEL_ID.get(self._inverter_model.model_id)
 
     @property
     def identity(self) -> DeviceIdentity:
