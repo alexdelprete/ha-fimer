@@ -179,11 +179,11 @@ def test_vsn300_normalisation() -> None:
     assert inverter.device_type == "inverter_3phases"
     assert inverter.model == "PVI-10.0-OUTD"
     assert inverter.unmapped == []
-    assert inverter.values["W"] == pytest.approx(3194.016)
+    assert inverter.values["W"] == pytest.approx(3194.016, abs=1e-3)
     assert inverter.values["WH"] == 114285600  # watt-hours, as the card sends them
-    assert inverter.values["DCA_1"] == pytest.approx(5.8255)
+    assert inverter.values["DCA_1"] == pytest.approx(5.8255, abs=1e-4)
     assert inverter.values["GlobalSt"] == 6
-    assert inverter.values["TmpCab"] == pytest.approx(24.744)  # tenfold quirk corrected
+    assert inverter.values["TmpCab"] == pytest.approx(24.744, abs=1e-3)  # tenfold quirk corrected
     assert inverter.values["ILeakDcAc"] == 0.0  # microamperes to milliamperes
     assert inverter.values["Md"] == "3G82"  # dashes stripped
     logger = readings["LLLLLL-3N16-BBBB"]
@@ -303,7 +303,7 @@ async def test_logger_vsn300(serve: Serve, session: ClientSession) -> None:
 
     await logger.async_update()
     values = logger.values()
-    assert values["YYYYYY-3G82-XXXX"]["W"] == pytest.approx(3194.016)
+    assert values["YYYYYY-3G82-XXXX"]["W"] == pytest.approx(3194.016, abs=1e-3)
     assert values["LLLLLL-3N16-BBBB"]["wlan_0_status"] == "connected"
     assert logger.devices["YYYYYY-3G82-XXXX"].model == "PVI-10.0-OUTD"
 

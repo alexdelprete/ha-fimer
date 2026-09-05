@@ -26,6 +26,7 @@ from .sunspec import (
     MPPT_MODEL_ID,
     NAMEPLATE_MODEL_ID,
     SETTINGS_MODEL_ID,
+    STORAGE_MODEL_ID,
 )
 
 NOT_IMPLEMENTED_UINT16 = 0xFFFF
@@ -324,6 +325,51 @@ def _controls_model_data(
     return data
 
 
+@dataclass
+class StorageSpec:
+    """Engineering values for SunSpec model 124 as a REACT2 serves it."""
+
+    charge_max: int | None = 5000
+    """``WChaMax`` in watts; 0 on a storage-capable inverter with no battery."""
+    control_mode: int = 0
+    min_reserve_pct: float | None = 10.0
+    state_of_charge_pct: float | None = None
+    battery_voltage: float | None = None
+    charge_status: int | None = None
+    discharge_rate_pct: float | None = None
+    charge_rate_pct: float | None = None
+    charge_source: int | None = 0
+
+
+def _storage_model_data(spec: StorageSpec) -> list[int]:
+    return [
+        NOT_IMPLEMENTED_UINT16 if spec.charge_max is None else spec.charge_max,
+        NOT_IMPLEMENTED_UINT16,  # WChaGra
+        NOT_IMPLEMENTED_UINT16,  # WDisChaGra
+        spec.control_mode,  # StorCtl_Mod
+        NOT_IMPLEMENTED_UINT16,  # VAChaMax
+        _scaled_word(spec.min_reserve_pct, -2),
+        _scaled_word(spec.state_of_charge_pct, -2),
+        NOT_IMPLEMENTED_UINT16,  # StorAval
+        _scaled_word(spec.battery_voltage, SF_VOLTAGE),
+        _enum_word(spec.charge_status),
+        _scaled_word(spec.discharge_rate_pct, -2, signed=True),
+        _scaled_word(spec.charge_rate_pct, -2, signed=True),
+        NOT_IMPLEMENTED_UINT16,  # InOutWRte_WinTms
+        60,  # InOutWRte_RvrtTms
+        NOT_IMPLEMENTED_UINT16,  # InOutWRte_RmpTms
+        _enum_word(spec.charge_source),
+        _sf_word(0),  # WChaMax_SF
+        NOT_IMPLEMENTED_INT16,  # WChaDisChaGra_SF
+        NOT_IMPLEMENTED_INT16,  # VAChaMax_SF
+        _sf_word(-2),  # MinRsvPct_SF
+        _sf_word(-2),  # ChaState_SF
+        NOT_IMPLEMENTED_INT16,  # StorAval_SF
+        _sf_word(SF_VOLTAGE),  # InBatV_SF
+        _sf_word(-2),  # InOutWRte_SF
+    ]
+
+
 def _alarm_words(codes: list[int]) -> list[int]:
     registers = [0, 0, 0]
     for code in codes:
@@ -432,6 +478,7 @@ def build_register_map(
     power_limit_pct: int | None = 100,
     power_limit_enabled: bool = False,
     power_factor_implemented: bool = False,
+    storage: StorageSpec | None = None,
     vendor: VendorSpec | None = None,
     include_vendor_model: bool = False,
     vendor_model_length: int = ABB_VENDOR_MODEL_LENGTH,
@@ -489,6 +536,8 @@ def build_register_map(
             CONTROLS_MODEL_ID,
             _controls_model_data(power_limit_pct, power_limit_enabled, power_factor_implemented),
         )
+    if storage is not None:
+        add_model(STORAGE_MODEL_ID, _storage_model_data(storage))
     if include_vendor_model:
         add_model(
             ABB_VENDOR_MODEL_ID, _vendor_model_data(vendor or VendorSpec(), vendor_model_length)
@@ -502,6 +551,7 @@ def build_register_map(
 __all__ = [
     "InverterSpec",
     "MpptInputSpec",
+    "StorageSpec",
     "VendorSpec",
     "build_register_map",
 ]

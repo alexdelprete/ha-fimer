@@ -1,4 +1,4 @@
-"""SunSpec models 1, 101/102/103, 111/112/113, 120, 121, 123 and 160 as read from FIMER inverters.
+"""SunSpec models 1, 101/102/103, 111/112/113, 120, 121, 123, 124 and 160 as read from FIMER inverters.
 
 Attribute names are the point names of :mod:`pyfimer.points`, not Python
 style, so a component's readings can be emitted without a rename table.
@@ -21,6 +21,7 @@ from modbus_connection.model import Component, repeating_group
 from modbus_connection.model.sunspec import (
     SunSpecComponent,
     acc32,
+    bitfield16,
     bitfield32,
     enum16,
     float32,
@@ -344,6 +345,15 @@ class Enabled(IntEnum):
     ENABLED = 1
 
 
+class ReactivePowerMode(IntEnum):
+    """Which reference the reactive power setpoint is a percentage of (``VArPct_Mod``)."""
+
+    NONE = 0
+    WMAX = 1
+    VAR_MAX = 2
+    VAR_AVAL = 3
+
+
 class Controls(FimerComponent):
     """SunSpec model 123: immediate controls, the standard way to limit power.
 
@@ -367,6 +377,13 @@ class Controls(FimerComponent):
         "WMaxLim_Ena",
         "OutPFSet",
         "OutPFSet_Ena",
+        "VArWMaxPct",
+        "VArMaxPct",
+        "VArAvalPct",
+        "VArPct_RvrtTms",
+        "VArPct_RmpTms",
+        "VArPct_Mod",
+        "VArPct_Ena",
     )
 
     Conn = enum16(4, Connection, writable=True)
@@ -380,6 +397,14 @@ class Controls(FimerComponent):
     OutPFSet_RvrtTms = uint16(12, writable=True)
     OutPFSet_RmpTms = uint16(13, writable=True)
     OutPFSet_Ena = enum16(14, Enabled, writable=True)
+    VArWMaxPct = int16(15, scale_register=25, writable=True, unit="%")
+    VArMaxPct = int16(16, scale_register=25, writable=True, unit="%")
+    VArAvalPct = int16(17, scale_register=25, writable=True, unit="%")
+    VArPct_WinTms = uint16(18, writable=True)
+    VArPct_RvrtTms = uint16(19, writable=True)
+    VArPct_RmpTms = uint16(20, writable=True)
+    VArPct_Mod = enum16(21, ReactivePowerMode, writable=True)
+    VArPct_Ena = enum16(22, Enabled, writable=True)
 
     async def apply_power_limit(
         self, *, percent: float | None = None, enabled: bool | None = None
@@ -455,3 +480,71 @@ def _matches(actual: Any, expected: Any) -> bool:
     if isinstance(expected, float) or isinstance(actual, float):
         return math.isclose(float(actual), float(expected), abs_tol=1e-3)
     return int(actual) == int(expected)
+
+
+class StorageControlMode(IntFlag):
+    """Which storage controls are active (``StorCtl_Mod``)."""
+
+    CHARGE = 1 << 0
+    DISCHARGE = 1 << 1
+
+
+class ChargeState(IntEnum):
+    """Battery charge status (``ChaSt``)."""
+
+    OFF = 1
+    EMPTY = 2
+    DISCHARGING = 3
+    CHARGING = 4
+    FULL = 5
+    HOLDING = 6
+    TESTING = 7
+
+
+class ChargeSource(IntEnum):
+    """Whether the battery may charge from the grid (``ChaGriSet``)."""
+
+    PV = 0
+    GRID = 1
+
+
+class Storage(FimerComponent):
+    """SunSpec model 124: basic storage controls, served by REACT2 hybrids.
+
+    Read-only here beyond :meth:`FimerModbusInverter.async_write`; a
+    storage-capable inverter with no battery reports ``WChaMax`` as 0.
+    """
+
+    POINT_NAMES = (
+        "WChaMax",
+        "WChaGra",
+        "WDisChaGra",
+        "StorCtl_Mod",
+        "VAChaMax",
+        "MinRsvPct",
+        "ChaState",
+        "StorAval",
+        "InBatV",
+        "ChaSt",
+        "OutWRte",
+        "InWRte",
+        "InOutWRte_RvrtTms",
+        "ChaGriSet",
+    )
+
+    WChaMax = uint16(2, scale_register=18, writable=True, unit="W")
+    WChaGra = uint16(3, scale_register=19, writable=True, unit="%")
+    WDisChaGra = uint16(4, scale_register=19, writable=True, unit="%")
+    StorCtl_Mod = bitfield16(5, StorageControlMode, writable=True)
+    VAChaMax = uint16(6, scale_register=20, writable=True, unit="VA")
+    MinRsvPct = uint16(7, scale_register=21, writable=True, unit="%")
+    ChaState = uint16(8, scale_register=22, unit="%")
+    StorAval = uint16(9, scale_register=23, unit="Ah")
+    InBatV = uint16(10, scale_register=24, unit="V")
+    ChaSt = enum16(11, ChargeState)
+    OutWRte = int16(12, scale_register=25, writable=True, unit="%")
+    InWRte = int16(13, scale_register=25, writable=True, unit="%")
+    InOutWRte_WinTms = uint16(14, writable=True)
+    InOutWRte_RvrtTms = uint16(15, writable=True)
+    InOutWRte_RmpTms = uint16(16, writable=True)
+    ChaGriSet = enum16(17, ChargeSource, writable=True)

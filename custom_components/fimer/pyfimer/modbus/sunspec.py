@@ -28,6 +28,7 @@ __all__ = [
     "MPPT_MODEL_ID",
     "NAMEPLATE_MODEL_ID",
     "SETTINGS_MODEL_ID",
+    "STORAGE_MODEL_ID",
     "SunSpecComponent",
     "SunSpecError",
     "SunSpecMapShiftError",
@@ -53,6 +54,7 @@ INVERTER_MODEL_IDS_FLOAT: Final = frozenset({111, 112, 113})
 NAMEPLATE_MODEL_ID: Final = 120
 SETTINGS_MODEL_ID: Final = 121
 CONTROLS_MODEL_ID: Final = 123
+STORAGE_MODEL_ID: Final = 124
 MPPT_MODEL_ID: Final = 160
 ABB_VENDOR_MODEL_ID: Final = 64061
 ABB_VENDOR_MODEL_LENGTH: Final = 124

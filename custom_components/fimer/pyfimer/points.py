@@ -61,6 +61,7 @@ MODEL_INVERTER: Final = 100
 MODEL_NAMEPLATE: Final = 120
 MODEL_SETTINGS: Final = 121
 MODEL_CONTROLS: Final = 123
+MODEL_STORAGE: Final = 124
 MODEL_MPPT: Final = 160
 MODEL_ABB_VENDOR: Final = 64061
 
@@ -167,6 +168,60 @@ SUNSPEC_POINTS: Final[tuple[Point, ...]] = (
     Point("WMaxLim_Ena", PointKind.STATE, None, MODEL_CONTROLS, "Power limit enabled"),
     Point("OutPFSet", PointKind.MEASUREMENT, None, MODEL_CONTROLS, "Power factor setpoint"),
     Point("OutPFSet_Ena", PointKind.STATE, None, MODEL_CONTROLS, "Power factor setpoint enabled"),
+    Point(
+        "VArWMaxPct",
+        PointKind.MEASUREMENT,
+        "%",
+        MODEL_CONTROLS,
+        "Reactive power setpoint (of WMax)",
+    ),
+    Point(
+        "VArMaxPct",
+        PointKind.MEASUREMENT,
+        "%",
+        MODEL_CONTROLS,
+        "Reactive power setpoint (of VArMax)",
+    ),
+    Point(
+        "VArAvalPct",
+        PointKind.MEASUREMENT,
+        "%",
+        MODEL_CONTROLS,
+        "Reactive power setpoint (of VArAval)",
+    ),
+    Point(
+        "VArPct_RvrtTms",
+        PointKind.MEASUREMENT,
+        "s",
+        MODEL_CONTROLS,
+        "Reactive power setpoint revert time",
+    ),
+    Point(
+        "VArPct_RmpTms",
+        PointKind.MEASUREMENT,
+        "s",
+        MODEL_CONTROLS,
+        "Reactive power setpoint ramp time",
+    ),
+    Point("VArPct_Mod", PointKind.STATE, None, MODEL_CONTROLS, "Reactive power setpoint mode"),
+    Point("VArPct_Ena", PointKind.STATE, None, MODEL_CONTROLS, "Reactive power setpoint enabled"),
+    # SunSpec basic storage controls model (124)
+    Point("WChaMax", PointKind.INFO, "W", MODEL_STORAGE, "Maximum charge rate"),
+    Point("WChaGra", PointKind.INFO, "%", MODEL_STORAGE, "Charge ramp rate"),
+    Point("WDisChaGra", PointKind.INFO, "%", MODEL_STORAGE, "Discharge ramp rate"),
+    Point("StorCtl_Mod", PointKind.BITFIELD, None, MODEL_STORAGE, "Active storage controls"),
+    Point("VAChaMax", PointKind.INFO, "VA", MODEL_STORAGE, "Maximum charge apparent power"),
+    Point("MinRsvPct", PointKind.MEASUREMENT, "%", MODEL_STORAGE, "Minimum reserve"),
+    Point("ChaState", PointKind.MEASUREMENT, "%", MODEL_STORAGE, "State of charge"),
+    Point("StorAval", PointKind.MEASUREMENT, "Ah", MODEL_STORAGE, "Available storage"),
+    Point("InBatV", PointKind.MEASUREMENT, "V", MODEL_STORAGE, "Battery voltage"),
+    Point("ChaSt", PointKind.STATE, None, MODEL_STORAGE, "Charge status"),
+    Point("OutWRte", PointKind.MEASUREMENT, "%", MODEL_STORAGE, "Discharge rate setpoint"),
+    Point("InWRte", PointKind.MEASUREMENT, "%", MODEL_STORAGE, "Charge rate setpoint"),
+    Point(
+        "InOutWRte_RvrtTms", PointKind.MEASUREMENT, "s", MODEL_STORAGE, "Rate setpoint revert time"
+    ),
+    Point("ChaGriSet", PointKind.STATE, None, MODEL_STORAGE, "Charge source"),
     # ABB vendor model (64061)
     Point("HwVersion", PointKind.INFO, None, MODEL_ABB_VENDOR, "Hardware version"),
     Point("Parent", PointKind.INFO, None, MODEL_ABB_VENDOR, "Parent device"),

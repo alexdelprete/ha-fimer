@@ -10,6 +10,8 @@ and typed values at absolute addresses for anything outside SunSpec.
 
 from .inverter import DeviceIdentity, FimerModbusInverter
 from .models import (
+    ChargeSource,
+    ChargeState,
     Common,
     Connection,
     Controls,
@@ -23,7 +25,10 @@ from .models import (
     MpptOperatingState,
     Nameplate,
     OperatingState,
+    ReactivePowerMode,
     Settings,
+    Storage,
+    StorageControlMode,
 )
 from .registers import ModbusRegisters
 from .sunspec import (
@@ -39,6 +44,7 @@ from .sunspec import (
     MPPT_MODEL_ID,
     NAMEPLATE_MODEL_ID,
     SETTINGS_MODEL_ID,
+    STORAGE_MODEL_ID,
     SunSpecError,
     SunSpecMapShiftError,
     SunSpecModel,
@@ -58,7 +64,10 @@ __all__ = [
     "MPPT_MODEL_ID",
     "NAMEPLATE_MODEL_ID",
     "SETTINGS_MODEL_ID",
+    "STORAGE_MODEL_ID",
     "AbbVendor",
+    "ChargeSource",
+    "ChargeState",
     "Common",
     "Connection",
     "Controls",
@@ -76,7 +85,10 @@ __all__ = [
     "MpptOperatingState",
     "Nameplate",
     "OperatingState",
+    "ReactivePowerMode",
     "Settings",
+    "Storage",
+    "StorageControlMode",
     "SunSpecError",
     "SunSpecMapShiftError",
     "SunSpecModel",

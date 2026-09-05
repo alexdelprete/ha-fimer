@@ -22,6 +22,7 @@ from .models import (
     Mppt,
     Nameplate,
     Settings,
+    Storage,
 )
 from .registers import ModbusRegisters
 from .sunspec import (
@@ -35,6 +36,7 @@ from .sunspec import (
     MPPT_MODEL_ID,
     NAMEPLATE_MODEL_ID,
     SETTINGS_MODEL_ID,
+    STORAGE_MODEL_ID,
     SunSpecModel,
     SunSpecModels,
     scan,
@@ -102,6 +104,7 @@ class FimerModbusInverter:
         self.nameplate: Nameplate | None = None
         self.settings: Settings | None = None
         self.controls: Controls | None = None
+        self.storage: Storage | None = None
         self.vendor: AbbVendor | None = None
         self.vendor_model_length: int | None = None
         """The length the device reports for model 64061, for diagnostics."""
@@ -157,6 +160,8 @@ class FimerModbusInverter:
         self.settings = Settings(unit, settings) if settings else None
         controls = self._models.first(CONTROLS_MODEL_ID)
         self.controls = Controls(unit, controls) if controls else None
+        storage = self._models.first(STORAGE_MODEL_ID)
+        self.storage = Storage(unit, storage) if storage else None
         vendor = self._models.first(ABB_VENDOR_MODEL_ID)
         self.vendor_model_length = vendor.length if vendor else None
         if vendor is not None and vendor.length != ABB_VENDOR_MODEL_LENGTH:
@@ -183,6 +188,7 @@ class FimerModbusInverter:
                 self.nameplate,
                 self.settings,
                 self.controls,
+                self.storage,
                 self.vendor,
             )
             if component is not None

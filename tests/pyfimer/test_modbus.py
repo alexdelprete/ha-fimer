@@ -16,6 +16,7 @@ from custom_components.fimer.pyfimer import (
     FimerWriteError,
 )
 from custom_components.fimer.pyfimer.modbus import (
+    ChargeState,
     Enabled,
     FimerModbusInverter,
     OperatingState,
@@ -25,6 +26,7 @@ from custom_components.fimer.pyfimer.modbus import (
 from custom_components.fimer.pyfimer.modbus.testing import (
     InverterSpec,
     MpptInputSpec,
+    StorageSpec,
     VendorSpec,
     build_register_map,
 )
@@ -441,3 +443,47 @@ async def test_float_inverter_models(unit: MockModbusUnit) -> None:
     inverter = await discovered(unit)
     assert inverter.float_models is False
     assert FimerModbusInverter(unit).float_models is None
+
+
+async def test_storage_model(unit: MockModbusUnit) -> None:
+    """A REACT2 hybrid serves the basic storage model."""
+    inverter = await discovered(
+        unit,
+        storage=StorageSpec(
+            charge_max=5000,
+            state_of_charge_pct=63.5,
+            battery_voltage=200.5,
+            charge_status=4,
+            discharge_rate_pct=50.0,
+        ),
+    )
+    assert inverter.storage is not None
+    assert 124 in [model.model_id for model in inverter.model_chain]
+    values = inverter.values()
+    assert values["WChaMax"] == 5000
+    assert values["MinRsvPct"] == 10.0
+    assert values["ChaState"] == 63.5
+    assert values["InBatV"] == 200.5
+    assert values["ChaSt"] is ChargeState.CHARGING
+    assert values["OutWRte"] == 50.0
+    assert values["InWRte"] is None
+    assert values["InOutWRte_RvrtTms"] == 60
+    assert values["ChaGriSet"] == 0
+    assert set(values) <= set(POINTS_BY_NAME)
+
+    await inverter.async_write("MinRsvPct", 20)
+    await inverter.async_update()
+    assert inverter.values()["MinRsvPct"] == 20.0
+
+    unit.holding.clear()
+    inverter = await discovered(unit)
+    assert inverter.storage is None
+    assert "WChaMax" not in inverter.values()
+
+
+async def test_reactive_power_points(unit: MockModbusUnit) -> None:
+    inverter = await discovered(unit)
+    values = inverter.values()
+    assert "VArPct_Ena" in values
+    assert values["VArWMaxPct"] is None  # scale factor unimplemented on the PVI
+    assert set(values) <= set(POINTS_BY_NAME)
