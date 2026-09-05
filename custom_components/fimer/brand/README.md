@@ -21,7 +21,8 @@ Local brand images take priority over the CDN (home-assistant/brands repo).
 
 ## Source
 
-Rendered from FIMER's own logo file, the "RGB blue positive" wordmark served
+Regenerate with `python scripts/render_brand_images.py`, which reads
+`docs/brand/fimer_logo.svg`. Rendered from FIMER's own logo file, the "RGB blue positive" wordmark served
 at `https://www.fimer.com/themes/custom/fimer_corporate/logo.svg` (a white
 wordmark on a `#250e62` box). The icon keeps the box; the logo is the
 wordmark alone in brand blue, and the dark logo the same in white. FIMER is
