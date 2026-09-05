@@ -27,20 +27,20 @@ from .conftest import INVERTER_SPEC, default_register_map
     ("entity_id", "state"),
     [
         ("sensor.pvi_10_0_outd_power_ac", "1500"),
-        ("sensor.pvi_10_0_outd_ac_current", "6.54"),
-        ("sensor.pvi_10_0_outd_ac_current_phase_a", "2.18"),
-        ("sensor.pvi_10_0_outd_ac_voltage_phase_a", "230.5"),
+        ("sensor.pvi_10_0_outd_current_ac", "6.54"),
+        ("sensor.pvi_10_0_outd_current_ac_phase_a", "2.18"),
+        ("sensor.pvi_10_0_outd_voltage_ac_phase_a_n", "230.5"),
         ("sensor.pvi_10_0_outd_voltage_ac_phase_a_b", "400.1"),
-        ("sensor.pvi_10_0_outd_ac_frequency", "50.02"),
+        ("sensor.pvi_10_0_outd_frequency_ac_grid", "50.02"),
         ("sensor.pvi_10_0_outd_power_factor", "99.5"),
         ("sensor.pvi_10_0_outd_energy_ac_produced_lifetime", "1234.567"),
         ("sensor.pvi_10_0_outd_power_dc", "1550"),
         ("sensor.pvi_10_0_outd_cabinet_temperature", "45.3"),
         ("sensor.pvi_10_0_outd_other_temperature", "41.2"),
         ("sensor.pvi_10_0_outd_status_operating", "mppt"),
-        ("sensor.pvi_10_0_outd_current_dc_input_1", "3.21"),
-        ("sensor.pvi_10_0_outd_voltage_dc_input_2", "340.0"),
-        ("sensor.pvi_10_0_outd_power_dc_input_2", "750"),
+        ("sensor.pvi_10_0_outd_current_dc_string_1", "3.21"),
+        ("sensor.pvi_10_0_outd_voltage_dc_string_2", "340.0"),
+        ("sensor.pvi_10_0_outd_power_dc_string_2", "750"),
         ("sensor.pvi_10_0_outd_status_global", "Run"),
         ("sensor.pvi_10_0_outd_inverter_status", "Run"),
         ("sensor.pvi_10_0_outd_status_dc_input_1", "MPPT"),
@@ -73,7 +73,7 @@ async def test_unimplemented_points_have_no_sensor(
     assert hass.states.get("sensor.pvi_10_0_outd_voltage_dc") is None
     assert hass.states.get("sensor.pvi_10_0_outd_energy_dc_input_1_lifetime") is None
     assert hass.states.get("sensor.pvi_10_0_outd_temperature_heat_sink") is None
-    assert hass.states.get("sensor.pvi_10_0_outd_current_dc_input_3") is None
+    assert hass.states.get("sensor.pvi_10_0_outd_current_dc_string_3") is None
 
 
 async def test_disabled_by_default(

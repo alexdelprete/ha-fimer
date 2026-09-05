@@ -24,7 +24,7 @@ from homeassistant.exceptions import HomeAssistantError
 from .conftest import default_register_map
 
 NUMBER = "number.pvi_10_0_outd_power_limit_active_power"
-SWITCH = "switch.pvi_10_0_outd_power_limit_active_power"
+SWITCH = "switch.pvi_10_0_outd_power_limit_enabled"
 PCT, ENA = 232 + 5, 232 + 9
 
 

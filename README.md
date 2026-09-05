@@ -162,7 +162,7 @@ sensors on the next poll as well.
 
 - MPPT inputs, over Modbus (model 160)
 
-  `Current DC - Input <n>`, `Voltage DC - Input <n>` and `Power DC - Input <n>` for each input the
+  `Current DC - String <n>`, `Voltage DC - String <n>` and `Power DC - String <n>` for each input the
   inverter reports. Per-input energy is exposed only on inverters that implement it.
 
 - Ratings and controls, over Modbus (models 120 and 123)

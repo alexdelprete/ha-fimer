@@ -318,7 +318,7 @@ SENSOR_DESCRIPTIONS: tuple[FimerSensorEntityDescription, ...] = (
     _temperature("Booster_Tmp", "booster_tmp"),
     _measurement(
         "Isolation_Ohm1",
-        "isolation_resistance_input_1",
+        "isolation_ohm1",
         unit=MEGA_OHM,
         device_class=None,
         precision=2,
