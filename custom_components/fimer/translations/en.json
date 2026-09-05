@@ -1268,7 +1268,7 @@
     },
     "rediscover": {
       "name": "Rediscover",
-      "description": "Walks the SunSpec model chain and the datalogger's devices again without reloading, and refreshes the readings. The entry is reloaded only when new devices appeared.",
+      "description": "Walks the SunSpec model chain and the datalogger's devices again without reloading, and refreshes the readings. Devices the datalogger reports for the first time get their entities.",
       "fields": {
         "config_entry": {
           "name": "Config entry",

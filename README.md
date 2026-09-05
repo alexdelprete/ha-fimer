@@ -147,7 +147,8 @@ The entry reloads when options are saved.
 
 A sensor is created for every reading a device reports, from whichever source reports it.
 Readings that appear later, for instance once the inverter is producing, get their sensor on the
-next poll.
+next poll, and a meter or battery the datalogger starts reporting after setup gets its device and
+sensors on the next poll as well.
 
 - Inverter, over Modbus (models 101/103 or 111/113)
 
@@ -288,7 +289,7 @@ actions need the Modbus source; the others work with either source.
 - `fimer.get_readings`: return every point each device of the entry currently reports, with the
   device type and availability.
 - `fimer.rediscover`: walk the SunSpec chain and the datalogger's devices again without a reload,
-  and refresh both sources. The entry is reloaded only when new devices appeared.
+  and refresh both sources.
 
 Register writes go straight to the device: use them only with the register map at hand. An
 example reading the power limit register of model 123 on a VSN300 (header at 232, limit at

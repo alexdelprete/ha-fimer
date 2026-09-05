@@ -9,9 +9,11 @@ from typing import TYPE_CHECKING, Any
 from modbus_connection import ModbusError
 
 from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
@@ -205,9 +207,16 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
         )
         self.rest_logger = logger
         self._failed_update_count = 0
+        self.known_device_ids: set[str] = set()
+        """REST device IDs that already have a Home Assistant device; set after setup."""
 
     async def _async_update_data(self) -> FimerRestData:
-        """Discover on first use, then refresh every device's readings."""
+        """Discover on first use, then refresh every device's readings.
+
+        A device the card reports for the first time after setup, such as a
+        battery or meter added later, gets its Home Assistant device and
+        entities right away.
+        """
         try:
             if not self.rest_logger.discovered:
                 await self.rest_logger.discover()
@@ -232,4 +241,37 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
         if self._failed_update_count:
             self._failed_update_count = 0
             self.update_interval = self._default_interval
-        return self.rest_logger.values()
+        values = self.rest_logger.values()
+        if self.known_device_ids and (new_ids := set(values) - self.known_device_ids):
+            self.known_device_ids |= new_ids
+            self._async_add_devices(new_ids)
+        return values
+
+    @callback
+    def _async_add_devices(self, device_ids: set[str]) -> None:
+        """Create devices for newly reported REST device IDs and announce them."""
+        from .devices import SIGNAL_NEW_DEVICES, build_rest_devices  # noqa: PLC0415 - cycle
+
+        runtime = self.config_entry.runtime_data
+        new_devices = build_rest_devices(self, device_ids)
+        if not new_devices:
+            return
+        registry = dr.async_get(self.hass)
+        datalogger = next(
+            (device for device in runtime.devices if device.device_type == "datalogger"), None
+        )
+        if datalogger is not None:
+            logger_entry = registry.async_get_device(
+                identifiers=datalogger.device_info["identifiers"]
+            )
+            if logger_entry is not None:
+                for device in new_devices:
+                    device.device_info["via_device_id"] = logger_entry.id
+        runtime.devices.extend(new_devices)
+        _LOGGER.info(
+            "New devices reported by the datalogger: %s",
+            ", ".join(device.unique_id for device in new_devices),
+        )
+        async_dispatcher_send(
+            self.hass, f"{SIGNAL_NEW_DEVICES}_{self.config_entry.entry_id}", new_devices
+        )

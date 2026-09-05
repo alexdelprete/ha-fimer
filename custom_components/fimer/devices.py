@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Final
 
 from homeassistant.core import CALLBACK_TYPE, callback
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -24,6 +24,9 @@ from .const import (
     MANUFACTURER,
 )
 from .pyfimer.rest import DEVICE_TYPE_DATALOGGER as REST_DATALOGGER
+
+SIGNAL_NEW_DEVICES: Final = f"{DOMAIN}_new_devices"
+"""Dispatcher signal, suffixed with the entry ID, carrying newly seen devices."""
 
 if TYPE_CHECKING:
     from .coordinator import FimerCoordinator, FimerRestCoordinator
@@ -131,29 +134,45 @@ def build_devices(
         devices.insert(0, inverter)
 
     if rest is not None and rest.rest_logger.discovered:
-        for device_id, readings in rest.rest_logger.devices.items():
-            if readings.device_type == REST_DATALOGGER or readings.device_type.startswith(
-                "inverter"
-            ):
-                continue
-            device_type = (
-                DEVICE_TYPE_BATTERY if readings.device_type == "battery" else DEVICE_TYPE_METER
+        skip = {inverter.rest_device_id} if inverter is not None else set()
+        devices.extend(build_rest_devices(rest, set(rest.rest_logger.devices) - skip))
+    return devices
+
+
+def build_rest_devices(rest: FimerRestCoordinator, device_ids: set[str]) -> list[FimerDevice]:
+    """Describe the meters, batteries and further inverters the REST API reports.
+
+    The datalogger itself is left out: it is created once at setup from the
+    logger identity.
+    """
+    devices: list[FimerDevice] = []
+    for device_id in sorted(device_ids):
+        readings = rest.rest_logger.devices.get(device_id)
+        if readings is None or readings.device_type == REST_DATALOGGER:
+            continue
+        if readings.device_type == "battery":
+            device_type = DEVICE_TYPE_BATTERY
+        elif readings.device_type.startswith("inverter"):
+            device_type = DEVICE_TYPE_INVERTER
+        else:
+            device_type = DEVICE_TYPE_METER
+        name = readings.model or f"{device_type.title()} {device_id}"
+        devices.append(
+            FimerDevice(
+                unique_id=device_id,
+                device_type=device_type,
+                device_info=DeviceInfo(
+                    identifiers={(DOMAIN, device_id)},
+                    name=name,
+                    manufacturer=readings.values.get("Mn") or MANUFACTURER,
+                    model=readings.model,
+                    serial_number=device_id,
+                    sw_version=readings.values.get("Vr"),
+                ),
+                rest=rest,
+                rest_device_id=device_id,
             )
-            devices.append(
-                FimerDevice(
-                    unique_id=device_id,
-                    device_type=device_type,
-                    device_info=DeviceInfo(
-                        identifiers={(DOMAIN, device_id)},
-                        name=f"{device_type.title()} {device_id}",
-                        manufacturer=MANUFACTURER,
-                        model=readings.model,
-                        serial_number=device_id,
-                    ),
-                    rest=rest,
-                    rest_device_id=device_id,
-                )
-            )
+        )
     return devices
 
 

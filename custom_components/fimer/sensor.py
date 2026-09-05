@@ -32,12 +32,13 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
 from . import FimerConfigEntry
 from .const import DOMAIN
-from .devices import FimerDevice
+from .devices import SIGNAL_NEW_DEVICES, FimerDevice
 from .pyfimer import ALARM_CODES, DCDC_STATES, GLOBAL_STATES, INVERTER_STATES
 from .pyfimer.modbus import Enabled, OperatingState
 from .pyfimer.points import MPPT_INPUTS
@@ -447,10 +448,14 @@ async def async_setup_entry(
     inverter has fully booted), so sensors are created for the points seen
     so far and every later refresh adds the newly seen ones. Sensors
     registered by an earlier run come back right away, so an energy counter
-    not yet reported shows its restored value.
+    not yet reported shows its restored value. Devices the datalogger
+    reports after setup arrive over the dispatcher and get the same
+    treatment.
     """
     entity_registry = er.async_get(hass)
-    for device in entry.runtime_data.devices:
+
+    @callback
+    def _async_setup_device(device: FimerDevice) -> None:
         pending = {description.key: description for description in ALL_DESCRIPTIONS}
         known = {
             key
@@ -461,17 +466,25 @@ async def async_setup_entry(
         }
 
         @callback
-        def _async_add_seen_sensors(
-            device: FimerDevice = device,
-            pending: dict[str, FimerSensorEntityDescription] = pending,
-            known: set[str] = known,
-        ) -> None:
+        def _async_add_seen_sensors() -> None:
             seen = [key for key in pending if key in known or device.value(key) is not None]
             if seen:
                 async_add_entities(_sensor_for(device, pending.pop(key)) for key in seen)
 
         _async_add_seen_sensors()
         entry.async_on_unload(device.async_add_listener(_async_add_seen_sensors))
+
+    @callback
+    def _async_setup_devices(devices: list[FimerDevice]) -> None:
+        for device in devices:
+            _async_setup_device(device)
+
+    _async_setup_devices(entry.runtime_data.devices)
+    entry.async_on_unload(
+        async_dispatcher_connect(
+            hass, f"{SIGNAL_NEW_DEVICES}_{entry.entry_id}", _async_setup_devices
+        )
+    )
 
 
 def _sensor_for(device: FimerDevice, description: FimerSensorEntityDescription) -> FimerSensor:

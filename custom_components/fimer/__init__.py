@@ -101,6 +101,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> boo
         runtime.rest_coordinator,
     )
     _async_link_devices(hass, entry, runtime.devices)
+    if runtime.rest_coordinator is not None:
+        runtime.rest_coordinator.known_device_ids = set(runtime.rest_coordinator.data)
 
     if (
         entry.options.get(CONF_POWER_CONTROL)

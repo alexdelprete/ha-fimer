@@ -342,13 +342,11 @@ async def _async_get_readings(call: ServiceCall) -> ServiceResponse:
 async def _async_rediscover(call: ServiceCall) -> ServiceResponse:
     """Walk the SunSpec chain and the datalogger's devices again, in place.
 
-    Both sources are refreshed afterwards. The entry is reloaded only when
-    the datalogger reports devices it did not have before, since new devices
-    need new entities.
+    Both sources are refreshed afterwards; devices the datalogger reports for
+    the first time get their entities through that refresh.
     """
     runtime = _runtime(call)
     response: dict[str, Any] = {}
-    new_devices: set[str] = set()
     try:
         if (inverter := runtime.inverter) is not None:
             await inverter.discover()
@@ -358,13 +356,11 @@ async def _async_rediscover(call: ServiceCall) -> ServiceResponse:
                 "model": inverter.identity.model,
             }
         if (rest := runtime.rest_logger) is not None:
-            before = set(rest.devices)
             await rest.discover()
             response["rest"] = {
                 "model": str(rest.identity.model),
                 "devices": sorted(rest.devices),
             }
-            new_devices = set(rest.devices) - before
     except (ModbusError, SunSpecError, FimerError) as err:
         raise HomeAssistantError(
             translation_domain=DOMAIN,
@@ -378,9 +374,7 @@ async def _async_rediscover(call: ServiceCall) -> ServiceResponse:
     ):
         if coordinator is not None:
             await coordinator.async_refresh()
-    response["reloaded"] = bool(new_devices)
-    if new_devices:
-        call.hass.config_entries.async_schedule_reload(call.data[ATTR_CONFIG_ENTRY])
+    response["reloaded"] = False
     return response
 
 

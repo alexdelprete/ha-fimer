@@ -260,7 +260,7 @@ async def test_rediscover_reloads_on_new_rest_devices(
 
     fake.livedata["140821-3P72-1319"] = battery
     result = await _call(hass, "rediscover", {"config_entry": entry.entry_id}, response=True)
-    assert result["reloaded"] is True
     assert "140821-3P72-1319" in result["rest"]["devices"]
     await hass.async_block_till_done(wait_background_tasks=True)
     assert len(entry.runtime_data.devices) == 5
+    assert result["reloaded"] is False  # the refresh created the device itself

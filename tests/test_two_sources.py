@@ -126,3 +126,32 @@ async def test_modbus_outage_falls_back_to_rest(
     state = hass.states.get("sensor.pvi_10_0_outd_ac_power")
     assert state.state != STATE_UNAVAILABLE
     assert float(state.state) != 1500  # the REST reading
+
+
+async def test_new_rest_device_appears_at_runtime(
+    hass: HomeAssistant,
+    serve_rest: Any,
+    device_registry: dr.DeviceRegistry,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    """A battery the card starts reporting after setup gets its device and sensors."""
+    fake = fake_vsn700()
+    battery = fake.livedata.pop("140821-3P72-1319")
+    host = await serve_rest(fake)
+    entry = rest_entry(host, use_modbus=False, title="REACT2-5.0-TL", unique_id="140842-3P81-2619")
+    await _setup(hass, entry)
+    assert len(entry.runtime_data.devices) == 4
+    assert hass.states.get("sensor.battery_140821_3p72_1319_state_of_charge") is None
+
+    fake.livedata["140821-3P72-1319"] = battery
+    freezer.tick(timedelta(seconds=31))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert len(entry.runtime_data.devices) == 5
+    device = device_registry.async_get_device_by_identifier(
+        (DOMAIN, "140821-3P72-1319"), entry.entry_id
+    )
+    assert device is not None
+    assert device.via_device_id is not None
+    assert hass.states.get("sensor.battery_140821_3p72_1319_state_of_charge") is not None
