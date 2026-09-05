@@ -187,9 +187,12 @@ The entities appear only when the inverter serves model 123.
 
 Whether the inverter acts on the limit depends on the inverter, not on the datalogger. A VSN300
 accepts the writes for every inverter, answers them with a Modbus negative acknowledge, and reads
-back the values written; a 2013-era PVI-10.0-OUTD then ignores them. Newer inverters such as the
-REACT2 and UNO-DM-PLUS families are expected to honour them, but this has not been verified yet.
-If you try it, please run this test and report the outcome in an issue:
+back the values written. Inverters of the Aurora protocol generation (the PVI, TRIO and UNO
+families with firmware from before about 2014) have no power-reduction command at all: their only
+remote control is the hardware "Remote ON/OFF" input, so they ignore the SunSpec limit, as verified
+on a PVI-10.0-OUTD. Newer inverters such as the REACT2 and UNO-DM-PLUS families are expected to
+honour it, but this has not been verified yet. If you try it, please run this test and report the
+outcome in an issue:
 
 1. Note the AC power while the inverter is producing well above 10 % of its rated power.
 1. Set `Power limit` to 10 and switch it on. Watch the AC power for three minutes; the datalogger
