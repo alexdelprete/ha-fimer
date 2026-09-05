@@ -92,7 +92,7 @@ class AbbVendor(FimerComponent):
     InverterSt = enum16(17)
     DcSt1 = enum16(18)
     DcSt2 = enum16(19)
-    SysTime = uint32(20)
+    SysTime = uint32(20, writable=True)
     Alarm1 = bitfield32(22)
     Alarm2 = bitfield32(24)
     Alarm3 = bitfield32(26)
@@ -122,15 +122,51 @@ class AbbVendor(FimerComponent):
     WindGen_Hz = float32(78, unit="Hz")
     Inverter_CosPhi = float32(80)
 
-    # Control block, read-only for now.
-    OutputW_Perm = uint16(94, unit="%")
+    # Control block. Writable per the 2013 map; writes are not yet verified on
+    # hardware, so treat :meth:`set_output_power_limit` and friends as
+    # experimental until a device has acknowledged them.
+    OutputW_Ramp = uint16(86, writable=True)
+    OutputW_Timeout = uint16(87, writable=True)
+    PF_Ramp = uint16(88, writable=True)
+    PF_Timeout = uint16(89, writable=True)
+    OutputW_Perm = uint16(94, unit="%", writable=True)
     OutputW_Perm_St = enum16(95)
-    PF_Perm = float32(96)
+    PF_Perm = float32(96, writable=True)
     PF_Perm_St = enum16(98)
-    OutputW_Dynamic = uint16(104, unit="%")
+    OutputW_Dynamic = uint16(104, unit="%", writable=True)
     OutputW_Dynamic_St = enum16(105)
-    PF_Dynamic = float32(106)
+    PF_Dynamic = float32(106, writable=True)
     PF_Dynamic_St = enum16(108)
+    OutputW_Reset = enum16(114, writable=True)
+    OutputW_Reset_St = enum16(115)
+    PF_Reset = enum16(116, writable=True)
+    PF_Reset_St = enum16(117)
+
+    async def set_output_power_limit(self, percent: int, *, permanent: bool = False) -> None:
+        """Limit the output power to ``percent`` of nominal, dynamically or permanently."""
+        if not 0 <= percent <= 100:
+            raise ValueError(f"percent must be 0..100, got {percent}")
+        await self.write("OutputW_Perm" if permanent else "OutputW_Dynamic", percent)
+
+    async def reset_output_power_limit(self) -> None:
+        """Return the output power to nominal."""
+        await self.write("OutputW_Reset", 1)
+
+    async def set_power_factor(self, cos_phi: float, *, permanent: bool = False) -> None:
+        """Set the power factor setpoint, dynamically or permanently."""
+        if not -1.0 <= cos_phi <= 1.0:
+            raise ValueError(f"cos phi must be -1..1, got {cos_phi}")
+        await self.write("PF_Perm" if permanent else "PF_Dynamic", cos_phi)
+
+    async def reset_power_factor(self) -> None:
+        """Return the power factor to nominal."""
+        await self.write("PF_Reset", 1)
+
+    async def set_system_time(self, unix_time: int) -> None:
+        """Set the inverter clock from a Unix timestamp."""
+        if unix_time < AURORA_EPOCH_OFFSET:
+            raise ValueError("time is before the Aurora epoch (2000-01-01)")
+        await self.write("SysTime", unix_time - AURORA_EPOCH_OFFSET)
 
     def values(self) -> dict[str, Any]:
         """Return the readings plus the decoded alarms and a Unix system time.

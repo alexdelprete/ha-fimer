@@ -205,3 +205,66 @@ def test_builder_specs_default_to_not_implemented() -> None:
     assert registers[70 + 2] == 0xFFFF  # A not implemented
     assert registers[172 + 1] == 124
     assert registers[registers[1 + 1] and 298] == 0xFFFF  # end marker
+
+
+async def test_write_points(unit: MockModbusUnit) -> None:
+    inverter = FimerModbusInverter(unit)
+    with pytest.raises(FimerNotDiscoveredError):
+        await inverter.async_write("OutputW_Dynamic", 50)
+
+    inverter = await discovered(unit)
+    await inverter.async_write("OutputW_Dynamic", 50)
+    assert unit.holding[172 + 104] == 50
+    await inverter.async_write("PF_Perm", 0.5)
+    assert (unit.holding[172 + 96], unit.holding[172 + 97]) == (0x3F00, 0)
+
+    with pytest.raises(AttributeError):
+        await inverter.async_write("W", 1)  # read-only
+    with pytest.raises(AttributeError):
+        await inverter.async_write("NoSuchPoint", 1)
+
+    await inverter.async_update()
+    assert inverter.values()["OutputW_Dynamic"] == 50
+    assert inverter.values()["PF_Perm"] == 0.5
+
+
+async def test_vendor_control_helpers(unit: MockModbusUnit) -> None:
+    inverter = await discovered(unit)
+    vendor = inverter.vendor
+    assert vendor is not None
+
+    await vendor.set_output_power_limit(80)
+    await vendor.set_output_power_limit(60, permanent=True)
+    await vendor.set_power_factor(0.9)
+    await vendor.set_power_factor(-0.95, permanent=True)
+    await vendor.set_system_time(946684800 + 100)
+    assert unit.holding[172 + 104] == 80
+    assert unit.holding[172 + 94] == 60
+    assert (unit.holding[172 + 20], unit.holding[172 + 21]) == (0, 100)
+    await inverter.async_update()
+    values = inverter.values()
+    assert values["OutputW_Dynamic"] == 80
+    assert values["OutputW_Perm"] == 60
+    assert values["PF_Dynamic"] == 0.9
+    assert values["PF_Perm"] == -0.95
+    assert values["SysTime"] == 946684800 + 100
+
+    await vendor.reset_output_power_limit()
+    await vendor.reset_power_factor()
+    assert unit.holding[172 + 114] == 1
+    assert unit.holding[172 + 116] == 1
+
+    with pytest.raises(ValueError):
+        await vendor.set_output_power_limit(101)
+    with pytest.raises(ValueError):
+        await vendor.set_power_factor(1.5)
+    with pytest.raises(ValueError):
+        await vendor.set_system_time(0)
+
+
+async def test_registers_available_before_discovery(unit: MockModbusUnit) -> None:
+    unit.holding[500] = 7
+    inverter = FimerModbusInverter(unit)
+    assert await inverter.registers.read_uint16(500) == 7
+    await inverter.registers.write_uint16(501, 9)
+    assert unit.holding[501] == 9

@@ -14,6 +14,7 @@ from modbus_connection.model import ComponentGroup
 from ..aurora import inverter_model_from_options
 from ..exceptions import FimerNotDiscoveredError, FimerUnsupportedDeviceError
 from .models import Common, FimerComponent, Inverter, Mppt
+from .registers import ModbusRegisters
 from .sunspec import (
     ABB_VENDOR_MODEL_ID,
     ABB_VENDOR_MODEL_LENGTH,
@@ -65,6 +66,10 @@ class FimerModbusInverter:
         await inverter.async_update()
         inverter.values()["W"]
 
+    Writable points (the vendor model's control block) go through
+    :meth:`async_write`, and anything outside the SunSpec map through
+    :attr:`registers`.
+
     Every component verifies its model header on each read and raises
     ``SunSpecMapShiftError`` when the map moved (a firmware update, a
     changed datalogger setting). Recover by calling :meth:`discover` again
@@ -75,6 +80,7 @@ class FimerModbusInverter:
         """Initialize with a unit addressing the inverter and its SunSpec base."""
         self._unit = unit
         self._base_address = base_address
+        self._registers = ModbusRegisters(unit)
         self._models = SunSpecModels()
         self._group: ComponentGroup | None = None
         self.common: Common | None = None
@@ -83,6 +89,14 @@ class FimerModbusInverter:
         self.vendor: AbbVendor | None = None
         self.vendor_model_length: int | None = None
         """The length the device reports for model 64061, for diagnostics."""
+
+    @property
+    def registers(self) -> ModbusRegisters:
+        """Classic register access on the same unit, for what SunSpec does not cover.
+
+        Usable before and without :meth:`discover`.
+        """
+        return self._registers
 
     @property
     def base_address(self) -> int:
@@ -143,6 +157,21 @@ class FimerModbusInverter:
         if self._group is None:
             raise FimerNotDiscoveredError("No models discovered; call discover() first")
         await self._group.async_update()
+
+    async def async_write(self, point: str, value: Any) -> None:
+        """Write a writable SunSpec point by name, whichever model owns it.
+
+        Raises :class:`FimerNotDiscoveredError` before discovery,
+        ``AttributeError`` for an unknown or read-only point and
+        ``ValueError`` for a value the point cannot encode.
+        """
+        if self._group is None:
+            raise FimerNotDiscoveredError("No models discovered; call discover() first")
+        for component in self.components:
+            if point in component.declared_fields:
+                await component.write(point, value)
+                return
+        raise AttributeError(f"No discovered model has a point named {point!r}")
 
     async def async_read_raw(self) -> dict[str, dict[int, int | bool]]:
         """Return every register of every discovered model, for diagnostics."""
