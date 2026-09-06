@@ -14,6 +14,7 @@ from custom_components.fimer.pyfimer import (
     POINTS_BY_NAME,
     FimerAuthenticationError,
     FimerConnectionError,
+    FimerDataError,
     FimerDetectionError,
     FimerNotDiscoveredError,
     FimerUnsupportedDeviceError,
@@ -455,3 +456,34 @@ def test_normaliser_skips_nameless_and_keeps_null_values() -> None:
         },
     )
     assert readings["I1"].values == {"W": None, "TmpCab": 5.5, "Mn": "Power-One"}
+
+
+async def test_hanging_card_is_a_connection_error(serve: Serve, session: ClientSession) -> None:
+    """A card that never answers raises the library's error, not a raw timeout."""
+    fake = vsn300()
+    fake.delay = 2
+    client = VsnRestClient(session, await serve(fake), password=CREDENTIAL, timeout=0.2)
+    with pytest.raises(FimerConnectionError, match="Cannot reach"):
+        await client.detect()
+    client.model, client.requires_auth = VsnModel.VSN300, True
+    with pytest.raises(FimerConnectionError, match="failed"):
+        await client.get_livedata()
+
+
+async def test_malformed_livedata_is_a_data_error(serve: Serve, session: ClientSession) -> None:
+    """Valid JSON of the wrong shape is reported as unreadable data."""
+    fake = vsn300()
+    fake.livedata = ["not", "a", "device", "map"]
+    logger = FimerRestLogger(session, await serve(fake), password=CREDENTIAL)
+    with pytest.raises(FimerDataError, match="Unreadable livedata"):
+        await logger.discover()
+
+
+async def test_malformed_status_is_a_data_error(serve: Serve, session: ClientSession) -> None:
+    """An open card whose status is not an object is reported as unreadable."""
+    fake = vsn300()
+    fake.requires_auth = False
+    fake.status = ["nope"]
+    client = VsnRestClient(session, await serve(fake))
+    with pytest.raises(FimerDataError, match="Unreadable status"):
+        await client.detect()

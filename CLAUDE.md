@@ -131,7 +131,17 @@ In addition to the shared Do's and Don'ts below:
 **DO:**
 
 - Use `translations/en.json` as the source of truth for all English strings
-- (Add integration-specific guidelines here)
+- Keep the exception boundaries tight: pyfimer converts every transport or payload failure into a
+  `FimerError` subclass (`FimerConnectionError`, `FimerDataError`, …) or lets `ModbusError` /
+  `SunSpecError` through; the coordinators, config flow, services and diagnostics catch those plus
+  `TimeoutError` and `OSError` as a safety net and raise the matching HA exception
+  (`UpdateFailed`, `ConfigEntryAuthFailed`, `ConfigEntryError`, `HomeAssistantError`,
+  `ServiceValidationError`). No traceback of ours may reach the log at ERROR level.
+- Make sensor `value_fn` converters tolerant: return `None` for a value the device should not have
+  sent, never raise.
+- Log what the integration is doing at DEBUG in the library (discovery result, every register read
+  and write, every REST request with its outcome, per-poll summaries) and at INFO the one-off
+  events (discovery, interval stretch, recovery). Never log per poll above DEBUG.
 
 **NEVER:**
 

@@ -96,11 +96,24 @@ class FimerCoordinator(DataUpdateCoordinator[FimerData]):
         """Refresh every discovered model and return the readings."""
         try:
             await self._refresh()
-        except (ModbusError, SunSpecError, FimerError) as err:
+        except (ModbusError, SunSpecError, FimerError, TimeoutError, OSError) as err:
             self._failed_update_count += 1
+            _LOGGER.debug(
+                "Modbus poll of %s failed (%d in a row): %s",
+                self.config_entry.title,
+                self._failed_update_count,
+                err,
+            )
             if self._failed_update_count == MAX_FAILED_UPDATES:
                 # an inverter without grid power at night answers nothing:
                 # poll gently until it comes back
+                _LOGGER.info(
+                    "%s has not answered over Modbus %d times in a row; polling every %d s "
+                    "until it does",
+                    self.config_entry.title,
+                    MAX_FAILED_UPDATES,
+                    ERROR_SCAN_INTERVAL,
+                )
                 self.update_interval = timedelta(seconds=ERROR_SCAN_INTERVAL)
             await self.outage.async_failure(str(err))
             raise UpdateFailed(
@@ -110,6 +123,12 @@ class FimerCoordinator(DataUpdateCoordinator[FimerData]):
             ) from err
 
         if self._failed_update_count:
+            _LOGGER.debug(
+                "Modbus poll of %s succeeded after %d failures; back to the %s interval",
+                self.config_entry.title,
+                self._failed_update_count,
+                self._default_interval,
+            )
             self._failed_update_count = 0
             self.update_interval = self._default_interval
         await self.outage.async_success()
@@ -176,7 +195,7 @@ class FimerSettingsCoordinator(DataUpdateCoordinator[FimerData]):
         try:
             controls = self._controls()
             await controls.async_update()
-        except (ModbusError, SunSpecError, FimerError) as err:
+        except (ModbusError, SunSpecError, FimerError, TimeoutError, OSError) as err:
             raise UpdateFailed(
                 translation_domain=DOMAIN,
                 translation_key="update_failed",
@@ -190,7 +209,7 @@ class FimerSettingsCoordinator(DataUpdateCoordinator[FimerData]):
         """Write the power limit and/or its enable flag, then refresh the entities."""
         try:
             await self._controls().apply_power_limit(percent=percent, enabled=enabled)
-        except (ModbusError, SunSpecError, FimerError, ValueError) as err:
+        except (ModbusError, SunSpecError, FimerError, ValueError, TimeoutError, OSError) as err:
             raise HomeAssistantError(
                 translation_domain=DOMAIN,
                 translation_key="write_failed",
@@ -265,9 +284,22 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
                 translation_key="unsupported_firmware",
                 translation_placeholders={"firmware_version": err.firmware_version or "?"},
             ) from err
-        except FimerError as err:
+        except (FimerError, TimeoutError, OSError) as err:
             self._failed_update_count += 1
+            _LOGGER.debug(
+                "REST poll of %s failed (%d in a row): %s",
+                self.config_entry.title,
+                self._failed_update_count,
+                err,
+            )
             if self._failed_update_count == MAX_FAILED_UPDATES:
+                _LOGGER.info(
+                    "The datalogger of %s has not answered %d times in a row; polling every "
+                    "%d s until it does",
+                    self.config_entry.title,
+                    MAX_FAILED_UPDATES,
+                    ERROR_SCAN_INTERVAL,
+                )
                 self.update_interval = timedelta(seconds=ERROR_SCAN_INTERVAL)
             await self.outage.async_failure(str(err))
             raise UpdateFailed(
@@ -277,6 +309,12 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
             ) from err
 
         if self._failed_update_count:
+            _LOGGER.debug(
+                "REST poll of %s succeeded after %d failures; back to the %s interval",
+                self.config_entry.title,
+                self._failed_update_count,
+                self._default_interval,
+            )
             self._failed_update_count = 0
             self.update_interval = self._default_interval
         await self.outage.async_success()

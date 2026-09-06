@@ -19,6 +19,7 @@ import aiohttp
 from ..exceptions import (
     FimerAuthenticationError,
     FimerConnectionError,
+    FimerDataError,
     FimerDetectionError,
     FimerUnsupportedDeviceError,
 )
@@ -86,10 +87,16 @@ class VsnRestClient:
                     challenge = response.headers.get("WWW-Authenticate", "")
                     if "digest" in challenge.lower():
                         self.model, self.requires_auth = VsnModel.VSN300, True
+                        _LOGGER.debug("Detected a VSN300 at %s (digest challenge)", self.base_url)
                         return self.model
                 elif response.status == 200:
-                    self.model = _model_from_status(await _read_json(response))
+                    status = await _read_json(response)
+                    try:
+                        self.model = _model_from_status(status)
+                    except (AttributeError, TypeError) as err:
+                        raise FimerDataError(f"Unreadable status from {url}: {err}") from err
                     self.requires_auth = False
+                    _LOGGER.debug("Detected an open %s at %s", self.model, self.base_url)
                     return self.model
                 elif response.status == 404:
                     raise FimerUnsupportedDeviceError(
@@ -106,12 +113,13 @@ class VsnRestClient:
             async with self._session.get(url, headers=headers, timeout=self._timeout) as response:
                 if response.status in (200, 204):
                     self.model, self.requires_auth = VsnModel.VSN700, True
+                    _LOGGER.debug("Detected a VSN700 at %s (basic credentials)", self.base_url)
                     return self.model
                 raise FimerDetectionError(
                     f"Neither digest nor basic authentication accepted by {url} "
                     f"(HTTP {response.status})"
                 )
-        except aiohttp.ClientError as err:
+        except (aiohttp.ClientError, TimeoutError, OSError) as err:
             raise FimerConnectionError(f"Cannot reach {url}: {err}") from err
 
     async def get_status(self) -> dict[str, Any]:
@@ -134,11 +142,14 @@ class VsnRestClient:
             headers = await self._auth_headers(uri)
             async with self._session.get(url, headers=headers, timeout=self._timeout) as response:
                 if response.status == 200:
-                    return await _read_json(response)
+                    payload = await _read_json(response)
+                    _LOGGER.debug("GET %s: HTTP 200, %s", url, _describe_payload(payload))
+                    return payload
+                _LOGGER.debug("GET %s: HTTP %s", url, response.status)
                 if response.status == 401:
                     raise FimerAuthenticationError(f"{self.model} rejected the credentials")
                 raise FimerConnectionError(f"HTTP {response.status} from {url}")
-        except aiohttp.ClientError as err:
+        except (aiohttp.ClientError, TimeoutError, OSError) as err:
             raise FimerConnectionError(f"Request to {url} failed: {err}") from err
 
     async def _auth_headers(self, uri: str) -> dict[str, str]:
@@ -159,6 +170,18 @@ class VsnRestClient:
         challenge = parse_digest_challenge(www_authenticate)
         digest = build_digest_header(self._username, self._password, challenge, "GET", uri)
         return {"Authorization": f"X-Digest {digest}"}
+
+
+def _describe_payload(payload: Any) -> str:
+    """A one-line summary of a JSON payload for the debug log."""
+    if isinstance(payload, dict):
+        if "keys" in payload:
+            return f"status with {len(payload['keys'])} keys"
+        points = sum(
+            len(dev.get("points", [])) for dev in payload.values() if isinstance(dev, dict)
+        )
+        return f"{len(payload)} devices, {points} points"
+    return f"{type(payload).__name__} payload"
 
 
 async def _read_json(response: aiohttp.ClientResponse) -> Any:

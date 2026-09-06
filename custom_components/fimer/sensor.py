@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
+import logging
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -44,12 +45,14 @@ from .pyfimer.points import MPPT_INPUTS
 from .pyfimer.rest import REST_POINTS, RestPoint
 from .pyfimer.rest.mapping import SHARED_NAME_ALIASES
 
+_LOGGER = logging.getLogger(__name__)
+
 PARALLEL_UPDATES = 0
 
 MEGA_OHM = "MΩ"
 REVOLUTIONS_PER_MINUTE = "rpm"
 
-type ValueFn = Callable[[Any], StateType | datetime]
+type ValueFn = Callable[[Any], StateType | datetime | None]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -64,8 +67,12 @@ class FimerSensorEntityDescription(SensorEntityDescription):
 def _aurora_state(states: dict[int, str]) -> ValueFn:
     """Return a converter from an Aurora state code to its name."""
 
-    def convert(value: Any) -> str:
-        return states.get(int(value), f"Unknown ({value})")
+    def convert(value: Any) -> str | None:
+        try:
+            code = int(value)
+        except TypeError, ValueError:
+            return None
+        return states.get(code, f"Unknown ({code})")
 
     return convert
 
@@ -78,8 +85,11 @@ def _enabled_state(value: Any) -> str | None:
     return value.name.lower() if isinstance(value, Enabled) else None
 
 
-def _timestamp(value: Any) -> datetime:
-    return datetime.fromtimestamp(int(value), tz=UTC)
+def _timestamp(value: Any) -> datetime | None:
+    try:
+        return datetime.fromtimestamp(int(value), tz=UTC)
+    except TypeError, ValueError, OverflowError, OSError:
+        return None
 
 
 def _alarms(value: Any) -> str:
@@ -523,5 +533,9 @@ class FimerSensor(SensorEntity):
         if value is None or (description.invalid_when_zero and not value):
             return None
         if description.value_fn is not None:
-            return description.value_fn(value)
+            try:
+                return description.value_fn(value)
+            except (TypeError, ValueError) as err:
+                _LOGGER.debug("Cannot convert %s=%r: %s", description.key, value, err)
+                return None
         return value

@@ -34,6 +34,10 @@ class FimerDetectionError(FimerError):
     """The device answered but could not be identified as a supported datalogger."""
 
 
+class FimerDataError(FimerError):
+    """The device answered, but with data the library cannot interpret."""
+
+
 class FimerUnsupportedFirmwareError(FimerError):
     """The datalogger firmware has a known defect that prevents operation."""
 

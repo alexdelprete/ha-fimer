@@ -33,6 +33,7 @@ from .aurora import (
 from .exceptions import (
     FimerAuthenticationError,
     FimerConnectionError,
+    FimerDataError,
     FimerDetectionError,
     FimerError,
     FimerNotDiscoveredError,
@@ -54,6 +55,7 @@ __all__ = [
     "POWER_CONTROL_FAMILIES",
     "FimerAuthenticationError",
     "FimerConnectionError",
+    "FimerDataError",
     "FimerDetectionError",
     "FimerError",
     "FimerNotDiscoveredError",

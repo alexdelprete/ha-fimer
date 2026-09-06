@@ -83,7 +83,7 @@ async def async_get_config_entry_diagnostics(
     if inverter is not None and inverter.discovered:
         try:
             raw = await inverter.async_read_raw()
-        except (ModbusError, SunSpecError, FimerError) as err:
+        except (ModbusError, SunSpecError, FimerError, TimeoutError, OSError) as err:
             diag["modbus"]["registers"] = {"error": str(err)}
         else:
             diag["modbus"]["registers"] = {

@@ -13,6 +13,7 @@ voltages follows the VSN REST mapping rather than the register names.
 from __future__ import annotations
 
 from enum import IntEnum, IntFlag
+import logging
 import math
 from typing import Any, ClassVar
 
@@ -41,6 +42,9 @@ Some PVI firmwares report ``Tmp_SF`` as -1 while encoding the cabinet
 temperature with -2, which shows up as a tenfold reading. A cabinet hotter
 than this is not plausible, so such readings are divided by ten.
 """
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class OperatingState(IntEnum):
@@ -497,14 +501,19 @@ class Controls(FimerComponent):
             return
         await self.async_update()
         for name, value in writes.items():
+            _LOGGER.debug("Writing %s=%r (was %r)", name, value, getattr(self, name))
             try:
                 await self.write(name, value)
             except ModbusExceptionError as err:
                 if err.exception_code != NEGATIVE_ACKNOWLEDGE:
                     raise
+                _LOGGER.debug(
+                    "%s answered with a negative acknowledge; verifying by readback", name
+                )
         await self.async_update()
         for name, value in writes.items():
             actual = getattr(self, name)
+            _LOGGER.debug("Readback %s=%r", name, actual)
             if not _matches(actual, value):
                 raise FimerWriteError(f"{name} reads {actual!r} after writing {value!r}")
 

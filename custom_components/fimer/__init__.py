@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import logging
 from typing import Final
 
 from modbus_connection import ModbusTcpParams
@@ -45,6 +46,8 @@ from .pyfimer import PowerControlSupport, power_control_support
 from .pyfimer.modbus import FimerModbusInverter
 from .pyfimer.rest import FimerRestLogger, VsnModel
 from .services import async_setup_services
+
+_LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: Final = [Platform.NUMBER, Platform.SENSOR, Platform.SWITCH]
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -114,6 +117,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> boo
         runtime.rest_coordinator,
     )
     _async_link_devices(hass, entry, runtime.devices)
+    _LOGGER.debug(
+        "Set up %s over %s: devices %s",
+        entry.title,
+        " + ".join(
+            source
+            for source, on in (("Modbus", runtime.coordinator), ("REST", runtime.rest_coordinator))
+            if on
+        ),
+        ", ".join(f"{device.unique_id} ({device.device_type})" for device in runtime.devices),
+    )
     if runtime.rest_coordinator is not None:
         runtime.rest_coordinator.async_seed_known_devices()
 

@@ -17,6 +17,7 @@ registers as ``OverflowError``, and an address outside the Modbus range as
 from __future__ import annotations
 
 from collections.abc import Sequence
+import logging
 
 from modbus_connection import ModbusUnit, WordOrder
 from modbus_connection.decode import (
@@ -40,6 +41,7 @@ from .sunspec import MAX_READ_SPAN
 
 MODBUS_MAX_READ = 125
 """Registers one read request may return."""
+_LOGGER = logging.getLogger(__name__)
 MODBUS_MAX_WRITE = 123
 """Registers one write request may carry."""
 MAX_ADDRESS = 0xFFFF
@@ -103,11 +105,15 @@ class ModbusRegisters:
         return dict(zip(range(address, address + count), words, strict=True))
 
     async def write_register(self, address: int, value: int) -> None:
+        _LOGGER.debug("Writing holding register %s: %s", address, value)
         """Write one holding register."""
         _check_range(address, 1)
         await self._unit.write_register(address, encode_uint16(value)[0])
 
     async def write_registers(self, address: int, values: Sequence[int]) -> None:
+        _LOGGER.debug(
+            "Writing holding registers %s..%s: %s", address, address + len(values) - 1, list(values)
+        )
         """Write consecutive holding registers, in as many requests as needed."""
         _check_range(address, len(values))
         words = [encode_uint16(value)[0] for value in values]
@@ -209,7 +215,15 @@ class ModbusRegisters:
         words: list[int] = []
         for start in range(address, address + count, self._max_read):
             size = min(self._max_read, address + count - start)
-            words += await read(start, size)
+            chunk = await read(start, size)
+            _LOGGER.debug(
+                "Read %s registers %s..%s: %s",
+                "input" if input_registers else "holding",
+                start,
+                start + size - 1,
+                chunk,
+            )
+            words += chunk
         return words
 
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import base64
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -37,6 +38,8 @@ class FakeVsn:
     """The scheme a VSN300 challenges with; a wrong one fakes an odd firmware."""
     raw_status: bytes | None = None
     """A raw body for the status endpoint, to fake bad charsets or JSON."""
+    delay: float = 0.0
+    """Seconds to wait before answering, to fake a card that hangs."""
     requests: list[str] = field(default_factory=list)
 
     def app(self) -> web.Application:
@@ -51,6 +54,8 @@ class FakeVsn:
     ) -> Callable[[web.Request], Any]:
         async def handle(request: web.Request) -> web.Response:
             self.requests.append(f"{request.method} {request.path_qs}")
+            if self.delay:
+                await asyncio.sleep(self.delay)
             if name == "status" and self.status_status != 200:
                 return web.Response(status=self.status_status)
             if self.requires_auth and not self._authorized(request):

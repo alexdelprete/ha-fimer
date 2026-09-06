@@ -8,6 +8,7 @@ currently reports.
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Any, Final
 
 from modbus_connection import ModbusError, WordOrder
@@ -58,6 +59,8 @@ ATTR_POINT: Final = "point"
 ATTR_PERCENT: Final = "percent"
 ATTR_ENABLED: Final = "enabled"
 ATTR_DEVICE: Final = "device"
+
+_LOGGER = logging.getLogger(__name__)
 
 SERVICE_READ_REGISTERS: Final = "read_registers"
 SERVICE_WRITE_REGISTERS: Final = "write_registers"
@@ -188,6 +191,7 @@ def _device_error(err: Exception) -> HomeAssistantError:
 
 async def _async_read_registers(call: ServiceCall) -> ServiceResponse:
     """Read registers at an absolute address and decode them."""
+    _LOGGER.debug("Action %s: %s", call.service, dict(call.data))
     _, inverter = _modbus(call)
     address: int = call.data[ATTR_ADDRESS]
     data_type: str = call.data[ATTR_DATA_TYPE]
@@ -199,7 +203,7 @@ async def _async_read_registers(call: ServiceCall) -> ServiceResponse:
             words = await inverter.registers.read_input(address, count)
         else:
             words = await inverter.registers.read_holding(address, count)
-    except ModbusError as err:
+    except (ModbusError, TimeoutError, OSError) as err:
         raise HomeAssistantError(
             translation_domain=DOMAIN,
             translation_key="update_failed",
@@ -232,6 +236,7 @@ async def _async_read_registers(call: ServiceCall) -> ServiceResponse:
 
 async def _async_write_registers(call: ServiceCall) -> None:
     """Write raw registers, or one value encoded as the given type."""
+    _LOGGER.debug("Action %s: %s", call.service, dict(call.data))
     _, inverter = _modbus(call)
     address: int = call.data[ATTR_ADDRESS]
     word_order: WordOrder = call.data[ATTR_WORD_ORDER]
@@ -265,12 +270,13 @@ async def _async_write_registers(call: ServiceCall) -> None:
         raise ServiceValidationError(translation_domain=DOMAIN, translation_key="value_required")
     try:
         await inverter.registers.write_registers(address, words)
-    except ModbusError as err:
+    except (ModbusError, TimeoutError, OSError) as err:
         raise _device_error(err) from err
 
 
 async def _async_write_point(call: ServiceCall) -> None:
     """Write a writable SunSpec point by name, then refresh the readings."""
+    _LOGGER.debug("Action %s: %s", call.service, dict(call.data))
     runtime, inverter = _modbus(call)
     point: str = call.data[ATTR_POINT]
     value = call.data[ATTR_VALUE]
@@ -288,7 +294,7 @@ async def _async_write_point(call: ServiceCall) -> None:
             translation_key="invalid_value",
             translation_placeholders={"error": str(err)},
         ) from err
-    except (ModbusError, SunSpecError, FimerError) as err:
+    except (ModbusError, SunSpecError, FimerError, TimeoutError, OSError) as err:
         raise _device_error(err) from err
     if runtime.coordinator is not None:
         await runtime.coordinator.async_request_refresh()
@@ -296,6 +302,7 @@ async def _async_write_point(call: ServiceCall) -> None:
 
 async def _async_set_power_limit(call: ServiceCall) -> None:
     """Set the active power limit and/or its enable flag, verified by readback."""
+    _LOGGER.debug("Action %s: %s", call.service, dict(call.data))
     runtime, inverter = _modbus(call)
     if inverter.controls is None:
         raise ServiceValidationError(translation_domain=DOMAIN, translation_key="no_controls")
@@ -309,7 +316,7 @@ async def _async_set_power_limit(call: ServiceCall) -> None:
             translation_key="invalid_value",
             translation_placeholders={"error": str(err)},
         ) from err
-    except (ModbusError, SunSpecError, FimerError) as err:
+    except (ModbusError, SunSpecError, FimerError, TimeoutError, OSError) as err:
         raise _device_error(err) from err
     if runtime.settings_coordinator is not None:
         await runtime.settings_coordinator.async_refresh()
@@ -319,6 +326,7 @@ async def _async_set_power_limit(call: ServiceCall) -> None:
 
 async def _async_get_readings(call: ServiceCall) -> ServiceResponse:
     """Return every point each device currently reports, keyed by device."""
+    _LOGGER.debug("Action %s: %s", call.service, dict(call.data))
     runtime = _runtime(call)
     wanted: str | None = call.data.get(ATTR_DEVICE)
     readings: dict[str, Any] = {}
@@ -340,6 +348,7 @@ async def _async_get_readings(call: ServiceCall) -> ServiceResponse:
 
 
 async def _async_rediscover(call: ServiceCall) -> ServiceResponse:
+    _LOGGER.debug("Action %s: %s", call.service, dict(call.data))
     """Walk the SunSpec chain and the datalogger's devices again, in place.
 
     Both sources are refreshed afterwards; devices the datalogger reports for
@@ -361,7 +370,7 @@ async def _async_rediscover(call: ServiceCall) -> ServiceResponse:
                 "model": str(rest.identity.model),
                 "devices": sorted(rest.devices),
             }
-    except (ModbusError, SunSpecError, FimerError) as err:
+    except (ModbusError, SunSpecError, FimerError, TimeoutError, OSError) as err:
         raise HomeAssistantError(
             translation_domain=DOMAIN,
             translation_key="update_failed",

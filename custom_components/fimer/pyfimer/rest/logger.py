@@ -5,18 +5,21 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 from typing import Any, Final
 
 import aiohttp
 
 from ..exceptions import (
     FimerConnectionError,
+    FimerDataError,
     FimerNotDiscoveredError,
     FimerUnsupportedFirmwareError,
 )
 from .client import DEFAULT_TIMEOUT, DEFAULT_USERNAME, VsnModel, VsnRestClient
 from .normalizer import DeviceReadings, normalize_livedata
 
+_LOGGER = logging.getLogger(__name__)
 UNSUPPORTED_VSN300_FIRMWARE: Final = "2.0.0"
 """Drops the TCP connection on every livedata request; fixed in 2.0.1."""
 
@@ -113,8 +116,11 @@ class FimerRestLogger:
         """Identify the card, read its status and a first set of readings."""
         model = await self.client.detect()
         self._status = await self.client.get_status()
-        keys = self._status.get("keys", {})
-        firmware = keys.get("fw.release_number", {}).get("value")
+        try:
+            keys = self._status.get("keys", {})
+            firmware = keys.get("fw.release_number", {}).get("value")
+        except (AttributeError, TypeError) as err:
+            raise FimerDataError(f"Unreadable status from {self.client.base_url}: {err}") from err
         try:
             livedata = await self.client.get_livedata()
         except FimerConnectionError as err:
@@ -124,17 +130,28 @@ class FimerRestLogger:
                     firmware_version=firmware,
                 ) from err
             raise
-        serial = keys.get("logger.sn", {}).get("value") or keys.get("logger.loggerId", {}).get(
-            "value", ""
+        try:
+            serial = keys.get("logger.sn", {}).get("value") or keys.get("logger.loggerId", {}).get(
+                "value", ""
+            )
+            self._identity = LoggerIdentity(
+                model=model,
+                serial_number=serial,
+                firmware_version=firmware,
+                board_model=keys.get("logger.board_model", {}).get("value"),
+                hostname=keys.get("logger.hostname", {}).get("value"),
+            )
+            self._readings = _normalize(model, livedata, self._status)
+        except (AttributeError, TypeError) as err:
+            raise FimerDataError(f"Unreadable status from {self.client.base_url}: {err}") from err
+        _LOGGER.info(
+            "Discovered %s %s (firmware %s) at %s serving %s",
+            model,
+            serial,
+            firmware,
+            self.client.base_url,
+            _describe_devices(self._readings),
         )
-        self._identity = LoggerIdentity(
-            model=model,
-            serial_number=serial,
-            firmware_version=firmware,
-            board_model=keys.get("logger.board_model", {}).get("value"),
-            hostname=keys.get("logger.hostname", {}).get("value"),
-        )
-        self._readings = normalize_livedata(model, livedata, self._status)
 
     async def async_update(self) -> None:
         """Refresh every device's readings."""
@@ -143,8 +160,34 @@ class FimerRestLogger:
         if identity.model is VsnModel.VSN300:
             # the datalogger's WiFi state lives only in the status endpoint
             self._status = await self.client.get_status()
-        self._readings = normalize_livedata(identity.model, livedata, self._status)
+        self._readings = _normalize(identity.model, livedata, self._status)
+        _LOGGER.debug(
+            "Updated %s at %s: %s",
+            identity.model,
+            self.client.base_url,
+            _describe_devices(self._readings),
+        )
 
     def values(self) -> dict[str, dict[str, Any]]:
         """Return the last readings of every device keyed by device ID, then point name."""
         return {device_id: dict(device.values) for device_id, device in self._readings.items()}
+
+
+def _normalize(
+    model: VsnModel, livedata: Any, status: dict[str, Any] | None
+) -> dict[str, DeviceReadings]:
+    """Normalise a livedata payload, turning a malformed one into a data error."""
+    try:
+        return normalize_livedata(model, livedata, status)
+    except (AttributeError, KeyError, TypeError, ValueError) as err:
+        raise FimerDataError(f"Unreadable livedata: {err}") from err
+
+
+def _describe_devices(readings: dict[str, DeviceReadings]) -> str:
+    """A one-line summary of the devices and their point counts for the log."""
+    if not readings:
+        return "no devices"
+    return ", ".join(
+        f"{device_id} ({device.device_type}, {len(device.values)} points)"
+        for device_id, device in readings.items()
+    )

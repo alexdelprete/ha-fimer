@@ -147,6 +147,7 @@ class FimerModbusInverter:
         :class:`FimerUnsupportedDeviceError` when the chain has no common or
         inverter model.
         """
+        _LOGGER.debug("Scanning the SunSpec model chain at base address %s", self._base_address)
         self._models = await scan(self._unit, self._base_address)
         common = self._models.first(COMMON_MODEL_ID)
         inverter = self._models.first(
@@ -196,6 +197,17 @@ class FimerModbusInverter:
         self.vendor = AbbVendor(unit, vendor) if vendor else None
         self._rebuild_group()
         await self.common.async_update()
+        _LOGGER.info(
+            "Discovered SunSpec models %s; %s %s serial %s firmware %s",
+            ", ".join(
+                f"{model.model_id}@{model.address}({model.length})"
+                for model in self.model_chain_of(self._models)
+            ),
+            self.common.Mn,
+            self.identity.model,
+            self.common.SN,
+            self.common.Vr,
+        )
 
     def add_component(self, component: FixedComponent) -> None:
         """Poll a register layout outside the SunSpec map along with the models.
@@ -236,6 +248,18 @@ class FimerModbusInverter:
         if self._group is None:
             raise FimerNotDiscoveredError("No models discovered; call discover() first")
         await self._group.async_update()
+        if _LOGGER.isEnabledFor(logging.DEBUG):
+            values = self.values()
+            reported = {name: value for name, value in values.items() if value is not None}
+            _LOGGER.debug(
+                "Updated %d models: %d of %d points reported (W=%s, WH=%s, St=%s)",
+                len(self.components) + len(self._extras),
+                len(reported),
+                len(values),
+                reported.get("W"),
+                reported.get("WH"),
+                reported.get("St"),
+            )
 
     async def async_write(self, point: str, value: Any) -> None:
         """Write a writable SunSpec point by name, whichever model owns it.
@@ -248,6 +272,7 @@ class FimerModbusInverter:
             raise FimerNotDiscoveredError("No models discovered; call discover() first")
         for component in (*self.components, *self._extras):
             if point in component.declared_fields:
+                _LOGGER.debug("Writing %s=%r to model %s", point, value, type(component).__name__)
                 await component.write(point, value)
                 return
         raise AttributeError(f"No discovered model has a point named {point!r}")
