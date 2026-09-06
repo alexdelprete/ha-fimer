@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from unittest.mock import patch
 
 from freezegun.api import FrozenDateTimeFactory
 from modbus_connection import ModbusConnectionError
 from modbus_connection.mock import MockModbusUnit
+import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 
 from custom_components.fimer.const import ERROR_SCAN_INTERVAL, MAX_FAILED_UPDATES
+from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 
 from .conftest import default_register_map
@@ -62,3 +65,21 @@ async def test_failed_polls_stretch_the_interval(
     await _poll(hass, freezer, ERROR_SCAN_INTERVAL + 1)
     assert coordinator.last_update_success
     assert coordinator.update_interval == default_interval
+
+
+async def test_unexpected_error_is_a_failed_poll(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+    freezer: FrozenDateTimeFactory,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A bug in a poll makes the entities unavailable without a traceback at ERROR."""
+    inverter = init_integration.runtime_data.inverter
+    with patch.object(inverter, "async_update", side_effect=RuntimeError("boom")):
+        freezer.tick(timedelta(seconds=31))
+        async_fire_time_changed(hass)
+        await hass.async_block_till_done()
+    assert hass.states.get("sensor.pvi_10_0_outd_power_ac").state == STATE_UNAVAILABLE
+    assert "Unexpected error fetching" not in caplog.text  # HA's own traceback path
+    assert "unexpected RuntimeError: boom" in caplog.text
+    assert init_integration.runtime_data.coordinator.outage.failures == 1
