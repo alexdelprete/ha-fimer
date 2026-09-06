@@ -145,7 +145,25 @@
         },
         "data_description": {
           "scan_interval": "Seconds between polls of the inverter.",
-          "power_control": "Expose the SunSpec active power limit as a number and a switch. The datalogger accepts the writes on every inverter, but only some inverters act on them; verify with the test described in the documentation before relying on it.",
+          "power_control": "Expose the SunSpec active power limit as a number and a switch. Offered only for inverter families a VSN card can set parameters on (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) and for inverters with native SunSpec controls (REACT2, UNO-DM-PLUS, PVS). Verify with the test described in the documentation before relying on it.",
+          "connection_issues": "Raise a repair issue when Modbus or the datalogger REST API keeps failing while the sun is up. Failures at night are ignored: a sleeping inverter is not a fault.",
+          "failures_threshold": "Consecutive failed polls in daylight before the issue is raised. Polls slow down to every 5 minutes after the third failure.",
+          "notify_recovery": "Post a persistent notification when a source answers again after an issue was raised.",
+          "recovery_script": "A script to run once when the issue is raised, for example one that power-cycles the datalogger through a smart plug."
+        }
+      },
+      "no_power_control": {
+        "title": "Polling and repairs",
+        "description": "Power limit control is not offered for this entry. The inverter reads as {model}. The limit only works on inverter families a VSN card can set parameters on (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) and on inverters with native SunSpec controls (REACT2, UNO-DM-PLUS, PVS), read over Modbus; on other models the datalogger stores the limit without the inverter acting on it.",
+        "data": {
+          "scan_interval": "Update interval",
+          "connection_issues": "Repair issue when a source is unreachable",
+          "failures_threshold": "Failed polls before the issue",
+          "notify_recovery": "Notify when a source recovers",
+          "recovery_script": "Recovery script"
+        },
+        "data_description": {
+          "scan_interval": "Seconds between polls of the inverter.",
           "connection_issues": "Raise a repair issue when Modbus or the datalogger REST API keeps failing while the sun is up. Failures at night are ignored: a sleeping inverter is not a fault.",
           "failures_threshold": "Consecutive failed polls in daylight before the issue is raised. Polls slow down to every 5 minutes after the third failure.",
           "notify_recovery": "Post a persistent notification when a source answers again after an issue was raised.",
@@ -1222,6 +1240,17 @@
           "confirm": {
             "title": "Acknowledge",
             "description": "The entry of the earlier ABB/FIMER PVI VSN REST integration was removed and its sensors were re-registered here, except these, which have no counterpart in this integration:\n\n{entities}\n\nTheir history stays in the recorder under the old entity IDs but no entity provides them any more. If you used them in automations or dashboards, point those at the entities of this integration.\n\nSubmit to dismiss this notice; the listed sensors are not restored."
+          }
+        }
+      }
+    },
+    "power_control_unsupported": {
+      "title": "{title}: power limit control cannot work on {model}",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Switch the power limit control off",
+            "description": "The power limit control option is on, but the inverter of {title} reads as {model}, a model whose datalogger stores a SunSpec power limit without the inverter acting on it. The limit entities were not created.\n\nThe limit only works on inverter families a VSN card can set parameters on (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) and on inverters with native SunSpec controls (REACT2, UNO-DM-PLUS, PVS). Older PVI, UNO and TRIO-20/27.6 inverters can only be limited from their front panel or the Aurora Manager software.\n\nSubmit to switch the option off; the entry reloads."
           }
         }
       }

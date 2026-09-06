@@ -145,7 +145,25 @@
         },
         "data_description": {
           "scan_interval": "Sekunder mellan avläsningar av växelriktaren.",
-          "power_control": "Visar SunSpec-begränsningen av aktiv effekt som ett tal och en strömbrytare. Dataloggern tar emot skrivningarna på alla växelriktare, men bara vissa växelriktare följer dem; kontrollera med testet som beskrivs i dokumentationen innan du litar på det.",
+          "power_control": "Visar SunSpec-begränsningen av aktiv effekt som ett tal och en strömbrytare. Erbjuds bara för växelriktarfamiljer där ett VSN-kort kan ställa in parametrar (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) och för växelriktare med inbyggd SunSpec-styrning (REACT2, UNO-DM-PLUS, PVS). Kontrollera med testet som beskrivs i dokumentationen innan du litar på det.",
+          "connection_issues": "Skapa en reparation när Modbus eller dataloggerns REST-API fortsätter att misslyckas medan solen är uppe. Fel på natten ignoreras: en sovande växelriktare är inget fel.",
+          "failures_threshold": "Misslyckade avläsningar i följd i dagsljus innan reparationen skapas. Efter det tredje felet saktar avläsningarna ner till var 5:e minut.",
+          "notify_recovery": "Skapa en beständig avisering när en källa svarar igen efter att en reparation skapats.",
+          "recovery_script": "Ett skript som körs en gång när reparationen skapas, till exempel ett som startar om dataloggern via ett smart uttag."
+        }
+      },
+      "no_power_control": {
+        "title": "Avläsning och reparationer",
+        "description": "Styrning av effektbegränsning erbjuds inte för den här posten. Växelriktaren identifierar sig som {model}. Begränsningen fungerar bara på växelriktarfamiljer där ett VSN-kort kan ställa in parametrar (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) och på växelriktare med inbyggd SunSpec-styrning (REACT2, UNO-DM-PLUS, PVS), lästa via Modbus; på andra modeller lagrar dataloggern begränsningen utan att växelriktaren följer den.",
+        "data": {
+          "scan_interval": "Uppdateringsintervall",
+          "connection_issues": "Reparation när en källa inte kan nås",
+          "failures_threshold": "Misslyckade avläsningar före reparationen",
+          "notify_recovery": "Meddela när en källa svarar igen",
+          "recovery_script": "Återställningsskript"
+        },
+        "data_description": {
+          "scan_interval": "Sekunder mellan avläsningar av växelriktaren.",
           "connection_issues": "Skapa en reparation när Modbus eller dataloggerns REST-API fortsätter att misslyckas medan solen är uppe. Fel på natten ignoreras: en sovande växelriktare är inget fel.",
           "failures_threshold": "Misslyckade avläsningar i följd i dagsljus innan reparationen skapas. Efter det tredje felet saktar avläsningarna ner till var 5:e minut.",
           "notify_recovery": "Skapa en beständig avisering när en källa svarar igen efter att en reparation skapats.",
@@ -1222,6 +1240,17 @@
           "confirm": {
             "title": "Bekräfta",
             "description": "Posten från den tidigare integrationen ABB/FIMER PVI VSN REST togs bort och dess sensorer registrerades om här, utom de här, som saknar motsvarighet i den här integrationen:\n\n{entities}\n\nDeras historik finns kvar i recordern under de gamla entitets-ID:na, men ingen entitet levererar dem längre. Om du använde dem i automationer eller instrumentpaneler, peka om dessa till den här integrationens entiteter.\n\nSkicka för att stänga det här meddelandet; de listade sensorerna återställs inte."
+          }
+        }
+      }
+    },
+    "power_control_unsupported": {
+      "title": "{title}: effektbegränsning kan inte fungera på {model}",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Stäng av styrningen av effektbegränsning",
+            "description": "Alternativet för effektbegränsning är på, men växelriktaren för {title} identifierar sig som {model}, en modell där dataloggern lagrar en SunSpec-begränsning utan att växelriktaren följer den. Begränsningens entiteter skapades inte.\n\nBegränsningen fungerar bara på växelriktarfamiljer där ett VSN-kort kan ställa in parametrar (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) och på växelriktare med inbyggd SunSpec-styrning (REACT2, UNO-DM-PLUS, PVS). Äldre PVI, UNO och TRIO-20/27.6 kan bara begränsas från frontpanelen eller programmet Aurora Manager.\n\nSkicka för att stänga av alternativet; posten laddas om."
           }
         }
       }

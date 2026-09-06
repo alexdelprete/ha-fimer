@@ -40,6 +40,7 @@ ISSUE_UNSUPPORTED_FIRMWARE: Final = "unsupported_firmware"
 ISSUE_DATALOGGER_SILENT: Final = "datalogger_silent"
 ISSUE_PARTIAL_DISCOVERY: Final = "partial_discovery"
 ISSUE_TAKEOVER_INCOMPLETE: Final = "takeover_incomplete"
+ISSUE_POWER_CONTROL_UNSUPPORTED: Final = "power_control_unsupported"
 
 LEARN_MORE_URL: Final = "https://github.com/alexdelprete/ha-fimer#troubleshooting"
 

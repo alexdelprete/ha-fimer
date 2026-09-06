@@ -145,7 +145,25 @@
         },
         "data_description": {
           "scan_interval": "Secondes entre deux interrogations de l'onduleur.",
-          "power_control": "Expose la limite de puissance active SunSpec sous forme de nombre et d'interrupteur. Le datalogger accepte les écritures sur tous les onduleurs, mais seuls certains les appliquent ; vérifiez avec le test décrit dans la documentation avant de vous y fier.",
+          "power_control": "Expose la limite de puissance active SunSpec sous forme de nombre et d'interrupteur. Proposé seulement pour les familles d'onduleurs sur lesquelles une carte VSN peut régler des paramètres (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) et pour les onduleurs à commandes SunSpec natives (REACT2, UNO-DM-PLUS, PVS). Vérifiez avec le test décrit dans la documentation avant de vous y fier.",
+          "connection_issues": "Crée une réparation quand Modbus ou l'API REST du datalogger échoue de façon répétée en plein jour. Les échecs nocturnes sont ignorés : un onduleur endormi n'est pas une panne.",
+          "failures_threshold": "Interrogations échouées consécutives en plein jour avant que la réparation soit créée. Après le troisième échec, les interrogations passent à une toutes les 5 minutes.",
+          "notify_recovery": "Publie une notification persistante quand une source répond à nouveau après une réparation.",
+          "recovery_script": "Un script exécuté une seule fois quand la réparation est créée, par exemple un script qui redémarre le datalogger via une prise connectée."
+        }
+      },
+      "no_power_control": {
+        "title": "Interrogation et réparations",
+        "description": "Le contrôle de la limite de puissance n'est pas proposé pour cette entrée. L'onduleur se présente comme {model}. La limite ne fonctionne que sur les familles d'onduleurs sur lesquelles une carte VSN peut régler des paramètres (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) et sur les onduleurs à commandes SunSpec natives (REACT2, UNO-DM-PLUS, PVS), lus via Modbus ; sur les autres modèles le datalogger mémorise la limite sans que l'onduleur l'applique.",
+        "data": {
+          "scan_interval": "Intervalle de mise à jour",
+          "connection_issues": "Réparation quand une source est injoignable",
+          "failures_threshold": "Interrogations échouées avant la réparation",
+          "notify_recovery": "Notifier quand une source répond à nouveau",
+          "recovery_script": "Script de récupération"
+        },
+        "data_description": {
+          "scan_interval": "Secondes entre deux interrogations de l'onduleur.",
           "connection_issues": "Crée une réparation quand Modbus ou l'API REST du datalogger échoue de façon répétée en plein jour. Les échecs nocturnes sont ignorés : un onduleur endormi n'est pas une panne.",
           "failures_threshold": "Interrogations échouées consécutives en plein jour avant que la réparation soit créée. Après le troisième échec, les interrogations passent à une toutes les 5 minutes.",
           "notify_recovery": "Publie une notification persistante quand une source répond à nouveau après une réparation.",
@@ -1222,6 +1240,17 @@
           "confirm": {
             "title": "Prendre acte",
             "description": "L'entrée de l'ancienne intégration ABB/FIMER PVI VSN REST a été supprimée et ses capteurs ont été réenregistrés ici, sauf ceux-ci, qui n'ont pas d'équivalent dans cette intégration :\n\n{entities}\n\nLeur historique reste dans le recorder sous les anciens identifiants d'entité, mais plus aucune entité ne les fournit. Si vous les utilisiez dans des automatisations ou des tableaux de bord, pointez ceux-ci vers les entités de cette intégration.\n\nValidez pour fermer cet avis ; les capteurs listés ne sont pas restaurés."
+          }
+        }
+      }
+    },
+    "power_control_unsupported": {
+      "title": "{title} : le contrôle de la limite de puissance ne peut pas fonctionner sur {model}",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Désactiver le contrôle de la limite de puissance",
+            "description": "L'option de contrôle de la limite de puissance est activée, mais l'onduleur de {title} se présente comme {model}, un modèle pour lequel le datalogger mémorise une limite SunSpec sans que l'onduleur l'applique. Les entités de la limite n'ont pas été créées.\n\nLa limite ne fonctionne que sur les familles d'onduleurs sur lesquelles une carte VSN peut régler des paramètres (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) et sur les onduleurs à commandes SunSpec natives (REACT2, UNO-DM-PLUS, PVS). Les anciens PVI, UNO et TRIO-20/27.6 ne se limitent que depuis leur panneau avant ou le logiciel Aurora Manager.\n\nValidez pour désactiver l'option ; l'entrée est rechargée."
           }
         }
       }

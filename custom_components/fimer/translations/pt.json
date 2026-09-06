@@ -145,7 +145,25 @@
         },
         "data_description": {
           "scan_interval": "Segundos entre consultas ao inversor.",
-          "power_control": "Expõe o limite de potência ativa SunSpec como um número e um interruptor. O datalogger aceita as escritas em todos os inversores, mas só alguns as aplicam; verifique com o teste descrito na documentação antes de confiar nisso.",
+          "power_control": "Expõe o limite de potência ativa SunSpec como um número e um interruptor. Oferecido apenas para as famílias de inversores em que uma placa VSN pode definir parâmetros (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) e para inversores com controlos SunSpec nativos (REACT2, UNO-DM-PLUS, PVS). Verifique com o teste descrito na documentação antes de confiar nisso.",
+          "connection_issues": "Cria uma reparação quando o Modbus ou a API REST do datalogger falham repetidamente com o sol alto. As falhas noturnas são ignoradas: um inversor a dormir não é uma avaria.",
+          "failures_threshold": "Consultas falhadas consecutivas durante o dia antes de a reparação ser criada. Após a terceira falha, as consultas passam a uma a cada 5 minutos.",
+          "notify_recovery": "Publica uma notificação persistente quando uma fonte volta a responder depois de uma reparação.",
+          "recovery_script": "Um script executado uma única vez quando a reparação é criada, por exemplo um que reinicia o datalogger através de uma tomada inteligente."
+        }
+      },
+      "no_power_control": {
+        "title": "Consulta e reparações",
+        "description": "O controlo do limite de potência não é oferecido para esta entrada. O inversor identifica-se como {model}. O limite só funciona nas famílias de inversores em que uma placa VSN pode definir parâmetros (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) e em inversores com controlos SunSpec nativos (REACT2, UNO-DM-PLUS, PVS), lidos por Modbus; noutros modelos o datalogger guarda o limite sem que o inversor o aplique.",
+        "data": {
+          "scan_interval": "Intervalo de atualização",
+          "connection_issues": "Reparação quando uma fonte não responde",
+          "failures_threshold": "Consultas falhadas antes da reparação",
+          "notify_recovery": "Notificar quando uma fonte voltar a responder",
+          "recovery_script": "Script de recuperação"
+        },
+        "data_description": {
+          "scan_interval": "Segundos entre consultas ao inversor.",
           "connection_issues": "Cria uma reparação quando o Modbus ou a API REST do datalogger falham repetidamente com o sol alto. As falhas noturnas são ignoradas: um inversor a dormir não é uma avaria.",
           "failures_threshold": "Consultas falhadas consecutivas durante o dia antes de a reparação ser criada. Após a terceira falha, as consultas passam a uma a cada 5 minutos.",
           "notify_recovery": "Publica uma notificação persistente quando uma fonte volta a responder depois de uma reparação.",
@@ -1222,6 +1240,17 @@
           "confirm": {
             "title": "Tomar conhecimento",
             "description": "A entrada da integração anterior ABB/FIMER PVI VSN REST foi removida e os seus sensores foram registados de novo aqui, exceto estes, que não têm correspondência nesta integração:\n\n{entities}\n\nO seu histórico fica no recorder com os IDs de entidade antigos, mas já nenhuma entidade os fornece. Se os usava em automatizações ou painéis, aponte-os para as entidades desta integração.\n\nConfirme para fechar este aviso; os sensores listados não são restaurados."
+          }
+        }
+      }
+    },
+    "power_control_unsupported": {
+      "title": "{title}: o controlo do limite de potência não pode funcionar em {model}",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Desativar o controlo do limite de potência",
+            "description": "A opção de controlo do limite de potência está ativada, mas o inversor de {title} identifica-se como {model}, um modelo em que o datalogger guarda um limite SunSpec sem que o inversor o aplique. As entidades do limite não foram criadas.\n\nO limite só funciona nas famílias de inversores em que uma placa VSN pode definir parâmetros (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) e em inversores com controlos SunSpec nativos (REACT2, UNO-DM-PLUS, PVS). Os PVI, UNO e TRIO-20/27.6 mais antigos só se limitam a partir do painel frontal ou do software Aurora Manager.\n\nConfirme para desativar a opção; a entrada é recarregada."
           }
         }
       }

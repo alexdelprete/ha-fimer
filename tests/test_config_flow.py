@@ -240,10 +240,11 @@ async def test_options_flow(hass: HomeAssistant, init_integration: MockConfigEnt
     """The polling interval is stored as an option and the entry reloads."""
     result = await hass.config_entries.options.async_init(init_integration.entry_id)
     assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "init"
+    # a PVI-10.0-OUTD cannot act on a power limit, so that option is not offered
+    assert result["step_id"] == "no_power_control"
 
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {CONF_SCAN_INTERVAL: 60, CONF_POWER_CONTROL: False}
+        result["flow_id"], {CONF_SCAN_INTERVAL: 60}
     )
     await hass.async_block_till_done()
     assert result["type"] is FlowResultType.CREATE_ENTRY

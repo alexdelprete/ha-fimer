@@ -24,8 +24,11 @@ from .aurora import (
     GLOBAL_STATES,
     INVERTER_MODELS,
     INVERTER_STATES,
+    POWER_CONTROL_FAMILIES,
+    PowerControlSupport,
     decode_alarms,
     inverter_model_from_options,
+    power_control_support,
 )
 from .exceptions import (
     FimerAuthenticationError,
@@ -48,6 +51,7 @@ __all__ = [
     "INVERTER_STATES",
     "POINTS",
     "POINTS_BY_NAME",
+    "POWER_CONTROL_FAMILIES",
     "FimerAuthenticationError",
     "FimerConnectionError",
     "FimerDetectionError",
@@ -58,7 +62,9 @@ __all__ = [
     "FimerWriteError",
     "Point",
     "PointKind",
+    "PowerControlSupport",
     "__version__",
     "decode_alarms",
     "inverter_model_from_options",
+    "power_control_support",
 ]

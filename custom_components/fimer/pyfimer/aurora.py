@@ -12,6 +12,7 @@ integrations.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Final
 
 # Aurora system time counts seconds from 2000-01-01T00:00:00Z. Add this to
@@ -330,3 +331,48 @@ def inverter_model_from_options(options: str | None) -> str | None:
     else:
         code = ord(options[0])
     return INVERTER_MODELS.get(code)
+
+
+POWER_CONTROL_FAMILIES: Final[tuple[str, ...]] = (
+    # Families ABB's "VSN300 inverter compatibility matrix" (Rev D) grants
+    # "local inverter parameter setting": the card can pass a power limit on.
+    "TRIO-5.8",
+    "TRIO-7.5",
+    "TRIO-8.5",
+    "UNO-7.6",
+    "UNO-8.6",
+    "TRIO-50",
+    # Inverters with native SunSpec controls.
+    "REACT2",
+    "UNO-DM",
+    "PVS-",
+    "TRIO-TM",
+)
+"""Model name prefixes of the inverters expected to act on a SunSpec power limit."""
+
+
+@dataclass(frozen=True)
+class PowerControlSupport:
+    """Whether an inverter model can be expected to honour a SunSpec power limit."""
+
+    model: str
+    """The model name checked, empty when it could not be identified."""
+    supported: bool
+    reason: str | None
+    """``unknown_model`` or ``unsupported_model`` when not supported."""
+
+
+def power_control_support(model: str | None) -> PowerControlSupport:
+    """Judge a model name against the families known to honour a power limit.
+
+    Older PVI, UNO and TRIO-20/27.6 inverters store a SunSpec limit written
+    through a VSN card without acting on it: the card has no parameter-setting
+    command for them (verified on a PVI-10.0-OUTD).
+    """
+    name = (model or "").strip()
+    if not name:
+        return PowerControlSupport("", False, "unknown_model")
+    upper = name.upper()
+    if any(upper.startswith(prefix) for prefix in POWER_CONTROL_FAMILIES):
+        return PowerControlSupport(name, True, None)
+    return PowerControlSupport(name, False, "unsupported_model")

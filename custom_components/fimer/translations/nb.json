@@ -145,7 +145,25 @@
         },
         "data_description": {
           "scan_interval": "Sekunder mellom avlesninger av vekselretteren.",
-          "power_control": "Viser SunSpec-begrensningen av aktiv effekt som et tall og en bryter. Dataloggeren godtar skrivingene på alle vekselrettere, men bare noen vekselrettere følger dem; kontroller med testen beskrevet i dokumentasjonen før du stoler på det.",
+          "power_control": "Viser SunSpec-begrensningen av aktiv effekt som et tall og en bryter. Tilbys bare for vekselretterfamilier der et VSN-kort kan stille inn parametere (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) og for vekselrettere med innebygd SunSpec-styring (REACT2, UNO-DM-PLUS, PVS). Kontroller med testen beskrevet i dokumentasjonen før du stoler på det.",
+          "connection_issues": "Opprett en reparasjon når Modbus eller dataloggerens REST-API fortsetter å feile mens solen er oppe. Feil om natten ignoreres: en sovende vekselretter er ingen feil.",
+          "failures_threshold": "Mislykkede avlesninger på rad i dagslys før reparasjonen opprettes. Etter den tredje feilen går avlesningene ned til hvert 5. minutt.",
+          "notify_recovery": "Legg ut et vedvarende varsel når en kilde svarer igjen etter at en reparasjon ble opprettet.",
+          "recovery_script": "Et skript som kjøres én gang når reparasjonen opprettes, for eksempel et som starter dataloggeren på nytt via en smartplugg."
+        }
+      },
+      "no_power_control": {
+        "title": "Avlesning og reparasjoner",
+        "description": "Styring av effektbegrensning tilbys ikke for denne oppføringen. Vekselretteren identifiserer seg som {model}. Begrensningen fungerer bare på vekselretterfamilier der et VSN-kort kan stille inn parametere (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) og på vekselrettere med innebygd SunSpec-styring (REACT2, UNO-DM-PLUS, PVS), lest via Modbus; på andre modeller lagrer dataloggeren begrensningen uten at vekselretteren følger den.",
+        "data": {
+          "scan_interval": "Oppdateringsintervall",
+          "connection_issues": "Reparasjon når en kilde ikke kan nås",
+          "failures_threshold": "Mislykkede avlesninger før reparasjonen",
+          "notify_recovery": "Varsle når en kilde svarer igjen",
+          "recovery_script": "Gjenopprettingsskript"
+        },
+        "data_description": {
+          "scan_interval": "Sekunder mellom avlesninger av vekselretteren.",
           "connection_issues": "Opprett en reparasjon når Modbus eller dataloggerens REST-API fortsetter å feile mens solen er oppe. Feil om natten ignoreres: en sovende vekselretter er ingen feil.",
           "failures_threshold": "Mislykkede avlesninger på rad i dagslys før reparasjonen opprettes. Etter den tredje feilen går avlesningene ned til hvert 5. minutt.",
           "notify_recovery": "Legg ut et vedvarende varsel når en kilde svarer igjen etter at en reparasjon ble opprettet.",
@@ -1222,6 +1240,17 @@
           "confirm": {
             "title": "Bekreft",
             "description": "Oppføringen fra den tidligere integrasjonen ABB/FIMER PVI VSN REST ble fjernet, og sensorene dens ble registrert på nytt her, unntatt disse, som ikke har noen motpart i denne integrasjonen:\n\n{entities}\n\nHistorikken deres blir liggende i recorderen under de gamle entitets-ID-ene, men ingen entitet leverer dem lenger. Hvis du brukte dem i automasjoner eller dashbord, pek disse til entitetene i denne integrasjonen.\n\nSend inn for å lukke denne meldingen; de oppførte sensorene gjenopprettes ikke."
+          }
+        }
+      }
+    },
+    "power_control_unsupported": {
+      "title": "{title}: effektbegrensning kan ikke fungere på {model}",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Slå av styringen av effektbegrensning",
+            "description": "Valget for effektbegrensning er på, men vekselretteren til {title} identifiserer seg som {model}, en modell der dataloggeren lagrer en SunSpec-begrensning uten at vekselretteren følger den. Begrensningens entiteter ble ikke opprettet.\n\nBegrensningen fungerer bare på vekselretterfamilier der et VSN-kort kan stille inn parametere (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) og på vekselrettere med innebygd SunSpec-styring (REACT2, UNO-DM-PLUS, PVS). Eldre PVI, UNO og TRIO-20/27.6 kan bare begrenses fra frontpanelet eller programmet Aurora Manager.\n\nSend inn for å slå av valget; oppføringen lastes inn på nytt."
           }
         }
       }

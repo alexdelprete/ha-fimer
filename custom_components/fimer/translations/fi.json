@@ -145,7 +145,25 @@
         },
         "data_description": {
           "scan_interval": "Sekunteja invertterin kyselyjen välillä.",
-          "power_control": "Näyttää SunSpec-pätötehorajoituksen numerona ja kytkimenä. Datalogger hyväksyy kirjoitukset kaikilla inverttereillä, mutta vain osa inverttereistä noudattaa niitä; varmista asia dokumentaatiossa kuvatulla testillä ennen kuin luotat siihen.",
+          "power_control": "Näyttää SunSpec-pätötehorajoituksen numerona ja kytkimenä. Tarjotaan vain invertteriperheille, joihin VSN-kortti voi asettaa parametreja (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50), sekä inverttereille, joissa on natiivi SunSpec-ohjaus (REACT2, UNO-DM-PLUS, PVS). Varmista asia dokumentaatiossa kuvatulla testillä ennen kuin luotat siihen.",
+          "connection_issues": "Luo korjaus, kun Modbus tai dataloggerin REST-rajapinta epäonnistuu toistuvasti auringon ollessa ylhäällä. Yöaikaiset epäonnistumiset ohitetaan: nukkuva invertteri ei ole vika.",
+          "failures_threshold": "Peräkkäiset epäonnistuneet kyselyt päivänvalossa ennen korjauksen luomista. Kolmannen epäonnistumisen jälkeen kyselyt harvenevat 5 minuutin välein tapahtuviksi.",
+          "notify_recovery": "Luo pysyvä ilmoitus, kun lähde vastaa taas korjauksen luomisen jälkeen.",
+          "recovery_script": "Skripti, joka suoritetaan kerran korjauksen luomisen yhteydessä, esimerkiksi sellainen, joka käynnistää dataloggerin uudelleen älypistorasian kautta."
+        }
+      },
+      "no_power_control": {
+        "title": "Kysely ja korjaukset",
+        "description": "Tehorajoituksen ohjausta ei tarjota tälle merkinnälle. Invertteri tunnistautuu malliksi {model}. Rajoitus toimii vain invertteriperheissä, joihin VSN-kortti voi asettaa parametreja (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50), ja inverttereissä, joissa on natiivi SunSpec-ohjaus (REACT2, UNO-DM-PLUS, PVS), Modbusin kautta luettuina; muissa malleissa datalogger tallentaa rajoituksen ilman, että invertteri noudattaa sitä.",
+        "data": {
+          "scan_interval": "Päivitysväli",
+          "connection_issues": "Korjaus, kun lähde ei vastaa",
+          "failures_threshold": "Epäonnistuneet kyselyt ennen korjausta",
+          "notify_recovery": "Ilmoita, kun lähde vastaa taas",
+          "recovery_script": "Palautusskripti"
+        },
+        "data_description": {
+          "scan_interval": "Sekunteja invertterin kyselyjen välillä.",
           "connection_issues": "Luo korjaus, kun Modbus tai dataloggerin REST-rajapinta epäonnistuu toistuvasti auringon ollessa ylhäällä. Yöaikaiset epäonnistumiset ohitetaan: nukkuva invertteri ei ole vika.",
           "failures_threshold": "Peräkkäiset epäonnistuneet kyselyt päivänvalossa ennen korjauksen luomista. Kolmannen epäonnistumisen jälkeen kyselyt harvenevat 5 minuutin välein tapahtuviksi.",
           "notify_recovery": "Luo pysyvä ilmoitus, kun lähde vastaa taas korjauksen luomisen jälkeen.",
@@ -1222,6 +1240,17 @@
           "confirm": {
             "title": "Kuittaa",
             "description": "Aiemman ABB/FIMER PVI VSN REST -integraation merkintä poistettiin ja sen anturit rekisteröitiin uudelleen tänne, paitsi nämä, joilla ei ole vastinetta tässä integraatiossa:\n\n{entities}\n\nNiiden historia säilyy recorderissa vanhoilla entiteettitunnuksilla, mutta mikään entiteetti ei enää tarjoa niitä. Jos käytit niitä automaatioissa tai kojelaudoissa, osoita ne tämän integraation entiteetteihin.\n\nLähetä sulkeaksesi tämän ilmoituksen; lueteltuja antureita ei palauteta."
+          }
+        }
+      }
+    },
+    "power_control_unsupported": {
+      "title": "{title}: tehorajoituksen ohjaus ei voi toimia mallissa {model}",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Poista tehorajoituksen ohjaus käytöstä",
+            "description": "Tehorajoituksen ohjaus on käytössä, mutta merkinnän {title} invertteri tunnistautuu malliksi {model}, jossa datalogger tallentaa SunSpec-rajoituksen ilman, että invertteri noudattaa sitä. Rajoituksen entiteettejä ei luotu.\n\nRajoitus toimii vain invertteriperheissä, joihin VSN-kortti voi asettaa parametreja (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50), ja inverttereissä, joissa on natiivi SunSpec-ohjaus (REACT2, UNO-DM-PLUS, PVS). Vanhempia PVI-, UNO- ja TRIO-20/27.6-inverttereitä voi rajoittaa vain etupaneelista tai Aurora Manager -ohjelmalla.\n\nLähetä poistaaksesi asetuksen käytöstä; merkintä ladataan uudelleen."
           }
         }
       }

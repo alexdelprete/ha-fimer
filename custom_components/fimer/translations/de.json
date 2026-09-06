@@ -145,7 +145,25 @@
         },
         "data_description": {
           "scan_interval": "Sekunden zwischen zwei Abfragen des Wechselrichters.",
-          "power_control": "Stellt die SunSpec-Wirkleistungsbegrenzung als Zahl und Schalter bereit. Der Datenlogger nimmt die Schreibzugriffe bei jedem Wechselrichter an, aber nur manche Wechselrichter setzen sie um; prüfe das mit dem in der Dokumentation beschriebenen Test, bevor du dich darauf verlässt.",
+          "power_control": "Stellt die SunSpec-Wirkleistungsbegrenzung als Zahl und Schalter bereit. Nur für Wechselrichterfamilien angeboten, an denen eine VSN-Karte Parameter setzen kann (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50), und für Wechselrichter mit nativer SunSpec-Steuerung (REACT2, UNO-DM-PLUS, PVS). Prüfe das mit dem in der Dokumentation beschriebenen Test, bevor du dich darauf verlässt.",
+          "connection_issues": "Erzeugt eine Reparatur, wenn Modbus oder die REST-API des Datenloggers bei Tageslicht dauerhaft fehlschlägt. Nächtliche Fehler werden ignoriert: ein schlafender Wechselrichter ist kein Defekt.",
+          "failures_threshold": "Aufeinanderfolgende fehlgeschlagene Abfragen bei Tageslicht, bevor die Reparatur erzeugt wird. Nach dem dritten Fehler wird nur noch alle 5 Minuten abgefragt.",
+          "notify_recovery": "Erzeugt eine dauerhafte Benachrichtigung, wenn eine Quelle nach einer Reparatur wieder antwortet.",
+          "recovery_script": "Ein Skript, das einmalig beim Erzeugen der Reparatur läuft, zum Beispiel eines, das den Datenlogger über eine schaltbare Steckdose neu startet."
+        }
+      },
+      "no_power_control": {
+        "title": "Abfrage und Reparaturen",
+        "description": "Die Leistungsbegrenzung wird für diesen Eintrag nicht angeboten. Der Wechselrichter meldet sich als {model}. Die Begrenzung funktioniert nur bei Wechselrichterfamilien, an denen eine VSN-Karte Parameter setzen kann (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50), und bei Wechselrichtern mit nativer SunSpec-Steuerung (REACT2, UNO-DM-PLUS, PVS), gelesen über Modbus; bei anderen Modellen speichert der Datenlogger die Begrenzung, ohne dass der Wechselrichter sie umsetzt.",
+        "data": {
+          "scan_interval": "Aktualisierungsintervall",
+          "connection_issues": "Reparatur, wenn eine Quelle nicht erreichbar ist",
+          "failures_threshold": "Fehlgeschlagene Abfragen bis zur Reparatur",
+          "notify_recovery": "Benachrichtigen, wenn eine Quelle wieder antwortet",
+          "recovery_script": "Wiederherstellungsskript"
+        },
+        "data_description": {
+          "scan_interval": "Sekunden zwischen zwei Abfragen des Wechselrichters.",
           "connection_issues": "Erzeugt eine Reparatur, wenn Modbus oder die REST-API des Datenloggers bei Tageslicht dauerhaft fehlschlägt. Nächtliche Fehler werden ignoriert: ein schlafender Wechselrichter ist kein Defekt.",
           "failures_threshold": "Aufeinanderfolgende fehlgeschlagene Abfragen bei Tageslicht, bevor die Reparatur erzeugt wird. Nach dem dritten Fehler wird nur noch alle 5 Minuten abgefragt.",
           "notify_recovery": "Erzeugt eine dauerhafte Benachrichtigung, wenn eine Quelle nach einer Reparatur wieder antwortet.",
@@ -1222,6 +1240,17 @@
           "confirm": {
             "title": "Zur Kenntnis nehmen",
             "description": "Der Eintrag der früheren Integration ABB/FIMER PVI VSN REST wurde entfernt und seine Sensoren wurden hier neu registriert, außer diesen, die in dieser Integration keine Entsprechung haben:\n\n{entities}\n\nIhr Verlauf bleibt im Recorder unter den alten Entitäts-IDs erhalten, aber keine Entität liefert sie mehr. Wenn du sie in Automationen oder Dashboards verwendet hast, stelle diese auf die Entitäten dieser Integration um.\n\nBestätige, um diesen Hinweis zu schließen; die aufgeführten Sensoren werden nicht wiederhergestellt."
+          }
+        }
+      }
+    },
+    "power_control_unsupported": {
+      "title": "{title}: Leistungsbegrenzung kann auf {model} nicht funktionieren",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Leistungsbegrenzung ausschalten",
+            "description": "Die Option Leistungsbegrenzung ist eingeschaltet, aber der Wechselrichter von {title} meldet sich als {model}, ein Modell, bei dem der Datenlogger eine SunSpec-Begrenzung speichert, ohne dass der Wechselrichter sie umsetzt. Die Entitäten der Begrenzung wurden nicht angelegt.\n\nDie Begrenzung funktioniert nur bei Wechselrichterfamilien, an denen eine VSN-Karte Parameter setzen kann (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50), und bei Wechselrichtern mit nativer SunSpec-Steuerung (REACT2, UNO-DM-PLUS, PVS). Ältere PVI, UNO und TRIO-20/27.6 lassen sich nur am Bedienfeld oder mit der Software Aurora Manager begrenzen.\n\nBestätige, um die Option auszuschalten; der Eintrag wird neu geladen."
           }
         }
       }

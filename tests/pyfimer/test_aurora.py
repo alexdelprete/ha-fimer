@@ -10,6 +10,7 @@ from custom_components.fimer.pyfimer import (
     POINTS_BY_NAME,
     decode_alarms,
     inverter_model_from_options,
+    power_control_support,
 )
 
 
@@ -53,3 +54,24 @@ def test_point_vocabulary_is_unique() -> None:
     assert len(POINTS_BY_NAME) == len(POINTS)
     assert POINTS_BY_NAME["W"].unit == "W"
     assert POINTS_BY_NAME["DCA_3"].model == 160
+
+
+@pytest.mark.parametrize(
+    ("model", "supported", "reason"),
+    [
+        ("PVI-10.0-OUTD", False, "unsupported_model"),
+        ("TRIO-27.6-TL-OUTD", False, "unsupported_model"),
+        ("TRIO-8.5-TL-OUTD-S", True, None),
+        ("trio-50.0-tl-outd", True, None),
+        ("REACT2-5.0-TL", True, None),
+        ("UNO-DM-5.0-TL-PLUS", True, None),
+        ("", False, "unknown_model"),
+        (None, False, "unknown_model"),
+    ],
+)
+def test_power_control_support(model: str | None, supported: bool, reason: str | None) -> None:
+    """Only the families ABB lets a card set parameters on, or with native SunSpec, qualify."""
+    support = power_control_support(model)
+    assert support.supported is supported
+    assert support.reason == reason
+    assert support.model == (model or "").strip()

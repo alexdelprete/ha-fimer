@@ -12,7 +12,11 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError, HomeAssistantError
-from homeassistant.helpers import config_validation as cv, device_registry as dr
+from homeassistant.helpers import (
+    config_validation as cv,
+    device_registry as dr,
+    issue_registry as ir,
+)
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
 
@@ -30,8 +34,14 @@ from .const import (
 )
 from .coordinator import FimerCoordinator, FimerRestCoordinator, FimerSettingsCoordinator
 from .devices import FimerDevice, build_devices
-from .issues import async_delete_entry_issues
+from .issues import (
+    ISSUE_POWER_CONTROL_UNSUPPORTED,
+    async_create_entry_issue,
+    async_delete_entry_issue,
+    async_delete_entry_issues,
+)
 from .migration import async_take_over_legacy_entities
+from .pyfimer import PowerControlSupport, power_control_support
 from .pyfimer.modbus import FimerModbusInverter
 from .pyfimer.rest import FimerRestLogger, VsnModel
 from .services import async_setup_services
@@ -51,6 +61,8 @@ class FimerRuntimeData:
     rest_coordinator: FimerRestCoordinator | None = None
     settings_coordinator: FimerSettingsCoordinator | None = None
     """Present only with the experimental power control option on model 123."""
+    power_control: PowerControlSupport | None = None
+    """Whether the inverter is expected to honour a power limit; None without Modbus."""
 
 
 type FimerConfigEntry = ConfigEntry[FimerRuntimeData]
@@ -105,16 +117,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> boo
     if runtime.rest_coordinator is not None:
         runtime.rest_coordinator.async_seed_known_devices()
 
+    if runtime.inverter is not None:
+        runtime.power_control = power_control_support(runtime.inverter.identity.model)
     if (
         entry.options.get(CONF_POWER_CONTROL)
         and runtime.inverter is not None
         and runtime.coordinator is not None
-        and runtime.inverter.controls is not None
     ):
-        runtime.settings_coordinator = FimerSettingsCoordinator(
-            hass, entry, runtime.inverter, runtime.coordinator
-        )
-        await runtime.settings_coordinator.async_config_entry_first_refresh()
+        if runtime.power_control is not None and not runtime.power_control.supported:
+            # the limit would only sit in the datalogger; say why instead of pretending
+            async_create_entry_issue(
+                hass,
+                entry,
+                ISSUE_POWER_CONTROL_UNSUPPORTED,
+                severity=ir.IssueSeverity.WARNING,
+                is_fixable=True,
+                placeholders={"model": runtime.power_control.model or "?"},
+                data={"model": runtime.power_control.model},
+            )
+        elif runtime.inverter.controls is not None:
+            runtime.settings_coordinator = FimerSettingsCoordinator(
+                hass, entry, runtime.inverter, runtime.coordinator
+            )
+            await runtime.settings_coordinator.async_config_entry_first_refresh()
+    if runtime.settings_coordinator is not None or not entry.options.get(CONF_POWER_CONTROL):
+        async_delete_entry_issue(hass, entry.entry_id, ISSUE_POWER_CONTROL_UNSUPPORTED)
 
     entry.runtime_data = runtime
     if data.get(CONF_MIGRATE_FROM):

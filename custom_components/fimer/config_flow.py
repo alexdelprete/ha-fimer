@@ -85,6 +85,7 @@ from .pyfimer import (
     FimerError,
     FimerUnsupportedDeviceError,
     FimerUnsupportedFirmwareError,
+    PowerControlSupport,
 )
 from .pyfimer.modbus import FimerModbusInverter, SunSpecError
 from .pyfimer.rest import FimerRestLogger
@@ -126,37 +127,46 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     }
 )
 
+_POLLING_OPTIONS: dict[Any, Any] = {
+    vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
+        NumberSelector(
+            NumberSelectorConfig(
+                min=MIN_SCAN_INTERVAL,
+                max=MAX_SCAN_INTERVAL,
+                step=1,
+                mode=NumberSelectorMode.BOX,
+                unit_of_measurement="s",
+            )
+        ),
+        vol.Coerce(int),
+    ),
+}
+_REPAIR_OPTIONS: dict[Any, Any] = {
+    vol.Required(CONF_CONNECTION_ISSUES, default=DEFAULT_CONNECTION_ISSUES): BooleanSelector(),
+    vol.Required(CONF_FAILURES_THRESHOLD, default=DEFAULT_FAILURES_THRESHOLD): vol.All(
+        NumberSelector(
+            NumberSelectorConfig(
+                min=MIN_FAILURES_THRESHOLD,
+                max=MAX_FAILURES_THRESHOLD,
+                step=1,
+                mode=NumberSelectorMode.BOX,
+            )
+        ),
+        vol.Coerce(int),
+    ),
+    vol.Required(CONF_NOTIFY_RECOVERY, default=DEFAULT_NOTIFY_RECOVERY): BooleanSelector(),
+    vol.Optional(CONF_RECOVERY_SCRIPT): EntitySelector(EntitySelectorConfig(domain="script")),
+}
 OPTIONS_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
-            NumberSelector(
-                NumberSelectorConfig(
-                    min=MIN_SCAN_INTERVAL,
-                    max=MAX_SCAN_INTERVAL,
-                    step=1,
-                    mode=NumberSelectorMode.BOX,
-                    unit_of_measurement="s",
-                )
-            ),
-            vol.Coerce(int),
-        ),
+        **_POLLING_OPTIONS,
         vol.Required(CONF_POWER_CONTROL, default=DEFAULT_POWER_CONTROL): BooleanSelector(),
-        vol.Required(CONF_CONNECTION_ISSUES, default=DEFAULT_CONNECTION_ISSUES): BooleanSelector(),
-        vol.Required(CONF_FAILURES_THRESHOLD, default=DEFAULT_FAILURES_THRESHOLD): vol.All(
-            NumberSelector(
-                NumberSelectorConfig(
-                    min=MIN_FAILURES_THRESHOLD,
-                    max=MAX_FAILURES_THRESHOLD,
-                    step=1,
-                    mode=NumberSelectorMode.BOX,
-                )
-            ),
-            vol.Coerce(int),
-        ),
-        vol.Required(CONF_NOTIFY_RECOVERY, default=DEFAULT_NOTIFY_RECOVERY): BooleanSelector(),
-        vol.Optional(CONF_RECOVERY_SCRIPT): EntitySelector(EntitySelectorConfig(domain="script")),
+        **_REPAIR_OPTIONS,
     }
 )
+"""The options for an inverter that can honour a power limit."""
+NO_POWER_CONTROL_OPTIONS_SCHEMA = vol.Schema({**_POLLING_OPTIONS, **_REPAIR_OPTIONS})
+"""The options for every other entry: the power control is not offered."""
 
 
 @dataclass
@@ -452,8 +462,16 @@ REAUTH_SCHEMA = vol.Schema(
 class FimerOptionsFlow(OptionsFlowWithReload):
     """Tune the polling interval and the experimental power control; the entry reloads on save."""
 
+    def _power_control_support(self) -> PowerControlSupport | None:
+        """What setup found out about the inverter, when the entry is loaded over Modbus."""
+        runtime = getattr(self.config_entry, "runtime_data", None)
+        return runtime.power_control if runtime is not None else None
+
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        """Show and store the options."""
+        """Show and store the options; the power control only where it can work."""
+        support = self._power_control_support()
+        if support is None or not support.supported:
+            return await self.async_step_no_power_control()
         if user_input is not None:
             return self.async_create_entry(data=user_input)
         return self.async_show_form(
@@ -461,4 +479,19 @@ class FimerOptionsFlow(OptionsFlowWithReload):
             data_schema=self.add_suggested_values_to_schema(
                 OPTIONS_SCHEMA, self.config_entry.options
             ),
+        )
+
+    async def async_step_no_power_control(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """The same options without the power control, and the reason it is missing."""
+        if user_input is not None:
+            return self.async_create_entry(data={**user_input, CONF_POWER_CONTROL: False})
+        support = self._power_control_support()
+        return self.async_show_form(
+            step_id="no_power_control",
+            data_schema=self.add_suggested_values_to_schema(
+                NO_POWER_CONTROL_OPTIONS_SCHEMA, self.config_entry.options
+            ),
+            description_placeholders={"model": (support.model if support else "") or "?"},
         )

@@ -145,7 +145,25 @@
         },
         "data_description": {
           "scan_interval": "Sekundid inverteri päringute vahel.",
-          "power_control": "Näitab SunSpeci aktiivvõimsuse piirangut numbri ja lülitina. Andmeloger võtab kirjutused vastu igal inverteril, kuid ainult mõned inverterid järgivad neid; kontrolli dokumentatsioonis kirjeldatud testiga, enne kui sellele lootma jääd.",
+          "power_control": "Näitab SunSpeci aktiivvõimsuse piirangut numbri ja lülitina. Pakutakse ainult inverteriperekondadele, millel VSN-kaart saab parameetreid seada (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50), ning natiivse SunSpeci juhtimisega inverteritele (REACT2, UNO-DM-PLUS, PVS). Kontrolli dokumentatsioonis kirjeldatud testiga, enne kui sellele lootma jääd.",
+          "connection_issues": "Loo parandus, kui Modbus või andmelogeri REST API päikese ajal korduvalt nurjub. Öised nurjumised jäetakse tähelepanuta: magav inverter ei ole rike.",
+          "failures_threshold": "Järjestikused nurjunud päringud päevavalguses enne paranduse loomist. Pärast kolmandat nurjumist aeglustuvad päringud iga 5 minuti tagant toimuvaks.",
+          "notify_recovery": "Loo püsiv teavitus, kui allikas pärast paranduse loomist taas vastab.",
+          "recovery_script": "Skript, mis käivitatakse üks kord paranduse loomisel, näiteks selline, mis taaskäivitab andmelogeri nutipistiku kaudu."
+        }
+      },
+      "no_power_control": {
+        "title": "Küsitlemine ja parandused",
+        "description": "Võimsuspiirangu juhtimist selle kirje jaoks ei pakuta. Inverter tuvastab end mudelina {model}. Piirang töötab ainult inverteriperekondadel, millel VSN-kaart saab parameetreid seada (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50), ja natiivse SunSpeci juhtimisega inverteritel (REACT2, UNO-DM-PLUS, PVS), mida loetakse Modbusi kaudu; teistel mudelitel salvestab andmeloger piirangu, ilma et inverter seda rakendaks.",
+        "data": {
+          "scan_interval": "Uuendusintervall",
+          "connection_issues": "Parandus, kui allikas ei vasta",
+          "failures_threshold": "Nurjunud päringud enne parandust",
+          "notify_recovery": "Teavita, kui allikas taas vastab",
+          "recovery_script": "Taasteskript"
+        },
+        "data_description": {
+          "scan_interval": "Sekundid inverteri päringute vahel.",
           "connection_issues": "Loo parandus, kui Modbus või andmelogeri REST API päikese ajal korduvalt nurjub. Öised nurjumised jäetakse tähelepanuta: magav inverter ei ole rike.",
           "failures_threshold": "Järjestikused nurjunud päringud päevavalguses enne paranduse loomist. Pärast kolmandat nurjumist aeglustuvad päringud iga 5 minuti tagant toimuvaks.",
           "notify_recovery": "Loo püsiv teavitus, kui allikas pärast paranduse loomist taas vastab.",
@@ -1222,6 +1240,17 @@
           "confirm": {
             "title": "Võta teadmiseks",
             "description": "Varasema ABB/FIMER PVI VSN REST sidumise kirje eemaldati ja selle andurid registreeriti siin uuesti, välja arvatud need, millel pole selles sidumises vastet:\n\n{entities}\n\nNende ajalugu jääb recorderisse vanade olemi ID-de all, kuid ükski olem ei paku neid enam. Kui kasutasid neid automaatikates või töölaudadel, suuna need selle sidumise olemitele.\n\nEsita, et see teade sulgeda; loetletud andureid ei taastata."
+          }
+        }
+      }
+    },
+    "power_control_unsupported": {
+      "title": "{title}: võimsuspiirangu juhtimine ei saa mudelil {model} töötada",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Lülita võimsuspiirangu juhtimine välja",
+            "description": "Võimsuspiirangu juhtimise valik on sees, kuid kirje {title} inverter tuvastab end mudelina {model}, mille puhul andmeloger salvestab SunSpeci piirangu, ilma et inverter seda rakendaks. Piirangu olemeid ei loodud.\n\nPiirang töötab ainult inverteriperekondadel, millel VSN-kaart saab parameetreid seada (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50), ja natiivse SunSpeci juhtimisega inverteritel (REACT2, UNO-DM-PLUS, PVS). Vanemaid PVI, UNO ja TRIO-20/27.6 invertereid saab piirata ainult esipaneelilt või tarkvaraga Aurora Manager.\n\nEsita, et valik välja lülitada; kirje laaditakse uuesti."
           }
         }
       }

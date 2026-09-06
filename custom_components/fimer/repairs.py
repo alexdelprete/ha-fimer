@@ -11,8 +11,13 @@ from homeassistant.components.repairs import ConfirmRepairFlow, RepairsFlow
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import CONF_KNOWN_DEVICES, DOMAIN
-from .issues import ISSUE_PARTIAL_DISCOVERY, format_device_list, issue_id
+from .const import CONF_KNOWN_DEVICES, CONF_POWER_CONTROL, DOMAIN
+from .issues import (
+    ISSUE_PARTIAL_DISCOVERY,
+    ISSUE_POWER_CONTROL_UNSUPPORTED,
+    format_device_list,
+    issue_id,
+)
 
 
 class ForgetDevicesRepairFlow(RepairsFlow):
@@ -45,6 +50,39 @@ class ForgetDevicesRepairFlow(RepairsFlow):
         )
 
 
+class DisablePowerControlRepairFlow(RepairsFlow):
+    """Switch the power control option off for an inverter that cannot honour it."""
+
+    def __init__(self, entry_id: str, model: str) -> None:
+        """Remember the entry and the model the issue is about."""
+        self._entry_id = entry_id
+        self._model = model
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> data_entry_flow.FlowResult:
+        """Go straight to the confirmation."""
+        return await self.async_step_confirm()
+
+    async def async_step_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> data_entry_flow.FlowResult:
+        """Disable the option once confirmed; the entry reloads without the entities."""
+        if user_input is not None:
+            entry = self.hass.config_entries.async_get_entry(self._entry_id)
+            if entry is not None:
+                self.hass.config_entries.async_update_entry(
+                    entry, options={**entry.options, CONF_POWER_CONTROL: False}
+                )
+                self.hass.config_entries.async_schedule_reload(entry.entry_id)
+            return self.async_create_entry(data={})
+        return self.async_show_form(
+            step_id="confirm",
+            data_schema=vol.Schema({}),
+            description_placeholders={"model": self._model},
+        )
+
+
 def async_forget_devices(hass: HomeAssistant, entry_id: str, device_ids: set[str]) -> None:
     """Remove devices from the entry's known list and from the registry."""
     entry = hass.config_entries.async_get_entry(entry_id)
@@ -71,4 +109,6 @@ async def async_create_fix_flow(
     entry_id = (data or {}).get("entry_id", "")
     if issue_id_ == issue_id(ISSUE_PARTIAL_DISCOVERY, entry_id):
         return ForgetDevicesRepairFlow(entry_id, list((data or {}).get("missing", [])))
+    if issue_id_ == issue_id(ISSUE_POWER_CONTROL_UNSUPPORTED, entry_id):
+        return DisablePowerControlRepairFlow(entry_id, str((data or {}).get("model") or "?"))
     return ConfirmRepairFlow()

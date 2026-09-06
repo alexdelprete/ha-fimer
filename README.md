@@ -139,7 +139,7 @@ Open the integration's **Options** to change:
 | Option                              | Default | Description                                                        |
 | ----------------------------------- | ------- | ------------------------------------------------------------------ |
 | Update interval                     | `30` s  | Seconds between polls, 10 to 600, for both sources.                |
-| Power limit control (experimental)  | off     | Expose the SunSpec power limit as a number and a switch, see below. |
+| Power limit control (experimental)  | off     | SunSpec power limit entities, supported inverters only, see below.   |
 | Repair issue when unreachable       | on      | Raise a repair issue when a source keeps failing, see below.       |
 | Failed polls before the issue       | `3`     | Consecutive failed polls in daylight before the issue is raised.   |
 | Notify when a source recovers       | on      | Post a persistent notification when the source answers again.      |
@@ -258,8 +258,11 @@ actions:
 The SunSpec immediate controls model (123) carries an active power limit in percent of the rated
 power and a flag that enables it. The integration can expose them as a `Power Limit - Active Power`
 number and a `Power Limit - Enabled` switch, off by default: enable **Power limit control
-(experimental)** in the integration's options.
-The entities appear only when the inverter serves model 123.
+(experimental)** in the integration's options. The option is offered only when the inverter is
+read over Modbus, serves model 123 and belongs to a family that can act on the limit (see below);
+for any other inverter the options form says so and names the model instead of offering it. An
+entry that already had the option on for such an inverter gets a repair issue explaining why the
+entities were not created, with a fix that switches the option off.
 
 Whether the inverter acts on the limit depends on the inverter, not on the integration. A VSN
 card accepts the writes for every inverter, answers them with a Modbus negative acknowledge, and
