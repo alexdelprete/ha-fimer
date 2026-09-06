@@ -1,4 +1,10 @@
-"""Polling coordinator for the FIMER (ABB / Power-One) integration."""
+"""Polling coordinator for the FIMER (ABB / Power-One) integration.
+
+The Home Assistant exceptions raised here carry the cause in their message
+and are raised ``from None`` on purpose: the coordinator and config entry
+machinery log the full chain at DEBUG, and a transport failure would
+otherwise print forty frames of the Modbus stack every poll.
+"""
 
 from __future__ import annotations
 
@@ -120,7 +126,7 @@ class FimerCoordinator(DataUpdateCoordinator[FimerData]):
                 translation_domain=DOMAIN,
                 translation_key="update_failed",
                 translation_placeholders={"error": str(err)},
-            ) from err
+            ) from None
 
         if self._failed_update_count:
             _LOGGER.debug(
@@ -200,7 +206,7 @@ class FimerSettingsCoordinator(DataUpdateCoordinator[FimerData]):
                 translation_domain=DOMAIN,
                 translation_key="update_failed",
                 translation_placeholders={"error": str(err)},
-            ) from err
+            ) from None
         return controls.values()
 
     async def async_apply_power_limit(
@@ -214,7 +220,7 @@ class FimerSettingsCoordinator(DataUpdateCoordinator[FimerData]):
                 translation_domain=DOMAIN,
                 translation_key="write_failed",
                 translation_placeholders={"error": str(err)},
-            ) from err
+            ) from None
         await self.async_refresh()
 
 
@@ -269,7 +275,7 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
                 translation_domain=DOMAIN,
                 translation_key="invalid_auth",
                 translation_placeholders={"error": str(err)},
-            ) from err
+            ) from None
         except FimerUnsupportedFirmwareError as err:
             # the card needs a firmware update; retrying will not help
             async_create_entry_issue(
@@ -283,7 +289,7 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
                 translation_domain=DOMAIN,
                 translation_key="unsupported_firmware",
                 translation_placeholders={"firmware_version": err.firmware_version or "?"},
-            ) from err
+            ) from None
         except (FimerError, TimeoutError, OSError) as err:
             self._failed_update_count += 1
             _LOGGER.debug(
@@ -306,7 +312,7 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
                 translation_domain=DOMAIN,
                 translation_key="update_failed",
                 translation_placeholders={"error": str(err)},
-            ) from err
+            ) from None
 
         if self._failed_update_count:
             _LOGGER.debug(
