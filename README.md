@@ -261,14 +261,18 @@ number and a `Power Limit - Enabled` switch, off by default: enable **Power limi
 (experimental)** in the integration's options.
 The entities appear only when the inverter serves model 123.
 
-Whether the inverter acts on the limit depends on the inverter, not on the datalogger. A VSN300
-accepts the writes for every inverter, answers them with a Modbus negative acknowledge, and reads
-back the values written. Inverters of the Aurora protocol generation (the PVI, TRIO and UNO
-families with firmware from before about 2014) have no power-reduction command at all: their only
-remote control is the hardware "Remote ON/OFF" input, so they ignore the SunSpec limit, as verified
-on a PVI-10.0-OUTD. Newer inverters such as the REACT2 and UNO-DM-PLUS families are expected to
-honour it, but this has not been verified yet. If you try it, please run this test and report the
-outcome in an issue:
+Whether the inverter acts on the limit depends on the inverter, not on the integration. A VSN
+card accepts the writes for every inverter, answers them with a Modbus negative acknowledge, and
+reads back the values written; by ABB's own manual the card then translates a *supported* write
+into an Aurora protocol command, without confirming that the inverter carried it out. Which
+writes are supported is fixed per inverter family: ABB's "VSN300 inverter compatibility matrix"
+grants "local inverter parameter setting" (LIPS) only to the TRIO-5.8/7.5/8.5, UNO-7.6/8.6 and
+TRIO-50.0 families. The older PVI, UNO and TRIO-20/27.6 families get monitoring and Modbus TCP
+only, so on them the limit is stored in the card and never reaches the inverter, as verified on a
+PVI-10.0-OUTD. Those inverters do have a "Power reduction" setting of their own, but only from
+the front panel or the Aurora Manager software over RS-485. Inverters with native SunSpec such as
+the REACT2 and UNO-DM-PLUS families are expected to honour the limit, but this has not been
+verified yet. If you try it, please run this test and report the outcome in an issue:
 
 1. Note the AC power while the inverter is producing well above 10 % of its rated power.
 1. Set `Power Limit - Active Power` to 10 and switch `Power Limit - Enabled` on. Watch the AC power
