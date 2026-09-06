@@ -20,6 +20,7 @@ from homeassistant.const import (
     SERVICE_TURN_ON,
     STATE_OFF,
     STATE_ON,
+    STATE_UNAVAILABLE,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
@@ -229,4 +230,6 @@ async def test_options_offer_power_control_only_when_supported(
     await hass.async_block_till_done()
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert mock_config_entry.options[CONF_POWER_CONTROL] is False
-    assert hass.states.get(NUMBER) is None
+    # the registry keeps the entity, but nothing serves it any more
+    assert hass.states.get(NUMBER).state == STATE_UNAVAILABLE
+    assert mock_config_entry.runtime_data.settings_coordinator is None
