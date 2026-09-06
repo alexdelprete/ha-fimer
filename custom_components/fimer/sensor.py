@@ -493,7 +493,9 @@ async def async_setup_entry(
 
 
 def _sensor_for(device: FimerDevice, description: FimerSensorEntityDescription) -> FimerSensor:
-    if description.state_class is SensorStateClass.TOTAL_INCREASING:
+    if description.device_class is SensorDeviceClass.ENERGY:
+        # energy counters keep their last value through the night; other totals,
+        # such as the card's uptime, go unavailable like every other reading
         return FimerEnergySensor(device, description)
     return FimerSensor(device, description)
 

@@ -101,12 +101,15 @@ async def test_rest_outage_keeps_modbus_points(
     await _setup(hass, entry)
     assert hass.states.get("sensor.vsn300_wifi_link_quality").state == "100"
 
+    assert hass.states.get("sensor.vsn300_uptime").state != STATE_UNAVAILABLE
     fake.livedata_status = 503
     freezer.tick(timedelta(seconds=31))
     async_fire_time_changed(hass)
     # the REST poll suspends on the HTTP request, so it runs as a background task
     await hass.async_block_till_done(wait_background_tasks=True)
     assert hass.states.get("sensor.vsn300_wifi_link_quality").state == STATE_UNAVAILABLE
+    # a running total that is not energy is not kept through an outage
+    assert hass.states.get("sensor.vsn300_uptime").state == STATE_UNAVAILABLE
     assert hass.states.get("sensor.pvi_10_0_outd_power_ac").state == "1500"
 
 
