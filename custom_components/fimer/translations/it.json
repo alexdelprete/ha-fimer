@@ -139,6 +139,7 @@
           "scan_interval": "Intervallo di aggiornamento",
           "power_control": "Controllo del limite di potenza (sperimentale)",
           "connection_issues": "Riparazione quando una sorgente non risponde",
+          "startup_issues": "Riparazione se irraggiungibile all'avvio",
           "failures_threshold": "Interrogazioni fallite prima della riparazione",
           "notify_recovery": "Notifica quando una sorgente torna a rispondere",
           "recovery_script": "Script di ripristino"
@@ -147,6 +148,7 @@
           "scan_interval": "Secondi tra un'interrogazione dell'inverter e la successiva.",
           "power_control": "Espone il limite di potenza attiva SunSpec come numero e interruttore. Offerto solo per le famiglie di inverter su cui una scheda VSN può impostare parametri (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) e per gli inverter con controlli SunSpec nativi (REACT2, UNO-DM-PLUS, PVS). Verifica con il test descritto nella documentazione prima di farci affidamento.",
           "connection_issues": "Crea una riparazione quando Modbus o l'API REST del datalogger continuano a fallire con il sole alto. I fallimenti notturni vengono ignorati: un inverter che dorme non è un guasto.",
+          "startup_issues": "Crea la riparazione anche quando il dispositivo non risponde durante l'avvio della voce, dopo il numero di tentativi impostato. Disattivata per impostazione predefinita: un riavvio notturno di Home Assistant non è un guasto.",
           "failures_threshold": "Interrogazioni consecutive fallite di giorno prima che venga creata la riparazione. Dopo il terzo fallimento le interrogazioni rallentano a una ogni 5 minuti.",
           "notify_recovery": "Pubblica una notifica persistente quando una sorgente torna a rispondere dopo una riparazione.",
           "recovery_script": "Uno script da eseguire una sola volta quando viene creata la riparazione, ad esempio uno che riavvia il datalogger tramite una presa intelligente."
@@ -158,6 +160,7 @@
         "data": {
           "scan_interval": "Intervallo di aggiornamento",
           "connection_issues": "Riparazione quando una sorgente non risponde",
+          "startup_issues": "Riparazione se irraggiungibile all'avvio",
           "failures_threshold": "Interrogazioni fallite prima della riparazione",
           "notify_recovery": "Notifica quando una sorgente torna a rispondere",
           "recovery_script": "Script di ripristino"
@@ -165,6 +168,7 @@
         "data_description": {
           "scan_interval": "Secondi tra un'interrogazione dell'inverter e la successiva.",
           "connection_issues": "Crea una riparazione quando Modbus o l'API REST del datalogger continuano a fallire con il sole alto. I fallimenti notturni vengono ignorati: un inverter che dorme non è un guasto.",
+          "startup_issues": "Crea la riparazione anche quando il dispositivo non risponde durante l'avvio della voce, dopo il numero di tentativi impostato. Disattivata per impostazione predefinita: un riavvio notturno di Home Assistant non è un guasto.",
           "failures_threshold": "Interrogazioni consecutive fallite di giorno prima che venga creata la riparazione. Dopo il terzo fallimento le interrogazioni rallentano a una ogni 5 minuti.",
           "notify_recovery": "Pubblica una notifica persistente quando una sorgente torna a rispondere dopo una riparazione.",
           "recovery_script": "Uno script da eseguire una sola volta quando viene creata la riparazione, ad esempio uno che riavvia il datalogger tramite una presa intelligente."

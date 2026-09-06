@@ -139,6 +139,7 @@
           "scan_interval": "Uuendusintervall",
           "power_control": "Võimsuspiirangu juhtimine (katseline)",
           "connection_issues": "Parandus, kui allikas ei vasta",
+          "startup_issues": "Parandus, kui käivitusel pole kättesaadav",
           "failures_threshold": "Nurjunud päringud enne parandust",
           "notify_recovery": "Teavita, kui allikas taas vastab",
           "recovery_script": "Taasteskript"
@@ -147,6 +148,7 @@
           "scan_interval": "Sekundid inverteri päringute vahel.",
           "power_control": "Näitab SunSpeci aktiivvõimsuse piirangut numbri ja lülitina. Pakutakse ainult inverteriperekondadele, millel VSN-kaart saab parameetreid seada (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50), ning natiivse SunSpeci juhtimisega inverteritele (REACT2, UNO-DM-PLUS, PVS). Kontrolli dokumentatsioonis kirjeldatud testiga, enne kui sellele lootma jääd.",
           "connection_issues": "Loo parandus, kui Modbus või andmelogeri REST API päikese ajal korduvalt nurjub. Öised nurjumised jäetakse tähelepanuta: magav inverter ei ole rike.",
+          "startup_issues": "Loob paranduse ka siis, kui seade kirje seadistamise ajal ei vasta, pärast seatud arvu katseid. Vaikimisi väljas: Home Assistanti öine taaskäivitus ei ole rike.",
           "failures_threshold": "Järjestikused nurjunud päringud päevavalguses enne paranduse loomist. Pärast kolmandat nurjumist aeglustuvad päringud iga 5 minuti tagant toimuvaks.",
           "notify_recovery": "Loo püsiv teavitus, kui allikas pärast paranduse loomist taas vastab.",
           "recovery_script": "Skript, mis käivitatakse üks kord paranduse loomisel, näiteks selline, mis taaskäivitab andmelogeri nutipistiku kaudu."
@@ -158,6 +160,7 @@
         "data": {
           "scan_interval": "Uuendusintervall",
           "connection_issues": "Parandus, kui allikas ei vasta",
+          "startup_issues": "Parandus, kui käivitusel pole kättesaadav",
           "failures_threshold": "Nurjunud päringud enne parandust",
           "notify_recovery": "Teavita, kui allikas taas vastab",
           "recovery_script": "Taasteskript"
@@ -165,6 +168,7 @@
         "data_description": {
           "scan_interval": "Sekundid inverteri päringute vahel.",
           "connection_issues": "Loo parandus, kui Modbus või andmelogeri REST API päikese ajal korduvalt nurjub. Öised nurjumised jäetakse tähelepanuta: magav inverter ei ole rike.",
+          "startup_issues": "Loob paranduse ka siis, kui seade kirje seadistamise ajal ei vasta, pärast seatud arvu katseid. Vaikimisi väljas: Home Assistanti öine taaskäivitus ei ole rike.",
           "failures_threshold": "Järjestikused nurjunud päringud päevavalguses enne paranduse loomist. Pärast kolmandat nurjumist aeglustuvad päringud iga 5 minuti tagant toimuvaks.",
           "notify_recovery": "Loo püsiv teavitus, kui allikas pärast paranduse loomist taas vastab.",
           "recovery_script": "Skript, mis käivitatakse üks kord paranduse loomisel, näiteks selline, mis taaskäivitab andmelogeri nutipistiku kaudu."

@@ -139,6 +139,7 @@
           "scan_interval": "Intervalle de mise à jour",
           "power_control": "Contrôle de la limite de puissance (expérimental)",
           "connection_issues": "Réparation quand une source est injoignable",
+          "startup_issues": "Réparation si injoignable au démarrage",
           "failures_threshold": "Interrogations échouées avant la réparation",
           "notify_recovery": "Notifier quand une source répond à nouveau",
           "recovery_script": "Script de récupération"
@@ -147,6 +148,7 @@
           "scan_interval": "Secondes entre deux interrogations de l'onduleur.",
           "power_control": "Expose la limite de puissance active SunSpec sous forme de nombre et d'interrupteur. Proposé seulement pour les familles d'onduleurs sur lesquelles une carte VSN peut régler des paramètres (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) et pour les onduleurs à commandes SunSpec natives (REACT2, UNO-DM-PLUS, PVS). Vérifiez avec le test décrit dans la documentation avant de vous y fier.",
           "connection_issues": "Crée une réparation quand Modbus ou l'API REST du datalogger échoue de façon répétée en plein jour. Les échecs nocturnes sont ignorés : un onduleur endormi n'est pas une panne.",
+          "startup_issues": "Crée la réparation aussi quand l'appareil ne répond pas pendant la mise en place de l'entrée, après le nombre de tentatives réglé. Désactivé par défaut : un redémarrage nocturne de Home Assistant n'est pas une panne.",
           "failures_threshold": "Interrogations échouées consécutives en plein jour avant que la réparation soit créée. Après le troisième échec, les interrogations passent à une toutes les 5 minutes.",
           "notify_recovery": "Publie une notification persistante quand une source répond à nouveau après une réparation.",
           "recovery_script": "Un script exécuté une seule fois quand la réparation est créée, par exemple un script qui redémarre le datalogger via une prise connectée."
@@ -158,6 +160,7 @@
         "data": {
           "scan_interval": "Intervalle de mise à jour",
           "connection_issues": "Réparation quand une source est injoignable",
+          "startup_issues": "Réparation si injoignable au démarrage",
           "failures_threshold": "Interrogations échouées avant la réparation",
           "notify_recovery": "Notifier quand une source répond à nouveau",
           "recovery_script": "Script de récupération"
@@ -165,6 +168,7 @@
         "data_description": {
           "scan_interval": "Secondes entre deux interrogations de l'onduleur.",
           "connection_issues": "Crée une réparation quand Modbus ou l'API REST du datalogger échoue de façon répétée en plein jour. Les échecs nocturnes sont ignorés : un onduleur endormi n'est pas une panne.",
+          "startup_issues": "Crée la réparation aussi quand l'appareil ne répond pas pendant la mise en place de l'entrée, après le nombre de tentatives réglé. Désactivé par défaut : un redémarrage nocturne de Home Assistant n'est pas une panne.",
           "failures_threshold": "Interrogations échouées consécutives en plein jour avant que la réparation soit créée. Après le troisième échec, les interrogations passent à une toutes les 5 minutes.",
           "notify_recovery": "Publie une notification persistante quand une source répond à nouveau après une réparation.",
           "recovery_script": "Un script exécuté une seule fois quand la réparation est créée, par exemple un script qui redémarre le datalogger via une prise connectée."

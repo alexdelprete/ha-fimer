@@ -51,6 +51,9 @@ DEVICE_TYPE_BATTERY: Final = "battery"
 CONF_CONNECTION_ISSUES: Final = "connection_issues"
 """Option: raise a repair issue when a source stays unreachable."""
 DEFAULT_CONNECTION_ISSUES: Final = True
+CONF_STARTUP_ISSUES: Final = "startup_issues"
+"""Option: count failed setup attempts towards the outage issue as well."""
+DEFAULT_STARTUP_ISSUES: Final = False
 CONF_FAILURES_THRESHOLD: Final = "failures_threshold"
 """Option: consecutive failed polls in daylight before the issue is raised."""
 DEFAULT_FAILURES_THRESHOLD: Final = 3

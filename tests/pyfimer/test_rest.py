@@ -166,8 +166,9 @@ async def test_not_a_datalogger(aiohttp_server: Any, session: ClientSession) -> 
 
 
 async def test_unreachable_host(session: ClientSession) -> None:
+    """A closed port fails fast at the TCP check, with the reason in the message."""
     client = VsnRestClient(session, "http://127.0.0.1:1", timeout=1)
-    with pytest.raises(FimerConnectionError):
+    with pytest.raises(FimerConnectionError, match=r"Cannot connect to 127\.0\.0\.1:1"):
         await client.detect()
 
 

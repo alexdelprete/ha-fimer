@@ -141,6 +141,7 @@ Open the integration's **Options** to change:
 | Update interval                     | `30` s  | Seconds between polls, 10 to 600, for both sources.                |
 | Power limit control (experimental)  | off     | SunSpec power limit entities, supported inverters only, see below.   |
 | Repair issue when unreachable       | on      | Raise a repair issue when a source keeps failing, see below.       |
+| Repair issue at startup             | off     | Also count failed setup attempts towards that issue.               |
 | Failed polls before the issue       | `3`     | Consecutive failed polls in daylight before the issue is raised.   |
 | Notify when a source recovers       | on      | Post a persistent notification when the source answers again.      |
 | Recovery script                     | none    | A script run once when the issue is raised, e.g. to reboot the card. |
@@ -368,8 +369,9 @@ one names the entry and clears by itself once the cause is gone.
   configured number of consecutive polls while the sun was up. Failures at night do not count,
   since an inverter without grid power answers nothing until sunrise. Both can be switched off in
   the options, where a recovery script can also be set, for example one that power-cycles the
-  datalogger through a smart plug. When the source answers again, the issue disappears and a
-  notification reports the recovery.
+  datalogger through a smart plug. Failed setup attempts count too when **Repair issue at
+  startup** is on; it is off by default so a restart at night raises nothing. When the source
+  answers again, the issue disappears and a notification reports the recovery.
 - **Datalogger firmware not supported**: a VSN300 on firmware 2.0.0 cannot serve live data, and
   upgrading it to 2.0.1 or later is mandatory. The issue carries the update steps; the entry stays
   in error until the card is updated and reloaded.

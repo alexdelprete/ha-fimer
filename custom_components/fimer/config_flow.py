@@ -56,6 +56,7 @@ from .const import (
     CONF_REST_MODEL,
     CONF_REST_REQUIRES_AUTH,
     CONF_REST_SECTION,
+    CONF_STARTUP_ISSUES,
     CONF_UNIT_ID,
     CONF_USE_MODBUS,
     CONF_USE_REST,
@@ -67,6 +68,7 @@ from .const import (
     DEFAULT_POWER_CONTROL,
     DEFAULT_REST_USERNAME,
     DEFAULT_SCAN_INTERVAL,
+    DEFAULT_STARTUP_ISSUES,
     DEFAULT_UNIT_ID,
     DOMAIN,
     LEGACY_REST_DOMAIN,
@@ -143,6 +145,7 @@ _POLLING_OPTIONS: dict[Any, Any] = {
 }
 _REPAIR_OPTIONS: dict[Any, Any] = {
     vol.Required(CONF_CONNECTION_ISSUES, default=DEFAULT_CONNECTION_ISSUES): BooleanSelector(),
+    vol.Required(CONF_STARTUP_ISSUES, default=DEFAULT_STARTUP_ISSUES): BooleanSelector(),
     vol.Required(CONF_FAILURES_THRESHOLD, default=DEFAULT_FAILURES_THRESHOLD): vol.All(
         NumberSelector(
             NumberSelectorConfig(

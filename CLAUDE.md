@@ -136,11 +136,10 @@ In addition to the shared Do's and Don'ts below:
   `SunSpecError` through; the coordinators, config flow, services and diagnostics catch those plus
   `TimeoutError` and `OSError` as a safety net and raise the matching HA exception
   (`UpdateFailed`, `ConfigEntryAuthFailed`, `ConfigEntryError`, `HomeAssistantError`,
-  `ServiceValidationError`). No traceback of ours may reach the log at ERROR level. In the
-  coordinators raise the HA exception `from None` with the cause in the message: HA logs the full
-  chain at DEBUG, and the Modbus stack is forty frames deep. `helpers.install_log_filters()` drops
-  the "Full exception" / "Full error:" stack dumps HA writes on the integration's loggers, since
-  every failure is already reported with its cause on one line.
+  `ServiceValidationError`), chained `from err` so diagnostics keep the cause. No traceback of
+  ours may reach the log: `helpers.install_log_filters()` drops the "Full exception" /
+  "Full error:" stack dumps HA writes on the integration's loggers at DEBUG, since every failure
+  is already reported with its cause on one line.
 - Make sensor `value_fn` converters tolerant: return `None` for a value the device should not have
   sent, never raise.
 - Log what the integration is doing at DEBUG in the library (discovery result, every register read

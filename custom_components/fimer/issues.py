@@ -21,9 +21,11 @@ from .const import (
     CONF_FAILURES_THRESHOLD,
     CONF_NOTIFY_RECOVERY,
     CONF_RECOVERY_SCRIPT,
+    CONF_STARTUP_ISSUES,
     DEFAULT_CONNECTION_ISSUES,
     DEFAULT_FAILURES_THRESHOLD,
     DEFAULT_NOTIFY_RECOVERY,
+    DEFAULT_STARTUP_ISSUES,
     DOMAIN,
     STATE_BELOW_HORIZON,
     SUN_ENTITY_ID,
@@ -46,6 +48,13 @@ LEARN_MORE_URL: Final = "https://github.com/alexdelprete/ha-fimer#troubleshootin
 
 SOURCE_MODBUS: Final = "modbus"
 SOURCE_REST: Final = "rest"
+
+DATA_STARTUP_FAILURES: Final = f"{DOMAIN}_startup_failures"
+"""hass.data key: failed setup attempts per (entry, source), kept across the retries."""
+
+
+def _startup_failures(hass: HomeAssistant) -> dict[tuple[str, str], int]:
+    return hass.data.setdefault(DATA_STARTUP_FAILURES, {})
 
 
 def issue_id(kind: str, entry_id: str) -> str:
@@ -134,6 +143,8 @@ class OutageMonitor:
         self.source = source
         self.kind = f"{ISSUE_CONNECTION_FAILED}_{source}"
         self.failures = 0
+        self.starting = True
+        """True until the first successful poll: failures are setup attempts."""
         if not self._enabled:
             # the option was switched off while an issue was raised
             async_delete_entry_issue(hass, entry.entry_id, self.kind)
@@ -155,14 +166,37 @@ class OutageMonitor:
         sun = self.hass.states.get(SUN_ENTITY_ID)
         return sun is None or sun.state != STATE_BELOW_HORIZON
 
+    @property
+    def _startup_enabled(self) -> bool:
+        return self.entry.options.get(CONF_STARTUP_ISSUES, DEFAULT_STARTUP_ISSUES)
+
     async def async_failure(self, error: str) -> None:
-        """Count a failed poll; raise the issue at the threshold."""
+        """Count a failed poll; raise the issue at the threshold.
+
+        While the entry is starting, every attempt creates a new coordinator,
+        so the count lives in ``hass.data`` and only counts when the startup
+        option is on: a Home Assistant restart at night is not a fault.
+        """
+        if self.starting:
+            key = (self.entry.entry_id, self.source)
+            store = _startup_failures(self.hass)
+            store[key] = self.failures = store.get(key, 0) + 1
+            _LOGGER.debug(
+                "Setup attempt %d of %s failed over %s: %s",
+                self.failures,
+                self.entry.title,
+                self.source,
+                error,
+            )
+            if not self._startup_enabled:
+                return
         if not self._enabled or self.raised:
             return
         if not self._daylight():
             self.failures = 0
             return
-        self.failures += 1
+        if not self.starting:
+            self.failures += 1
         if self.failures < self._threshold:
             return
         async_create_entry_issue(
@@ -187,6 +221,9 @@ class OutageMonitor:
     async def async_success(self) -> None:
         """Note a successful poll; clear the issue and announce the recovery."""
         self.failures = 0
+        if self.starting:
+            self.starting = False
+            _startup_failures(self.hass).pop((self.entry.entry_id, self.source), None)
         if not async_delete_entry_issue(self.hass, self.entry.entry_id, self.kind):
             return
         _LOGGER.info("The %s source of %s is reachable again", self.source, self.entry.title)

@@ -139,6 +139,7 @@
           "scan_interval": "Update interval",
           "power_control": "Power limit control (experimental)",
           "connection_issues": "Repair issue when a source is unreachable",
+          "startup_issues": "Repair issue when unreachable at startup",
           "failures_threshold": "Failed polls before the issue",
           "notify_recovery": "Notify when a source recovers",
           "recovery_script": "Recovery script"
@@ -147,6 +148,7 @@
           "scan_interval": "Seconds between polls of the inverter.",
           "power_control": "Expose the SunSpec active power limit as a number and a switch. Offered only for inverter families a VSN card can set parameters on (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) and for inverters with native SunSpec controls (REACT2, UNO-DM-PLUS, PVS). Verify with the test described in the documentation before relying on it.",
           "connection_issues": "Raise a repair issue when Modbus or the datalogger REST API keeps failing while the sun is up. Failures at night are ignored: a sleeping inverter is not a fault.",
+          "startup_issues": "Also raise the repair issue when the device does not answer while the entry is being set up, after the configured number of attempts. Off by default: a Home Assistant restart at night is not a fault.",
           "failures_threshold": "Consecutive failed polls in daylight before the issue is raised. Polls slow down to every 5 minutes after the third failure.",
           "notify_recovery": "Post a persistent notification when a source answers again after an issue was raised.",
           "recovery_script": "A script to run once when the issue is raised, for example one that power-cycles the datalogger through a smart plug."
@@ -158,6 +160,7 @@
         "data": {
           "scan_interval": "Update interval",
           "connection_issues": "Repair issue when a source is unreachable",
+          "startup_issues": "Repair issue when unreachable at startup",
           "failures_threshold": "Failed polls before the issue",
           "notify_recovery": "Notify when a source recovers",
           "recovery_script": "Recovery script"
@@ -165,6 +168,7 @@
         "data_description": {
           "scan_interval": "Seconds between polls of the inverter.",
           "connection_issues": "Raise a repair issue when Modbus or the datalogger REST API keeps failing while the sun is up. Failures at night are ignored: a sleeping inverter is not a fault.",
+          "startup_issues": "Also raise the repair issue when the device does not answer while the entry is being set up, after the configured number of attempts. Off by default: a Home Assistant restart at night is not a fault.",
           "failures_threshold": "Consecutive failed polls in daylight before the issue is raised. Polls slow down to every 5 minutes after the third failure.",
           "notify_recovery": "Post a persistent notification when a source answers again after an issue was raised.",
           "recovery_script": "A script to run once when the issue is raised, for example one that power-cycles the datalogger through a smart plug."

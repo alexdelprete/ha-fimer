@@ -139,6 +139,7 @@
           "scan_interval": "Päivitysväli",
           "power_control": "Tehorajoituksen ohjaus (kokeellinen)",
           "connection_issues": "Korjaus, kun lähde ei vastaa",
+          "startup_issues": "Korjaus, jos ei tavoiteta käynnistyksessä",
           "failures_threshold": "Epäonnistuneet kyselyt ennen korjausta",
           "notify_recovery": "Ilmoita, kun lähde vastaa taas",
           "recovery_script": "Palautusskripti"
@@ -147,6 +148,7 @@
           "scan_interval": "Sekunteja invertterin kyselyjen välillä.",
           "power_control": "Näyttää SunSpec-pätötehorajoituksen numerona ja kytkimenä. Tarjotaan vain invertteriperheille, joihin VSN-kortti voi asettaa parametreja (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50), sekä inverttereille, joissa on natiivi SunSpec-ohjaus (REACT2, UNO-DM-PLUS, PVS). Varmista asia dokumentaatiossa kuvatulla testillä ennen kuin luotat siihen.",
           "connection_issues": "Luo korjaus, kun Modbus tai dataloggerin REST-rajapinta epäonnistuu toistuvasti auringon ollessa ylhäällä. Yöaikaiset epäonnistumiset ohitetaan: nukkuva invertteri ei ole vika.",
+          "startup_issues": "Luo korjauksen myös, kun laite ei vastaa merkinnän käynnistyksen aikana, asetetun yritysmäärän jälkeen. Oletuksena pois: Home Assistantin öinen uudelleenkäynnistys ei ole vika.",
           "failures_threshold": "Peräkkäiset epäonnistuneet kyselyt päivänvalossa ennen korjauksen luomista. Kolmannen epäonnistumisen jälkeen kyselyt harvenevat 5 minuutin välein tapahtuviksi.",
           "notify_recovery": "Luo pysyvä ilmoitus, kun lähde vastaa taas korjauksen luomisen jälkeen.",
           "recovery_script": "Skripti, joka suoritetaan kerran korjauksen luomisen yhteydessä, esimerkiksi sellainen, joka käynnistää dataloggerin uudelleen älypistorasian kautta."
@@ -158,6 +160,7 @@
         "data": {
           "scan_interval": "Päivitysväli",
           "connection_issues": "Korjaus, kun lähde ei vastaa",
+          "startup_issues": "Korjaus, jos ei tavoiteta käynnistyksessä",
           "failures_threshold": "Epäonnistuneet kyselyt ennen korjausta",
           "notify_recovery": "Ilmoita, kun lähde vastaa taas",
           "recovery_script": "Palautusskripti"
@@ -165,6 +168,7 @@
         "data_description": {
           "scan_interval": "Sekunteja invertterin kyselyjen välillä.",
           "connection_issues": "Luo korjaus, kun Modbus tai dataloggerin REST-rajapinta epäonnistuu toistuvasti auringon ollessa ylhäällä. Yöaikaiset epäonnistumiset ohitetaan: nukkuva invertteri ei ole vika.",
+          "startup_issues": "Luo korjauksen myös, kun laite ei vastaa merkinnän käynnistyksen aikana, asetetun yritysmäärän jälkeen. Oletuksena pois: Home Assistantin öinen uudelleenkäynnistys ei ole vika.",
           "failures_threshold": "Peräkkäiset epäonnistuneet kyselyt päivänvalossa ennen korjauksen luomista. Kolmannen epäonnistumisen jälkeen kyselyt harvenevat 5 minuutin välein tapahtuviksi.",
           "notify_recovery": "Luo pysyvä ilmoitus, kun lähde vastaa taas korjauksen luomisen jälkeen.",
           "recovery_script": "Skripti, joka suoritetaan kerran korjauksen luomisen yhteydessä, esimerkiksi sellainen, joka käynnistää dataloggerin uudelleen älypistorasian kautta."

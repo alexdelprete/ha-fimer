@@ -139,6 +139,7 @@
           "scan_interval": "Uppdateringsintervall",
           "power_control": "Styrning av effektbegränsning (experimentell)",
           "connection_issues": "Reparation när en källa inte kan nås",
+          "startup_issues": "Reparation om onåbar vid start",
           "failures_threshold": "Misslyckade avläsningar före reparationen",
           "notify_recovery": "Meddela när en källa svarar igen",
           "recovery_script": "Återställningsskript"
@@ -147,6 +148,7 @@
           "scan_interval": "Sekunder mellan avläsningar av växelriktaren.",
           "power_control": "Visar SunSpec-begränsningen av aktiv effekt som ett tal och en strömbrytare. Erbjuds bara för växelriktarfamiljer där ett VSN-kort kan ställa in parametrar (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) och för växelriktare med inbyggd SunSpec-styrning (REACT2, UNO-DM-PLUS, PVS). Kontrollera med testet som beskrivs i dokumentationen innan du litar på det.",
           "connection_issues": "Skapa en reparation när Modbus eller dataloggerns REST-API fortsätter att misslyckas medan solen är uppe. Fel på natten ignoreras: en sovande växelriktare är inget fel.",
+          "startup_issues": "Skapar reparationen även när enheten inte svarar medan posten sätts upp, efter det inställda antalet försök. Av som standard: en omstart av Home Assistant på natten är inget fel.",
           "failures_threshold": "Misslyckade avläsningar i följd i dagsljus innan reparationen skapas. Efter det tredje felet saktar avläsningarna ner till var 5:e minut.",
           "notify_recovery": "Skapa en beständig avisering när en källa svarar igen efter att en reparation skapats.",
           "recovery_script": "Ett skript som körs en gång när reparationen skapas, till exempel ett som startar om dataloggern via ett smart uttag."
@@ -158,6 +160,7 @@
         "data": {
           "scan_interval": "Uppdateringsintervall",
           "connection_issues": "Reparation när en källa inte kan nås",
+          "startup_issues": "Reparation om onåbar vid start",
           "failures_threshold": "Misslyckade avläsningar före reparationen",
           "notify_recovery": "Meddela när en källa svarar igen",
           "recovery_script": "Återställningsskript"
@@ -165,6 +168,7 @@
         "data_description": {
           "scan_interval": "Sekunder mellan avläsningar av växelriktaren.",
           "connection_issues": "Skapa en reparation när Modbus eller dataloggerns REST-API fortsätter att misslyckas medan solen är uppe. Fel på natten ignoreras: en sovande växelriktare är inget fel.",
+          "startup_issues": "Skapar reparationen även när enheten inte svarar medan posten sätts upp, efter det inställda antalet försök. Av som standard: en omstart av Home Assistant på natten är inget fel.",
           "failures_threshold": "Misslyckade avläsningar i följd i dagsljus innan reparationen skapas. Efter det tredje felet saktar avläsningarna ner till var 5:e minut.",
           "notify_recovery": "Skapa en beständig avisering när en källa svarar igen efter att en reparation skapats.",
           "recovery_script": "Ett skript som körs en gång när reparationen skapas, till exempel ett som startar om dataloggern via ett smart uttag."

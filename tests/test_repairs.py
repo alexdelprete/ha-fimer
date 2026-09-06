@@ -24,6 +24,7 @@ from custom_components.fimer.const import (
     CONF_MIGRATE_FROM,
     CONF_NOTIFY_RECOVERY,
     CONF_RECOVERY_SCRIPT,
+    CONF_STARTUP_ISSUES,
     DOMAIN,
     LEGACY_REST_DOMAIN,
 )
@@ -428,4 +429,39 @@ async def test_issues_go_with_the_entry(
     assert _issue(issue_registry, "connection_failed_modbus", entry) is not None
     await hass.config_entries.async_remove(entry.entry_id)
     await hass.async_block_till_done()
+    assert _issue(issue_registry, "connection_failed_modbus", entry) is None
+
+
+async def test_startup_failures_count_only_with_the_option(
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,
+    mock_unit: MockModbusUnit,
+    issue_registry: ir.IssueRegistry,
+) -> None:
+    """Failed setup attempts raise the issue only when the startup option is on."""
+    entry = mock_config_entry
+    entry.add_to_hass(hass)
+    mock_unit.fail_requests(ModbusConnectionError("no route to host"))
+    hass.config_entries.async_update_entry(entry, options={CONF_FAILURES_THRESHOLD: 2})
+    for _ in range(3):
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+        assert entry.state is ConfigEntryState.SETUP_RETRY
+        await hass.config_entries.async_unload(entry.entry_id)
+    assert _issue(issue_registry, "connection_failed_modbus", entry) is None
+
+    hass.config_entries.async_update_entry(
+        entry, options={CONF_FAILURES_THRESHOLD: 2, CONF_STARTUP_ISSUES: True}
+    )
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    issue = _issue(issue_registry, "connection_failed_modbus", entry)
+    assert issue is not None
+    assert int(issue.translation_placeholders["failures"]) >= 2
+    await hass.config_entries.async_unload(entry.entry_id)
+
+    mock_unit.fail_requests(None)
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert entry.state is ConfigEntryState.LOADED
     assert _issue(issue_registry, "connection_failed_modbus", entry) is None

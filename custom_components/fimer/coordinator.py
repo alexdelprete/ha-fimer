@@ -1,9 +1,8 @@
 """Polling coordinator for the FIMER (ABB / Power-One) integration.
 
-The Home Assistant exceptions raised here carry the cause in their message
-and are raised ``from None`` on purpose: the coordinator and config entry
-machinery log the full chain at DEBUG, and a transport failure would
-otherwise print forty frames of the Modbus stack every poll.
+Every failure is reported on one line with its cause; the exception chain is
+kept for diagnostics, and :func:`helpers.install_log_filters` keeps Home
+Assistant from dumping it into the log at DEBUG.
 """
 
 from __future__ import annotations
@@ -103,10 +102,10 @@ class FimerCoordinator(DataUpdateCoordinator[FimerData]):
         try:
             await self._refresh()
         except (ModbusError, SunSpecError, FimerError, TimeoutError, OSError) as err:
-            await self._async_failed(str(err))
+            await self._async_failed(str(err), err)
         except Exception as err:
             _LOGGER.debug("Unexpected error polling %s", self.config_entry.title, exc_info=True)
-            await self._async_failed(f"unexpected {type(err).__name__}: {err}")
+            await self._async_failed(f"unexpected {type(err).__name__}: {err}", err)
 
         if self._failed_update_count:
             _LOGGER.debug(
@@ -120,7 +119,7 @@ class FimerCoordinator(DataUpdateCoordinator[FimerData]):
         await self.outage.async_success()
         return self.inverter.values()
 
-    async def _async_failed(self, error: str) -> None:
+    async def _async_failed(self, error: str, cause: BaseException) -> None:
         """Count a failed poll, stretch the interval for a sleeping inverter, raise."""
         self._failed_update_count += 1
         _LOGGER.debug(
@@ -145,7 +144,7 @@ class FimerCoordinator(DataUpdateCoordinator[FimerData]):
             translation_domain=DOMAIN,
             translation_key="update_failed",
             translation_placeholders={"error": error},
-        ) from None
+        ) from cause
 
     async def _refresh(self) -> None:
         """Discover on first use, then refresh; re-discover once on a map shift."""
@@ -213,14 +212,14 @@ class FimerSettingsCoordinator(DataUpdateCoordinator[FimerData]):
                 translation_domain=DOMAIN,
                 translation_key="update_failed",
                 translation_placeholders={"error": str(err)},
-            ) from None
+            ) from err
         except Exception as err:
             _LOGGER.debug("Unexpected error reading the controls", exc_info=True)
             raise UpdateFailed(
                 translation_domain=DOMAIN,
                 translation_key="update_failed",
                 translation_placeholders={"error": f"unexpected {type(err).__name__}: {err}"},
-            ) from None
+            ) from err
         return controls.values()
 
     async def async_apply_power_limit(
@@ -234,14 +233,14 @@ class FimerSettingsCoordinator(DataUpdateCoordinator[FimerData]):
                 translation_domain=DOMAIN,
                 translation_key="write_failed",
                 translation_placeholders={"error": str(err)},
-            ) from None
+            ) from err
         except Exception as err:
             _LOGGER.debug("Unexpected error writing the power limit", exc_info=True)
             raise HomeAssistantError(
                 translation_domain=DOMAIN,
                 translation_key="write_failed",
                 translation_placeholders={"error": f"unexpected {type(err).__name__}: {err}"},
-            ) from None
+            ) from err
         await self.async_refresh()
 
 
@@ -296,7 +295,7 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
                 translation_domain=DOMAIN,
                 translation_key="invalid_auth",
                 translation_placeholders={"error": str(err)},
-            ) from None
+            ) from err
         except FimerUnsupportedFirmwareError as err:
             # the card needs a firmware update; retrying will not help
             async_create_entry_issue(
@@ -310,14 +309,14 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
                 translation_domain=DOMAIN,
                 translation_key="unsupported_firmware",
                 translation_placeholders={"firmware_version": err.firmware_version or "?"},
-            ) from None
+            ) from err
         except (FimerError, TimeoutError, OSError) as err:
-            await self._async_failed(str(err))
+            await self._async_failed(str(err), err)
         except Exception as err:
             _LOGGER.debug(
                 "Unexpected error polling the datalogger of %s", entry.title, exc_info=True
             )
-            await self._async_failed(f"unexpected {type(err).__name__}: {err}")
+            await self._async_failed(f"unexpected {type(err).__name__}: {err}", err)
 
         if self._failed_update_count:
             _LOGGER.debug(
@@ -339,7 +338,7 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
             self._async_check_known_devices(values)
         return values
 
-    async def _async_failed(self, error: str) -> None:
+    async def _async_failed(self, error: str, cause: BaseException) -> None:
         """Count a failed poll, stretch the interval for a dark card, raise."""
         self._failed_update_count += 1
         _LOGGER.debug(
@@ -362,7 +361,7 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
             translation_domain=DOMAIN,
             translation_key="update_failed",
             translation_placeholders={"error": error},
-        ) from None
+        ) from cause
 
     @callback
     def async_seed_known_devices(self) -> None:

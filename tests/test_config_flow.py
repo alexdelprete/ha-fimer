@@ -23,6 +23,7 @@ from custom_components.fimer.const import (
     CONF_REST_MODEL,
     CONF_REST_REQUIRES_AUTH,
     CONF_REST_SECTION,
+    CONF_STARTUP_ISSUES,
     CONF_UNIT_ID,
     CONF_USE_MODBUS,
     CONF_USE_REST,
@@ -252,6 +253,7 @@ async def test_options_flow(hass: HomeAssistant, init_integration: MockConfigEnt
         CONF_SCAN_INTERVAL: 60,
         CONF_POWER_CONTROL: False,
         CONF_CONNECTION_ISSUES: True,
+        CONF_STARTUP_ISSUES: False,
         CONF_FAILURES_THRESHOLD: 3,
         CONF_NOTIFY_RECOVERY: True,
     }

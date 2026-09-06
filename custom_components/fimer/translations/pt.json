@@ -139,6 +139,7 @@
           "scan_interval": "Intervalo de atualização",
           "power_control": "Controlo do limite de potência (experimental)",
           "connection_issues": "Reparação quando uma fonte não responde",
+          "startup_issues": "Reparação se inacessível no arranque",
           "failures_threshold": "Consultas falhadas antes da reparação",
           "notify_recovery": "Notificar quando uma fonte voltar a responder",
           "recovery_script": "Script de recuperação"
@@ -147,6 +148,7 @@
           "scan_interval": "Segundos entre consultas ao inversor.",
           "power_control": "Expõe o limite de potência ativa SunSpec como um número e um interruptor. Oferecido apenas para as famílias de inversores em que uma placa VSN pode definir parâmetros (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) e para inversores com controlos SunSpec nativos (REACT2, UNO-DM-PLUS, PVS). Verifique com o teste descrito na documentação antes de confiar nisso.",
           "connection_issues": "Cria uma reparação quando o Modbus ou a API REST do datalogger falham repetidamente com o sol alto. As falhas noturnas são ignoradas: um inversor a dormir não é uma avaria.",
+          "startup_issues": "Cria a reparação também quando o dispositivo não responde durante a configuração da entrada, após o número de tentativas definido. Desativado por predefinição: um reinício noturno do Home Assistant não é uma avaria.",
           "failures_threshold": "Consultas falhadas consecutivas durante o dia antes de a reparação ser criada. Após a terceira falha, as consultas passam a uma a cada 5 minutos.",
           "notify_recovery": "Publica uma notificação persistente quando uma fonte volta a responder depois de uma reparação.",
           "recovery_script": "Um script executado uma única vez quando a reparação é criada, por exemplo um que reinicia o datalogger através de uma tomada inteligente."
@@ -158,6 +160,7 @@
         "data": {
           "scan_interval": "Intervalo de atualização",
           "connection_issues": "Reparação quando uma fonte não responde",
+          "startup_issues": "Reparação se inacessível no arranque",
           "failures_threshold": "Consultas falhadas antes da reparação",
           "notify_recovery": "Notificar quando uma fonte voltar a responder",
           "recovery_script": "Script de recuperação"
@@ -165,6 +168,7 @@
         "data_description": {
           "scan_interval": "Segundos entre consultas ao inversor.",
           "connection_issues": "Cria uma reparação quando o Modbus ou a API REST do datalogger falham repetidamente com o sol alto. As falhas noturnas são ignoradas: um inversor a dormir não é uma avaria.",
+          "startup_issues": "Cria a reparação também quando o dispositivo não responde durante a configuração da entrada, após o número de tentativas definido. Desativado por predefinição: um reinício noturno do Home Assistant não é uma avaria.",
           "failures_threshold": "Consultas falhadas consecutivas durante o dia antes de a reparação ser criada. Após a terceira falha, as consultas passam a uma a cada 5 minutos.",
           "notify_recovery": "Publica uma notificação persistente quando uma fonte volta a responder depois de uma reparação.",
           "recovery_script": "Um script executado uma única vez quando a reparação é criada, por exemplo um que reinicia o datalogger através de uma tomada inteligente."

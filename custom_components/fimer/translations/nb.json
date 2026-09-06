@@ -139,6 +139,7 @@
           "scan_interval": "Oppdateringsintervall",
           "power_control": "Styring av effektbegrensning (eksperimentell)",
           "connection_issues": "Reparasjon når en kilde ikke kan nås",
+          "startup_issues": "Reparasjon hvis utilgjengelig ved oppstart",
           "failures_threshold": "Mislykkede avlesninger før reparasjonen",
           "notify_recovery": "Varsle når en kilde svarer igjen",
           "recovery_script": "Gjenopprettingsskript"
@@ -147,6 +148,7 @@
           "scan_interval": "Sekunder mellom avlesninger av vekselretteren.",
           "power_control": "Viser SunSpec-begrensningen av aktiv effekt som et tall og en bryter. Tilbys bare for vekselretterfamilier der et VSN-kort kan stille inn parametere (TRIO-5.8/7.5/8.5, UNO-7.6/8.6, TRIO-50) og for vekselrettere med innebygd SunSpec-styring (REACT2, UNO-DM-PLUS, PVS). Kontroller med testen beskrevet i dokumentasjonen før du stoler på det.",
           "connection_issues": "Opprett en reparasjon når Modbus eller dataloggerens REST-API fortsetter å feile mens solen er oppe. Feil om natten ignoreres: en sovende vekselretter er ingen feil.",
+          "startup_issues": "Oppretter reparasjonen også når enheten ikke svarer mens oppføringen settes opp, etter det innstilte antallet forsøk. Av som standard: en omstart av Home Assistant om natten er ingen feil.",
           "failures_threshold": "Mislykkede avlesninger på rad i dagslys før reparasjonen opprettes. Etter den tredje feilen går avlesningene ned til hvert 5. minutt.",
           "notify_recovery": "Legg ut et vedvarende varsel når en kilde svarer igjen etter at en reparasjon ble opprettet.",
           "recovery_script": "Et skript som kjøres én gang når reparasjonen opprettes, for eksempel et som starter dataloggeren på nytt via en smartplugg."
@@ -158,6 +160,7 @@
         "data": {
           "scan_interval": "Oppdateringsintervall",
           "connection_issues": "Reparasjon når en kilde ikke kan nås",
+          "startup_issues": "Reparasjon hvis utilgjengelig ved oppstart",
           "failures_threshold": "Mislykkede avlesninger før reparasjonen",
           "notify_recovery": "Varsle når en kilde svarer igjen",
           "recovery_script": "Gjenopprettingsskript"
@@ -165,6 +168,7 @@
         "data_description": {
           "scan_interval": "Sekunder mellom avlesninger av vekselretteren.",
           "connection_issues": "Opprett en reparasjon når Modbus eller dataloggerens REST-API fortsetter å feile mens solen er oppe. Feil om natten ignoreres: en sovende vekselretter er ingen feil.",
+          "startup_issues": "Oppretter reparasjonen også når enheten ikke svarer mens oppføringen settes opp, etter det innstilte antallet forsøk. Av som standard: en omstart av Home Assistant om natten er ingen feil.",
           "failures_threshold": "Mislykkede avlesninger på rad i dagslys før reparasjonen opprettes. Etter den tredje feilen går avlesningene ned til hvert 5. minutt.",
           "notify_recovery": "Legg ut et vedvarende varsel når en kilde svarer igjen etter at en reparasjon ble opprettet.",
           "recovery_script": "Et skript som kjøres én gang når reparasjonen opprettes, for eksempel et som starter dataloggeren på nytt via en smartplugg."

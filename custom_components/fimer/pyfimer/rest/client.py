@@ -8,11 +8,14 @@ lifecycle stays with the caller (in Home Assistant, the shared session).
 
 from __future__ import annotations
 
+import asyncio
+import contextlib
 from enum import StrEnum
 import json
 import logging
 import re
 from typing import Any, Final
+from urllib.parse import urlparse
 
 import aiohttp
 
@@ -81,6 +84,7 @@ class VsnRestClient:
         identified from the status keys; a 404 is not a VSN datalogger.
         """
         url = f"{self.base_url}{ENDPOINT_STATUS}"
+        await self._check_reachable()
         try:
             async with self._session.get(url, timeout=self._timeout) as response:
                 if response.status == 401:
@@ -99,10 +103,17 @@ class VsnRestClient:
                     _LOGGER.debug("Detected an open %s at %s", self.model, self.base_url)
                     return self.model
                 elif response.status == 404:
+                    _LOGGER.error("%s answers HTTP 404: not a VSN300 / VSN700 REST API", url)
                     raise FimerUnsupportedDeviceError(
                         f"{self.base_url} has no VSN REST API (HTTP 404)"
                     )
                 else:
+                    _LOGGER.error(
+                        "Unexpected HTTP %s from %s during detection; headers: %s",
+                        response.status,
+                        url,
+                        dict(response.headers),
+                    )
                     raise FimerDetectionError(
                         f"Unexpected HTTP {response.status} from {url} during detection"
                     )
@@ -115,11 +126,18 @@ class VsnRestClient:
                     self.model, self.requires_auth = VsnModel.VSN700, True
                     _LOGGER.debug("Detected a VSN700 at %s (basic credentials)", self.base_url)
                     return self.model
+                _LOGGER.error(
+                    "%s accepted neither digest nor basic credentials (HTTP %s); headers: %s",
+                    url,
+                    response.status,
+                    dict(response.headers),
+                )
                 raise FimerDetectionError(
                     f"Neither digest nor basic authentication accepted by {url} "
                     f"(HTTP {response.status})"
                 )
         except (aiohttp.ClientError, TimeoutError, OSError) as err:
+            _LOGGER.debug("Connection error during detection at %s: %s", url, err)
             raise FimerConnectionError(f"Cannot reach {url}: {err}") from err
 
     async def get_status(self) -> dict[str, Any]:
@@ -145,12 +163,50 @@ class VsnRestClient:
                     payload = await _read_json(response)
                     _LOGGER.debug("GET %s: HTTP 200, %s", url, _describe_payload(payload))
                     return payload
-                _LOGGER.debug("GET %s: HTTP %s", url, response.status)
                 if response.status == 401:
+                    _LOGGER.error(
+                        "%s rejected the credentials for %s (HTTP 401); headers: %s",
+                        self.model,
+                        url,
+                        dict(response.headers),
+                    )
                     raise FimerAuthenticationError(f"{self.model} rejected the credentials")
+                _LOGGER.error(
+                    "Request to %s failed: HTTP %s; headers: %s",
+                    url,
+                    response.status,
+                    dict(response.headers),
+                )
                 raise FimerConnectionError(f"HTTP {response.status} from {url}")
         except (aiohttp.ClientError, TimeoutError, OSError) as err:
+            _LOGGER.debug("Connection error requesting %s: %s (%s)", url, err, type(err).__name__)
             raise FimerConnectionError(f"Request to {url} failed: {err}") from err
+
+    async def _check_reachable(self) -> None:
+        """Open and close a TCP connection to the card before the first HTTP request.
+
+        A dead host fails fast here with a plain "cannot connect" instead of
+        an HTTP timeout, and the reason (refused, unreachable, timed out) is
+        kept for the log.
+        """
+        parsed = urlparse(self.base_url)
+        host = parsed.hostname or self.base_url
+        port = parsed.port or (443 if parsed.scheme == "https" else 80)
+        _LOGGER.debug("Checking the TCP connection to %s:%s", host, port)
+        try:
+            _, writer = await asyncio.wait_for(
+                asyncio.open_connection(host, port), timeout=self._timeout.total
+            )
+        except TimeoutError as err:
+            _LOGGER.debug("Timeout connecting to %s:%s; the card may be off", host, port)
+            raise FimerConnectionError(f"Timeout connecting to {host}:{port}") from err
+        except OSError as err:
+            _LOGGER.debug("Cannot connect to %s:%s: %s", host, port, err)
+            raise FimerConnectionError(f"Cannot connect to {host}:{port}: {err}") from err
+        writer.close()
+        with contextlib.suppress(OSError):
+            await writer.wait_closed()
+        _LOGGER.debug("TCP connection to %s:%s succeeded", host, port)
 
     async def _auth_headers(self, uri: str) -> dict[str, str]:
         if not self.requires_auth:
@@ -161,11 +217,18 @@ class VsnRestClient:
         url = f"{self.base_url}{uri}"
         async with self._session.get(url, timeout=self._timeout) as response:
             if response.status != 401:
+                _LOGGER.error(
+                    "Expected a digest challenge from %s, got HTTP %s; headers: %s",
+                    url,
+                    response.status,
+                    dict(response.headers),
+                )
                 raise FimerAuthenticationError(
                     f"Expected a digest challenge from {url}, got HTTP {response.status}"
                 )
             www_authenticate = response.headers.get("WWW-Authenticate", "")
         if "digest" not in www_authenticate.lower():
+            _LOGGER.error("%s did not issue a digest challenge: %r", url, www_authenticate)
             raise FimerAuthenticationError(f"{url} did not issue a digest challenge")
         challenge = parse_digest_challenge(www_authenticate)
         digest = build_digest_header(self._username, self._password, challenge, "GET", uri)
