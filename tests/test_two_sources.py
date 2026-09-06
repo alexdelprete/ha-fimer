@@ -50,7 +50,7 @@ async def test_both_sources_on_a_vsn300(
     assert inverter.via_device_id == logger.id
     assert logger.model == "WIFI LOGGER CARD"
     assert logger.sw_version == "2.0.1"
-    assert logger.configuration_url == "http://ABB-YYYYYY-3G82-XXXX.local"
+    assert logger.configuration_url == f"http://{host}"
 
     # Modbus wins for a point both sources report
     assert hass.states.get("sensor.pvi_10_0_outd_power_ac").state == "1500"

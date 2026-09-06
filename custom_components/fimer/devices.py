@@ -12,6 +12,7 @@ from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Final
 
+from homeassistant.const import CONF_HOST
 from homeassistant.core import CALLBACK_TYPE, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 
@@ -122,7 +123,9 @@ def build_devices(
                     model=identity.board_model or str(identity.model),
                     serial_number=identity.serial_number,
                     sw_version=identity.firmware_version,
-                    configuration_url=f"http://{identity.hostname}" if identity.hostname else None,
+                    # the card reports an mDNS-style name that resolves nowhere; use the
+                    # address the user configured
+                    configuration_url=f"http://{rest.config_entry.data[CONF_HOST]}",
                 ),
                 rest=rest,
                 rest_device_id=_rest_datalogger_id(rest),
