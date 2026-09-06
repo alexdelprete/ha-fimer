@@ -12,6 +12,7 @@
         "GIT_EDITOR=code --wait",
         "--security-opt=label=disable",
         "--name=devc-fimer",
+        "-p", "8123:8123",
         "--label", "proxy.aliases=fimer.code,fimer.hadev",
         "--label", "proxy.#1.port=8443",
         "--label", "proxy.#1.scheme=http",
