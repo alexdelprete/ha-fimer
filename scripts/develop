@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Run a live Home Assistant dev instance with this integration loaded.
+# Started automatically by the devcontainer's postStartCommand (log: config/hass-dev.log);
+# run it by hand after stopping that instance to see the output in a terminal.
 # HA itself comes from the ha-venv (version pinned via pytest-homeassistant-custom-component).
 # config/configuration.yaml is versioned; runtime state under config/ is gitignored.
 set -e

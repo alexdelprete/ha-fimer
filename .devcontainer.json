@@ -21,7 +21,7 @@
         "--label", "proxy.#2.homepage.name=fimer hadev"
     ],
     "postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && sudo rm -rf ./*.egg-info && uv pip install -e '.[dev]' --config-settings editable_mode=compat && pre-commit install",
-    "postStartCommand": "uv pip install -q -e '.[dev]' --config-settings editable_mode=compat",
+    "postStartCommand": "uv pip install -q -e '.[dev]' --config-settings editable_mode=compat && (nohup bash scripts/develop > config/hass-dev.log 2>&1 &)",
     "forwardPorts": [8123],
     "portsAttributes": {
         "8123": {
