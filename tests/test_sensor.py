@@ -9,15 +9,11 @@ from freezegun.api import FrozenDateTimeFactory
 from modbus_connection import ModbusConnectionError
 from modbus_connection.mock import MockModbusUnit
 import pytest
-from pytest_homeassistant_custom_component.common import (
-    MockConfigEntry,
-    async_fire_time_changed,
-    mock_restore_cache_with_extra_data,
-)
+from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 
 from custom_components.fimer.pyfimer.modbus.testing import InverterSpec
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
-from homeassistant.core import HomeAssistant, State
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
 from .conftest import INVERTER_SPEC, default_register_map
@@ -107,21 +103,26 @@ async def test_point_appearing_later_gets_a_sensor(
     assert state.state == "350.0"
 
 
-async def test_energy_sensor_keeps_value_while_offline(
+async def test_every_sensor_unavailable_while_offline(
     hass: HomeAssistant,
     init_integration: MockConfigEntry,
     mock_unit: MockModbusUnit,
     freezer: FrozenDateTimeFactory,
 ) -> None:
-    """When the inverter sleeps, measurements go unavailable but counters stay."""
+    """When the inverter sleeps, every reading goes unavailable, counters included."""
     mock_unit.fail_requests(ModbusConnectionError("asleep"))
     freezer.tick(timedelta(seconds=31))
     async_fire_time_changed(hass)
     await hass.async_block_till_done()
 
     assert hass.states.get("sensor.pvi_10_0_outd_power_ac").state == STATE_UNAVAILABLE
-    assert hass.states.get("sensor.pvi_10_0_outd_energy_ac_produced_lifetime").state == "1234.567"
-    assert hass.states.get("sensor.pvi_10_0_outd_energy_ac_produced_today").state == "12.345"
+    assert (
+        hass.states.get("sensor.pvi_10_0_outd_energy_ac_produced_lifetime").state
+        == STATE_UNAVAILABLE
+    )
+    assert (
+        hass.states.get("sensor.pvi_10_0_outd_energy_ac_produced_today").state == STATE_UNAVAILABLE
+    )
 
     mock_unit.fail_requests(None)
     freezer.tick(timedelta(seconds=31))
@@ -140,32 +141,11 @@ async def _restart_with_energy_unreported(
     mock_unit.holding.update(default_register_map(inverter=_inverter_with_energy(0)))
 
 
-async def test_energy_sensor_restores_last_value(
+async def test_energy_sensor_not_yet_reported_is_unknown(
     hass: HomeAssistant, init_integration: MockConfigEntry, mock_unit: MockModbusUnit
 ) -> None:
-    """A counter not yet reported after a restart shows the restored value, not a gap."""
+    """A counter registered before but not reported after a restart exists and is unknown."""
     await _restart_with_energy_unreported(hass, init_integration, mock_unit)
-    mock_restore_cache_with_extra_data(
-        hass,
-        (
-            (
-                State("sensor.pvi_10_0_outd_energy_ac_produced_lifetime", "1234.567"),
-                {"native_value": 1234567, "native_unit_of_measurement": "Wh"},
-            ),
-        ),
-    )
-    await hass.config_entries.async_setup(init_integration.entry_id)
-    await hass.async_block_till_done()
-
-    assert hass.states.get("sensor.pvi_10_0_outd_energy_ac_produced_lifetime").state == "1234.567"
-
-
-async def test_energy_sensor_without_history_is_unknown(
-    hass: HomeAssistant, init_integration: MockConfigEntry, mock_unit: MockModbusUnit
-) -> None:
-    """A counter not yet reported after a restart with nothing to restore is unknown."""
-    await _restart_with_energy_unreported(hass, init_integration, mock_unit)
-    mock_restore_cache_with_extra_data(hass, ())
     await hass.config_entries.async_setup(init_integration.entry_id)
     await hass.async_block_till_done()
 

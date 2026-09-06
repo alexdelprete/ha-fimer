@@ -200,9 +200,10 @@ sensors on the next poll as well.
   State of charge and health, voltage, current and power, cell voltage and temperature extremes,
   charge and discharge cycles, and the charge and discharge energies, lifetime and periodic.
 
-When the inverter is powered down at night, its measurements become unavailable. Energy counters
-keep their last value, restored across restarts, so long-term statistics and the energy dashboard
-keep their history. Connection loss is handled automatically: the shared Modbus connection
+When the inverter is powered down at night, every reading becomes unavailable, energy counters
+included; a VSN card draws its power from the inverter, so the datalogger's sensors follow. Long-term
+statistics and the energy dashboard are not affected: a counter simply resumes from its real value
+in the morning. Connection loss is handled automatically: the shared Modbus connection
 reconnects on the next poll and the integration does not reload. After three failed polls in a
 row a source is polled every five minutes until it answers again; the other source keeps its own
 schedule.

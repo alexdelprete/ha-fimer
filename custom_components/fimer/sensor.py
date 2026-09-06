@@ -9,7 +9,6 @@ from typing import Any
 
 from homeassistant.components.sensor import (
     DOMAIN as SENSOR_DOMAIN,
-    RestoreSensor,
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
@@ -452,8 +451,8 @@ async def async_setup_entry(
     can appear later (a counter that reads as not implemented until the
     inverter has fully booted), so sensors are created for the points seen
     so far and every later refresh adds the newly seen ones. Sensors
-    registered by an earlier run come back right away, so an energy counter
-    not yet reported shows its restored value. Devices the datalogger
+    registered by an earlier run come back right away, unknown until their
+    point is reported, so an entity never vanishes between restarts. Devices the datalogger
     reports after setup arrive over the dispatcher and get the same
     treatment.
     """
@@ -474,7 +473,7 @@ async def async_setup_entry(
         def _async_add_seen_sensors() -> None:
             seen = [key for key in pending if key in known or device.value(key) is not None]
             if seen:
-                async_add_entities(_sensor_for(device, pending.pop(key)) for key in seen)
+                async_add_entities(FimerSensor(device, pending.pop(key)) for key in seen)
 
         _async_add_seen_sensors()
         entry.async_on_unload(device.async_add_listener(_async_add_seen_sensors))
@@ -490,14 +489,6 @@ async def async_setup_entry(
             hass, f"{SIGNAL_NEW_DEVICES}_{entry.entry_id}", _async_setup_devices
         )
     )
-
-
-def _sensor_for(device: FimerDevice, description: FimerSensorEntityDescription) -> FimerSensor:
-    if description.device_class is SensorDeviceClass.ENERGY:
-        # energy counters keep their last value through the night; other totals,
-        # such as the card's uptime, go unavailable like every other reading
-        return FimerEnergySensor(device, description)
-    return FimerSensor(device, description)
 
 
 class FimerSensor(SensorEntity):
@@ -534,38 +525,3 @@ class FimerSensor(SensorEntity):
         if description.value_fn is not None:
             return description.value_fn(value)
         return value
-
-
-class FimerEnergySensor(FimerSensor, RestoreSensor):
-    """An energy counter that keeps its last value while the device sleeps.
-
-    A PVI without grid power at night answers nothing, and an energy
-    sensor going unavailable every evening would leave gaps in the
-    long-term statistics. The last reading is kept instead, restored across
-    restarts.
-    """
-
-    _last_value: float | None = None
-
-    async def async_added_to_hass(self) -> None:
-        """Restore the last reading if no source has one yet."""
-        await super().async_added_to_hass()
-        if (
-            self._last_value is not None
-            or (data := await self.async_get_last_sensor_data()) is None
-        ):
-            return
-        if isinstance(data.native_value, (int, float)):
-            self._last_value = data.native_value
-
-    @property
-    def available(self) -> bool:
-        """Stay available with the last reading while the device is offline."""
-        return super().available or self._last_value is not None
-
-    @property
-    def native_value(self) -> float | None:
-        """Return the latest reading, or the last one while the device is offline."""
-        if isinstance(value := super().native_value, (int, float)):
-            self._last_value = value
-        return self._last_value
