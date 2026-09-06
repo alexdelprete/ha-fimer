@@ -71,7 +71,7 @@ async def test_unimplemented_points_have_no_sensor(
 ) -> None:
     """Points the inverter does not implement create no entity at all."""
     assert hass.states.get("sensor.pvi_10_0_outd_voltage_dc") is None
-    assert hass.states.get("sensor.pvi_10_0_outd_energy_dc_input_1_lifetime") is None
+    assert hass.states.get("sensor.pvi_10_0_outd_energy_dc_string_1_lifetime") is None
     assert hass.states.get("sensor.pvi_10_0_outd_temperature_heat_sink") is None
     assert hass.states.get("sensor.pvi_10_0_outd_current_dc_string_3") is None
 

@@ -76,6 +76,10 @@ SHARED_NAME_ALIASES: Final[dict[str, str]] = {
     "Pin": "DCW",
     "Temp1": "TmpCab",
     "TempBst": "Booster_Tmp",
+    "TempInv": "Tmp",
+    "Ein1": "DCWH_1",
+    "Ein2": "DCWH_2",
+    "Ein3": "DCWH_3",
     "cosPhi": "Inverter_CosPhi",
 }
 """Mapping names that are aliases of another vocabulary point."""

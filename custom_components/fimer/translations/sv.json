@@ -193,15 +193,6 @@
       "vendor_operating_state": {
         "name": "Status - Drift (tillverkare)"
       },
-      "dc_energy_input_1": {
-        "name": "Energi DC - Ingång 1 (Totalt)"
-      },
-      "dc_energy_input_2": {
-        "name": "Energi DC - Ingång 2 (Totalt)"
-      },
-      "dc_energy_input_3": {
-        "name": "Energi DC - Ingång 3 (Totalt)"
-      },
       "alarms": {
         "name": "Larm - Aktiva"
       },
@@ -210,9 +201,6 @@
       },
       "energy_partial": {
         "name": "Energi AC - Producerad (Delräknare)"
-      },
-      "inverter_temperature": {
-        "name": "Temperatur - Växelriktare"
       },
       "isolation_resistance_input_2": {
         "name": "Resistans - Isolation (Ingång 2)"

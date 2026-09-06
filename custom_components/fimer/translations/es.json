@@ -193,15 +193,6 @@
       "vendor_operating_state": {
         "name": "Estado - Funcionamiento (fabricante)"
       },
-      "dc_energy_input_1": {
-        "name": "Energía DC - Entrada 1 (Total)"
-      },
-      "dc_energy_input_2": {
-        "name": "Energía DC - Entrada 2 (Total)"
-      },
-      "dc_energy_input_3": {
-        "name": "Energía DC - Entrada 3 (Total)"
-      },
       "alarms": {
         "name": "Alarmas - Activas"
       },
@@ -210,9 +201,6 @@
       },
       "energy_partial": {
         "name": "Energía AC - Producida (Parcial)"
-      },
-      "inverter_temperature": {
-        "name": "Temperatura - Inversor"
       },
       "isolation_resistance_input_2": {
         "name": "Resistencia - Aislamiento (Entrada 2)"

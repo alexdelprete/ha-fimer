@@ -43,6 +43,7 @@ from .pyfimer import ALARM_CODES, DCDC_STATES, GLOBAL_STATES, INVERTER_STATES
 from .pyfimer.modbus import Enabled, OperatingState
 from .pyfimer.points import MPPT_INPUTS
 from .pyfimer.rest import REST_POINTS, RestPoint
+from .pyfimer.rest.mapping import SHARED_NAME_ALIASES
 
 PARALLEL_UPDATES = 0
 
@@ -188,7 +189,7 @@ def _mppt_descriptions(number: int) -> tuple[FimerSensorEntityDescription, ...]:
         _current(f"DCA_{number}", f"dc_current_{number}"),
         _voltage(f"DCV_{number}", f"dc_voltage_{number}"),
         _power(f"DCW_{number}", f"dc_power_{number}"),
-        _energy(f"DCWH_{number}", f"dc_energy_input_{number}", invalid_when_zero=True),
+        _energy(f"DCWH_{number}", f"ein{number}", invalid_when_zero=True),
     )
 
 
@@ -314,7 +315,7 @@ SENSOR_DESCRIPTIONS: tuple[FimerSensorEntityDescription, ...] = (
     _energy("YearWH", "year_wh"),
     _energy("TotalWH", "energy_total_vendor", invalid_when_zero=True, enabled=False),
     _energy("PartialWH", "energy_partial", enabled=False),
-    _temperature("Tmp", "inverter_temperature"),
+    _temperature("Tmp", "temp_inv"),
     _temperature("Booster_Tmp", "booster_tmp"),
     _measurement(
         "Isolation_Ohm1",
@@ -430,7 +431,9 @@ def _rest_description(point: RestPoint) -> FimerSensorEntityDescription:
 
 _HAND_WRITTEN = {description.key for description in SENSOR_DESCRIPTIONS}
 REST_SENSOR_DESCRIPTIONS: tuple[FimerSensorEntityDescription, ...] = tuple(
-    _rest_description(point) for point in REST_POINTS if point.name not in _HAND_WRITTEN
+    _rest_description(point)
+    for point in REST_POINTS
+    if SHARED_NAME_ALIASES.get(point.name, point.name) not in _HAND_WRITTEN
 )
 ALL_DESCRIPTIONS: tuple[FimerSensorEntityDescription, ...] = (
     *SENSOR_DESCRIPTIONS,

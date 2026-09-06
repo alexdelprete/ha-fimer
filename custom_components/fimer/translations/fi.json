@@ -193,15 +193,6 @@
       "vendor_operating_state": {
         "name": "Tila - Toiminta (valmistaja)"
       },
-      "dc_energy_input_1": {
-        "name": "Energia DC - Tulo 1 (Yhteensä)"
-      },
-      "dc_energy_input_2": {
-        "name": "Energia DC - Tulo 2 (Yhteensä)"
-      },
-      "dc_energy_input_3": {
-        "name": "Energia DC - Tulo 3 (Yhteensä)"
-      },
       "alarms": {
         "name": "Hälytykset - Aktiiviset"
       },
@@ -210,9 +201,6 @@
       },
       "energy_partial": {
         "name": "Energia AC - Tuotettu (Osalaskuri)"
-      },
-      "inverter_temperature": {
-        "name": "Lämpötila - Invertteri"
       },
       "isolation_resistance_input_2": {
         "name": "Resistanssi - Eristys (Tulo 2)"
