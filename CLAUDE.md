@@ -138,7 +138,9 @@ In addition to the shared Do's and Don'ts below:
   (`UpdateFailed`, `ConfigEntryAuthFailed`, `ConfigEntryError`, `HomeAssistantError`,
   `ServiceValidationError`). No traceback of ours may reach the log at ERROR level. In the
   coordinators raise the HA exception `from None` with the cause in the message: HA logs the full
-  chain at DEBUG, and the Modbus stack is forty frames deep.
+  chain at DEBUG, and the Modbus stack is forty frames deep. `helpers.install_log_filters()` drops
+  the "Full exception" / "Full error:" stack dumps HA writes on the integration's loggers, since
+  every failure is already reported with its cause on one line.
 - Make sensor `value_fn` converters tolerant: return `None` for a value the device should not have
   sent, never raise.
 - Log what the integration is doing at DEBUG in the library (discovery result, every register read

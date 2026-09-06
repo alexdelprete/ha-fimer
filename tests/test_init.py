@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 from unittest.mock import patch
 
 from modbus_connection import ModbusConnectionError
 from modbus_connection.mock import MockModbusUnit
+import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.fimer.const import DOMAIN
@@ -30,14 +32,20 @@ async def test_setup_and_unload(hass: HomeAssistant, init_integration: MockConfi
 
 
 async def test_setup_retries_when_offline(
-    hass: HomeAssistant, mock_config_entry: MockConfigEntry, mock_unit: MockModbusUnit
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,
+    mock_unit: MockModbusUnit,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
-    """An inverter that does not answer leaves the entry in setup retry."""
+    """An inverter that does not answer leaves the entry in setup retry, without a stack dump."""
+    caplog.set_level(logging.DEBUG, logger="custom_components.fimer")
     mock_unit.fail_requests(ModbusConnectionError("no route to host"))
     mock_config_entry.add_to_hass(hass)
     await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
     assert mock_config_entry.state is ConfigEntryState.SETUP_RETRY
+    assert "no route to host" in caplog.text
+    assert "Traceback" not in caplog.text
 
 
 async def test_setup_error_on_link_conflict(

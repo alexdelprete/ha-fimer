@@ -35,6 +35,7 @@ from .const import (
 )
 from .coordinator import FimerCoordinator, FimerRestCoordinator, FimerSettingsCoordinator
 from .devices import FimerDevice, build_devices
+from .helpers import install_log_filters
 from .issues import (
     ISSUE_POWER_CONTROL_UNSUPPORTED,
     async_create_entry_issue,
@@ -73,6 +74,7 @@ type FimerConfigEntry = ConfigEntry[FimerRuntimeData]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register the integration's actions; entries are set up separately."""
+    install_log_filters()
     async_setup_services(hass)
     return True
 
