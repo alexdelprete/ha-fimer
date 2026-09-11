@@ -17,7 +17,7 @@ dev = [
     "homeassistant-stubs",
     "mdformat",
     "mdformat-gfm",
-    "modbus-connection[tmodbus]==4.10.0",
+    "modbus-connection[tmodbus]==4.11.1",
     "pre-commit",
     "pymarkdownlnt",
     "pymodbus==3.13.1",
@@ -41,7 +41,7 @@ lint = [
     "ty",
 ]
 pytest = [
-    "modbus-connection[tmodbus]==4.10.0",
+    "modbus-connection[tmodbus]==4.11.1",
     "pymodbus==3.13.1",
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
