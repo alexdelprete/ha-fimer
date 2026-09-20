@@ -17,6 +17,8 @@ vars:
   domain: fimer
   default_branch: main
   dev_alias: fimer                # devbox: <alias>.code / <alias>.hadev hostnames
+  dev_host_port: "8123"
+  dev_autostart_hass: true
 
   # ── 4noks workaround ──
   needs_symlink: false

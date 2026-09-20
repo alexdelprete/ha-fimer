@@ -20,6 +20,7 @@ logger:
 
 debugpy:
 
-# No http: section: since Home Assistant 2026.9 the HTTP settings live in .storage and a YAML
-# section only raises a repair. The devcontainer publishes port 8123 directly, so no proxy
-# settings are needed either.
+# No http: section. Since Home Assistant 2026.9 the HTTP settings live in .storage: a YAML block
+# is imported once as a *pending* trial that reverts unless promoted in the UI, so reverse-proxy
+# trust from YAML never sticks, and the block only raises a repair on every later boot.
+# The devcontainer publishes port 8123 directly (dev_host_port), so no proxy settings are needed.
