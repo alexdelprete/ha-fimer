@@ -239,7 +239,7 @@ def event_names(events: Any) -> list[str]:
     if not events:
         return []
     bits = int(events)
-    return [flag.name.lower() for flag in Event1 if flag.name and bits & flag]
+    return [flag.name.lower() for flag in Event1 if bits & flag]
 
 
 class InverterFloat(FimerComponent):
