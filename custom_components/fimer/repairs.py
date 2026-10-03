@@ -99,7 +99,7 @@ def async_forget_devices(hass: HomeAssistant, entry_id: str, device_ids: set[str
     for device_id in device_ids:
         device = registry.async_get_device_by_identifier((DOMAIN, device_id), entry_id)
         if device is not None:
-            registry.async_update_device(device.id, remove_config_entry_id=entry_id)
+            registry.async_remove_device(device.id)
 
 
 async def async_create_fix_flow(
