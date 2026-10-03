@@ -36,8 +36,8 @@ async def test_input_registers_coils_and_discrete_inputs(
     unit: MockModbusUnit, registers: ModbusRegisters
 ) -> None:
     unit.input.update({7: 1234})
-    unit.coils.update({3: True, 4: False})
-    unit.discrete_inputs.update({9: True})
+    unit.coil.update({3: True, 4: False})
+    unit.discrete.update({9: True})
     assert await registers.read_input(7) == [1234]
     assert await registers.read_uint16(7, input_registers=True) == 1234
     assert await registers.read_block(7, 1, input_registers=True) == {7: 1234}
@@ -46,8 +46,8 @@ async def test_input_registers_coils_and_discrete_inputs(
 
     await registers.write_coil(3, False)
     await registers.write_coils(10, [True, True])
-    assert unit.coils[3] is False
-    assert unit.coils[10] is True and unit.coils[11] is True
+    assert unit.coil[3] is False
+    assert unit.coil[10] is True and unit.coil[11] is True
 
 
 async def test_typed_reads(unit: MockModbusUnit, registers: ModbusRegisters) -> None:
