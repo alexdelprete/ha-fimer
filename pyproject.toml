@@ -20,7 +20,7 @@ dev = [
     "modbus-connection[tmodbus]==4.12.4",
     "pre-commit",
     "pymarkdownlnt",
-    "pymodbus==3.15.0",
+    "pymodbus==3.16.1",
     "ruff==0.16.8",
     "ty==0.0.82",
     "pytest>=8.0.0",
@@ -42,7 +42,7 @@ lint = [
 ]
 pytest = [
     "modbus-connection[tmodbus]==4.12.4",
-    "pymodbus==3.15.0",
+    "pymodbus==3.16.1",
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
     "pytest-cov",
