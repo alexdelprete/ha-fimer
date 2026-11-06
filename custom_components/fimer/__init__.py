@@ -79,8 +79,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> bool:
-    """Set up an inverter, over Modbus and/or its datalogger's REST API."""
+async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> None:
+    """Set up an inverter, over Modbus and/or its datalogger's REST API.
+
+    Returns None; failure is signalled by raising a ConfigEntry* exception, as
+    Home Assistant 2026.11 expects.
+    """
     data = entry.data
     runtime = FimerRuntimeData()
 
@@ -162,7 +166,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> boo
     if data.get(CONF_MIGRATE_FROM):
         await async_take_over_legacy_entities(hass, entry)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    return True
 
 
 def _async_link_devices(
@@ -181,9 +184,12 @@ def _async_link_devices(
             device.device_info["via_device_id"] = logger_entry.id
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> bool:
-    """Unload a config entry; the shared Modbus connection closes with its last holder."""
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+async def async_unload_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> None:
+    """Unload a config entry; the shared Modbus connection closes with its last holder.
+
+    Raises a translated ConfigEntryError if a platform fails to unload.
+    """
+    await hass.config_entries.async_unload_platforms_or_raise(entry, PLATFORMS)
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> None:

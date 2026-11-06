@@ -85,7 +85,7 @@ async def test_user_flow(hass: HomeAssistant) -> None:
     assert result["step_id"] == "manual"
     assert result["errors"] == {}
 
-    with patch("custom_components.fimer.async_setup_entry", return_value=True) as mock_setup:
+    with patch("custom_components.fimer.async_setup_entry", return_value=None) as mock_setup:
         result = await hass.config_entries.flow.async_configure(result["flow_id"], USER_INPUT)
         await hass.async_block_till_done()
 
@@ -105,7 +105,7 @@ async def test_user_flow_unknown_model_uses_host_as_title(
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
-    with patch("custom_components.fimer.async_setup_entry", return_value=True):
+    with patch("custom_components.fimer.async_setup_entry", return_value=None):
         result = await hass.config_entries.flow.async_configure(result["flow_id"], USER_INPUT)
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == HOST
@@ -172,7 +172,7 @@ async def test_user_flow_errors(
     mock_unit.fail_requests(None)
     mock_unit.holding.clear()
     mock_unit.holding.update(default_register_map())
-    with patch("custom_components.fimer.async_setup_entry", return_value=True):
+    with patch("custom_components.fimer.async_setup_entry", return_value=None):
         result = await hass.config_entries.flow.async_configure(result["flow_id"], USER_INPUT)
     assert result["type"] is FlowResultType.CREATE_ENTRY
 
@@ -281,7 +281,7 @@ async def test_user_flow_with_rest(hass: HomeAssistant, serve_rest: Any) -> None
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
-    with patch("custom_components.fimer.async_setup_entry", return_value=True):
+    with patch("custom_components.fimer.async_setup_entry", return_value=None):
         result = await hass.config_entries.flow.async_configure(result["flow_id"], with_rest(host))
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["result"].unique_id == SERIAL_NUMBER
@@ -297,7 +297,7 @@ async def test_user_flow_rest_only(hass: HomeAssistant, serve_rest: Any) -> None
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
-    with patch("custom_components.fimer.async_setup_entry", return_value=True):
+    with patch("custom_components.fimer.async_setup_entry", return_value=None):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], with_rest(host, modbus=False)
         )
@@ -360,7 +360,7 @@ async def test_legacy_takeover_menu(hass: HomeAssistant, serve_rest: Any) -> Non
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "manual"
 
-    with patch("custom_components.fimer.async_setup_entry", return_value=True):
+    with patch("custom_components.fimer.async_setup_entry", return_value=None):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], with_rest(host, modbus=False)
         )
