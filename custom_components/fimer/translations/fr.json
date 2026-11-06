@@ -126,9 +126,7 @@
     },
     "abort": {
       "already_configured": "Cet onduleur est déjà configuré.",
-      "reconfigure_successful": "Les réglages de connexion ont été mis à jour.",
-      "unique_id_mismatch": "L'appareil à la nouvelle adresse est un autre onduleur.",
-      "reauth_successful": "Les identifiants ont été mis à jour."
+      "unique_id_mismatch": "L'appareil à la nouvelle adresse est un autre onduleur."
     }
   },
   "options": {

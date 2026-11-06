@@ -206,6 +206,7 @@ async def test_reconfigure_flow(hass: HomeAssistant, init_integration: MockConfi
     await hass.async_block_till_done()
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reconfigure_successful"
+    assert result["translation_domain"] == "homeassistant"  # central since HA 2026.10
     assert init_integration.data == {
         **ENTRY_DATA,
         CONF_HOST: "192.0.2.20",

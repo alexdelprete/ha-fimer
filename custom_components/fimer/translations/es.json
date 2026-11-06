@@ -126,9 +126,7 @@
     },
     "abort": {
       "already_configured": "Este inversor ya está configurado.",
-      "reconfigure_successful": "Se actualizaron los ajustes de conexión.",
-      "unique_id_mismatch": "El dispositivo en la nueva dirección es otro inversor.",
-      "reauth_successful": "Se actualizaron las credenciales."
+      "unique_id_mismatch": "El dispositivo en la nueva dirección es otro inversor."
     }
   },
   "options": {

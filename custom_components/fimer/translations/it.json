@@ -126,9 +126,7 @@
     },
     "abort": {
       "already_configured": "Questo inverter è già configurato.",
-      "reconfigure_successful": "Le impostazioni di connessione sono state aggiornate.",
-      "unique_id_mismatch": "Il dispositivo al nuovo indirizzo è un inverter diverso.",
-      "reauth_successful": "Le credenziali sono state aggiornate."
+      "unique_id_mismatch": "Il dispositivo al nuovo indirizzo è un inverter diverso."
     }
   },
   "options": {

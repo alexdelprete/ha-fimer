@@ -126,9 +126,7 @@
     },
     "abort": {
       "already_configured": "Dieser Wechselrichter ist bereits eingerichtet.",
-      "reconfigure_successful": "Die Verbindungseinstellungen wurden aktualisiert.",
-      "unique_id_mismatch": "Das Gerät unter der neuen Adresse ist ein anderer Wechselrichter.",
-      "reauth_successful": "Die Zugangsdaten wurden aktualisiert."
+      "unique_id_mismatch": "Das Gerät unter der neuen Adresse ist ein anderer Wechselrichter."
     }
   },
   "options": {

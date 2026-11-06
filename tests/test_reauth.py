@@ -45,6 +45,7 @@ async def test_wrong_password_starts_reauth_and_reauth_fixes_it(
     await hass.async_block_till_done()
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reauth_successful"
+    assert result["translation_domain"] == "homeassistant"  # central since HA 2026.10
     assert entry.data[CONF_PASSWORD] == "changed"
     assert entry.state is ConfigEntryState.LOADED
     assert hass.states.get("sensor.vsn300_wifi_link_quality") is not None
@@ -65,4 +66,5 @@ async def test_reauth_can_be_started_manually(hass: HomeAssistant, serve_rest: A
     )
     await hass.async_block_till_done()
     assert result["reason"] == "reauth_successful"
+    assert result["translation_domain"] == "homeassistant"  # central since HA 2026.10
     assert entry.state is ConfigEntryState.LOADED
