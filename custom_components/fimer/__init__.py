@@ -40,7 +40,6 @@ from .issues import (
     ISSUE_POWER_CONTROL_UNSUPPORTED,
     async_create_entry_issue,
     async_delete_entry_issue,
-    async_delete_entry_issues,
 )
 from .migration import async_take_over_legacy_entities
 from .pyfimer import PowerControlSupport, power_control_support
@@ -79,8 +78,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> bool:
-    """Set up an inverter, over Modbus and/or its datalogger's REST API."""
+async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> None:
+    """Set up an inverter, over Modbus and/or its datalogger's REST API.
+
+    Returns None; failure is signalled by raising a ConfigEntry* exception, as
+    Home Assistant 2026.11 expects.
+    """
     data = entry.data
     runtime = FimerRuntimeData()
 
@@ -162,7 +165,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> boo
     if data.get(CONF_MIGRATE_FROM):
         await async_take_over_legacy_entities(hass, entry)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    return True
 
 
 def _async_link_devices(
@@ -173,19 +175,19 @@ def _async_link_devices(
     datalogger = next((device for device in devices if device.device_type == "datalogger"), None)
     if datalogger is None:
         return
-    logger_entry = registry.async_get_or_create(
-        config_entry_id=entry.entry_id, **datalogger.device_info
+    # DeviceInfo is a dataclass since Home Assistant 2026.11: register it as is and
+    # set fields as attributes (the dict-style access is a compatibility layer).
+    logger_entry = registry.async_get_or_create_from_info(
+        config_entry_id=entry.entry_id, device_info=datalogger.device_info
     )
     for device in devices:
         if device is not datalogger:
-            device.device_info["via_device_id"] = logger_entry.id
+            device.device_info.via_device_id = logger_entry.id
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> bool:
-    """Unload a config entry; the shared Modbus connection closes with its last holder."""
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+async def async_unload_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> None:
+    """Unload a config entry; the shared Modbus connection closes with its last holder.
 
-
-async def async_remove_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> None:
-    """Clear the entry's repair issues along with the entry."""
-    async_delete_entry_issues(hass, entry.entry_id)
+    Raises a translated ConfigEntryError if a platform fails to unload.
+    """
+    await hass.config_entries.async_unload_platforms_or_raise(entry, PLATFORMS)

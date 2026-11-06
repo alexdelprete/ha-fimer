@@ -449,11 +449,11 @@ class FimerRestCoordinator(DataUpdateCoordinator[FimerRestData]):
         )
         if datalogger is not None:
             logger_entry = registry.async_get_device_by_identifier(
-                next(iter(datalogger.device_info["identifiers"])), self.config_entry.entry_id
+                (DOMAIN, datalogger.unique_id), self.config_entry.entry_id
             )
             if logger_entry is not None:
                 for device in new_devices:
-                    device.device_info["via_device_id"] = logger_entry.id
+                    device.device_info.via_device_id = logger_entry.id
         runtime.devices.extend(new_devices)
         _LOGGER.info(
             "New devices reported by the datalogger: %s",

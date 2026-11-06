@@ -126,9 +126,7 @@
     },
     "abort": {
       "already_configured": "See inverter on juba seadistatud.",
-      "reconfigure_successful": "Ühenduse seaded uuendati.",
-      "unique_id_mismatch": "Uuel aadressil olev seade on teine inverter.",
-      "reauth_successful": "Mandaat uuendati."
+      "unique_id_mismatch": "Uuel aadressil olev seade on teine inverter."
     }
   },
   "options": {

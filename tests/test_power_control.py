@@ -5,8 +5,8 @@ from __future__ import annotations
 from modbus_connection import ModbusExceptionError
 from modbus_connection.mock import MockModbusUnit
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-from pytest_homeassistant_custom_component.typing import ClientSessionGenerator
+from pytest_homeassistant.common import MockConfigEntry
+from pytest_homeassistant.typing import ClientSessionGenerator
 
 from custom_components.fimer.const import CONF_POWER_CONTROL, DOMAIN
 from custom_components.fimer.issues import ISSUE_POWER_CONTROL_UNSUPPORTED, issue_id

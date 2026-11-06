@@ -126,9 +126,7 @@
     },
     "abort": {
       "already_configured": "Tämä invertteri on jo määritetty.",
-      "reconfigure_successful": "Yhteysasetukset päivitettiin.",
-      "unique_id_mismatch": "Uudessa osoitteessa oleva laite on eri invertteri.",
-      "reauth_successful": "Tunnukset päivitettiin."
+      "unique_id_mismatch": "Uudessa osoitteessa oleva laite on eri invertteri."
     }
   },
   "options": {

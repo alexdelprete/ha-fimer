@@ -126,9 +126,7 @@
     },
     "abort": {
       "already_configured": "Den här växelriktaren är redan konfigurerad.",
-      "reconfigure_successful": "Anslutningsinställningarna har uppdaterats.",
-      "unique_id_mismatch": "Enheten på den nya adressen är en annan växelriktare.",
-      "reauth_successful": "Inloggningsuppgifterna har uppdaterats."
+      "unique_id_mismatch": "Enheten på den nya adressen är en annan växelriktare."
     }
   },
   "options": {

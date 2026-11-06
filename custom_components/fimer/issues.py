@@ -1,7 +1,8 @@
 """Repair issues the integration raises, and the outage monitor behind them.
 
-Every issue ID ends with the config entry ID, so the issues of one entry can
-be found and cleared together. The texts live under ``issues`` in the
+Every issue ID ends with the config entry ID, and every issue is linked to its
+config entry (Home Assistant 2026.11): it is shown on the entry's page and core
+deletes it together with the entry. The texts live under ``issues`` in the
 translations; the fix flows in :mod:`repairs`.
 """
 
@@ -84,6 +85,7 @@ def async_create_entry_issue(
         hass,
         DOMAIN,
         issue_id(kind, entry.entry_id),
+        config_entry_id=entry.entry_id,
         is_fixable=is_fixable,
         severity=severity,
         translation_key=kind,
@@ -104,16 +106,6 @@ def async_delete_entry_issue(hass: HomeAssistant, entry_id: str, kind: str) -> b
         return False
     ir.async_delete_issue(hass, DOMAIN, issue_id(kind, entry_id))
     return True
-
-
-@callback
-def async_delete_entry_issues(hass: HomeAssistant, entry_id: str) -> None:
-    """Clear every issue of an entry, when the entry goes away."""
-    registry = ir.async_get(hass)
-    suffix = f"_{entry_id}"
-    for domain, issue_id_ in list(registry.issues):
-        if domain == DOMAIN and issue_id_.endswith(suffix):
-            registry.async_delete(DOMAIN, issue_id_)
 
 
 def format_device_list(hass: HomeAssistant, entry_id: str, device_ids: list[str]) -> str:

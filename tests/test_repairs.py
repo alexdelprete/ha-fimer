@@ -10,12 +10,8 @@ from unittest.mock import patch
 from freezegun.api import FrozenDateTimeFactory
 from modbus_connection import ModbusConnectionError
 from modbus_connection.mock import MockModbusUnit
-from pytest_homeassistant_custom_component.common import (
-    MockConfigEntry,
-    async_fire_time_changed,
-    async_mock_service,
-)
-from pytest_homeassistant_custom_component.typing import ClientSessionGenerator
+from pytest_homeassistant.common import MockConfigEntry, async_fire_time_changed, async_mock_service
+from pytest_homeassistant.typing import ClientSessionGenerator
 
 from custom_components.fimer.const import (
     CONF_CONNECTION_ISSUES,
@@ -426,7 +422,10 @@ async def test_issues_go_with_the_entry(
     mock_unit.fail_requests(ModbusConnectionError("gone"))
     for _ in range(3):
         await _poll(hass, freezer)
-    assert _issue(issue_registry, "connection_failed_modbus", entry) is not None
+    issue = _issue(issue_registry, "connection_failed_modbus", entry)
+    assert issue is not None
+    # Linked to the entry, so core removes it with the entry (HA 2026.11)
+    assert issue.config_entry_id == entry.entry_id
     await hass.config_entries.async_remove(entry.entry_id)
     await hass.async_block_till_done()
     assert _issue(issue_registry, "connection_failed_modbus", entry) is None

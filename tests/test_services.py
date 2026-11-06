@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from modbus_connection import ModbusConnectionError
 from modbus_connection.mock import MockModbusUnit
+import probatio
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-import voluptuous as vol
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.fimer.const import CONF_USE_MODBUS, DOMAIN
 from homeassistant.core import HomeAssistant
@@ -164,7 +164,7 @@ async def test_write_point_and_power_limit(
     assert (mock_unit.holding[232 + 5], mock_unit.holding[232 + 9]) == (40, 1)
     await _call(hass, "set_power_limit", {**entry, "enabled": False})
     assert mock_unit.holding[232 + 9] == 0
-    with pytest.raises(vol.Invalid):
+    with pytest.raises(probatio.Invalid):
         await _call(hass, "set_power_limit", {**entry, "percent": 101})
     mock_unit.fail_requests(ModbusConnectionError("asleep"))
     with pytest.raises(HomeAssistantError, match="asleep"):

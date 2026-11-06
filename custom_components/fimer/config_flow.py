@@ -8,7 +8,7 @@ import logging
 from typing import Any
 
 from modbus_connection import ModbusError, ModbusTcpParams
-import voluptuous as vol
+import probatio
 
 from homeassistant.components.modbus import async_get_temporary_unit
 from homeassistant.config_entries import (
@@ -96,30 +96,32 @@ _LOGGER = logging.getLogger(__name__)
 
 CONF_LEGACY_ENTRY = "legacy_entry"
 
-STEP_USER_DATA_SCHEMA = vol.Schema(
+STEP_USER_DATA_SCHEMA = probatio.Schema(
     {
-        vol.Required(CONF_HOST): str,
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
-        vol.Required(CONF_MODBUS_SECTION): section(
-            vol.Schema(
+        probatio.Required(CONF_HOST): str,
+        probatio.Required(CONF_PORT, default=DEFAULT_PORT): cv.port,
+        probatio.Required(CONF_MODBUS_SECTION): section(
+            probatio.Schema(
                 {
-                    vol.Required(CONF_USE_MODBUS, default=True): BooleanSelector(),
-                    vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): vol.All(
-                        vol.Coerce(int), vol.Range(min=MIN_UNIT_ID, max=MAX_UNIT_ID)
+                    probatio.Required(CONF_USE_MODBUS, default=True): BooleanSelector(),
+                    probatio.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): probatio.All(
+                        probatio.Coerce(int), probatio.Range(min=MIN_UNIT_ID, max=MAX_UNIT_ID)
                     ),
-                    vol.Required(CONF_BASE_ADDRESS, default=DEFAULT_BASE_ADDRESS): vol.All(
-                        vol.Coerce(int), vol.Range(min=0, max=MAX_BASE_ADDRESS)
+                    probatio.Required(
+                        CONF_BASE_ADDRESS, default=DEFAULT_BASE_ADDRESS
+                    ): probatio.All(
+                        probatio.Coerce(int), probatio.Range(min=0, max=MAX_BASE_ADDRESS)
                     ),
                 }
             ),
             {"collapsed": False},
         ),
-        vol.Required(CONF_REST_SECTION): section(
-            vol.Schema(
+        probatio.Required(CONF_REST_SECTION): section(
+            probatio.Schema(
                 {
-                    vol.Required(CONF_USE_REST, default=False): BooleanSelector(),
-                    vol.Optional(CONF_USERNAME, default=DEFAULT_REST_USERNAME): str,
-                    vol.Optional(CONF_PASSWORD, default=""): TextSelector(
+                    probatio.Required(CONF_USE_REST, default=False): BooleanSelector(),
+                    probatio.Optional(CONF_USERNAME, default=DEFAULT_REST_USERNAME): str,
+                    probatio.Optional(CONF_PASSWORD, default=""): TextSelector(
                         TextSelectorConfig(type=TextSelectorType.PASSWORD)
                     ),
                 }
@@ -130,7 +132,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 _POLLING_OPTIONS: dict[Any, Any] = {
-    vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
+    probatio.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): probatio.All(
         NumberSelector(
             NumberSelectorConfig(
                 min=MIN_SCAN_INTERVAL,
@@ -140,13 +142,13 @@ _POLLING_OPTIONS: dict[Any, Any] = {
                 unit_of_measurement="s",
             )
         ),
-        vol.Coerce(int),
+        probatio.Coerce(int),
     ),
 }
 _REPAIR_OPTIONS: dict[Any, Any] = {
-    vol.Required(CONF_CONNECTION_ISSUES, default=DEFAULT_CONNECTION_ISSUES): BooleanSelector(),
-    vol.Required(CONF_STARTUP_ISSUES, default=DEFAULT_STARTUP_ISSUES): BooleanSelector(),
-    vol.Required(CONF_FAILURES_THRESHOLD, default=DEFAULT_FAILURES_THRESHOLD): vol.All(
+    probatio.Required(CONF_CONNECTION_ISSUES, default=DEFAULT_CONNECTION_ISSUES): BooleanSelector(),
+    probatio.Required(CONF_STARTUP_ISSUES, default=DEFAULT_STARTUP_ISSUES): BooleanSelector(),
+    probatio.Required(CONF_FAILURES_THRESHOLD, default=DEFAULT_FAILURES_THRESHOLD): probatio.All(
         NumberSelector(
             NumberSelectorConfig(
                 min=MIN_FAILURES_THRESHOLD,
@@ -155,20 +157,20 @@ _REPAIR_OPTIONS: dict[Any, Any] = {
                 mode=NumberSelectorMode.BOX,
             )
         ),
-        vol.Coerce(int),
+        probatio.Coerce(int),
     ),
-    vol.Required(CONF_NOTIFY_RECOVERY, default=DEFAULT_NOTIFY_RECOVERY): BooleanSelector(),
-    vol.Optional(CONF_RECOVERY_SCRIPT): EntitySelector(EntitySelectorConfig(domain="script")),
+    probatio.Required(CONF_NOTIFY_RECOVERY, default=DEFAULT_NOTIFY_RECOVERY): BooleanSelector(),
+    probatio.Optional(CONF_RECOVERY_SCRIPT): EntitySelector(EntitySelectorConfig(domain="script")),
 }
-OPTIONS_SCHEMA = vol.Schema(
+OPTIONS_SCHEMA = probatio.Schema(
     {
         **_POLLING_OPTIONS,
-        vol.Required(CONF_POWER_CONTROL, default=DEFAULT_POWER_CONTROL): BooleanSelector(),
+        probatio.Required(CONF_POWER_CONTROL, default=DEFAULT_POWER_CONTROL): BooleanSelector(),
         **_REPAIR_OPTIONS,
     }
 )
 """The options for an inverter that can honour a power limit."""
-NO_POWER_CONTROL_OPTIONS_SCHEMA = vol.Schema({**_POLLING_OPTIONS, **_REPAIR_OPTIONS})
+NO_POWER_CONTROL_OPTIONS_SCHEMA = probatio.Schema({**_POLLING_OPTIONS, **_REPAIR_OPTIONS})
 """The options for every other entry: the power control is not offered."""
 
 
@@ -354,9 +356,9 @@ class FimerConfigFlow(ConfigFlow, domain=DOMAIN):
             return await self.async_step_manual(suggested_values=suggested)
         return self.async_show_form(
             step_id="legacy",
-            data_schema=vol.Schema(
+            data_schema=probatio.Schema(
                 {
-                    vol.Required(CONF_LEGACY_ENTRY): SelectSelector(
+                    probatio.Required(CONF_LEGACY_ENTRY): SelectSelector(
                         SelectSelectorConfig(
                             options=[
                                 SelectOptionDict(value=entry_id, label=entry.title)
@@ -452,10 +454,10 @@ class FimerConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
 
-REAUTH_SCHEMA = vol.Schema(
+REAUTH_SCHEMA = probatio.Schema(
     {
-        vol.Required(CONF_USERNAME, default=DEFAULT_REST_USERNAME): str,
-        vol.Required(CONF_PASSWORD): TextSelector(
+        probatio.Required(CONF_USERNAME, default=DEFAULT_REST_USERNAME): str,
+        probatio.Required(CONF_PASSWORD): TextSelector(
             TextSelectorConfig(type=TextSelectorType.PASSWORD)
         ),
     }

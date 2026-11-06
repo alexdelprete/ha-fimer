@@ -126,9 +126,7 @@
     },
     "abort": {
       "already_configured": "Denne vekselretteren er allerede satt opp.",
-      "reconfigure_successful": "Tilkoblingsinnstillingene ble oppdatert.",
-      "unique_id_mismatch": "Enheten på den nye adressen er en annen vekselretter.",
-      "reauth_successful": "Påloggingsinformasjonen ble oppdatert."
+      "unique_id_mismatch": "Enheten på den nye adressen er en annen vekselretter."
     }
   },
   "options": {
