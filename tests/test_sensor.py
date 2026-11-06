@@ -156,3 +156,16 @@ async def test_energy_sensor_not_yet_reported_is_unknown(
 
 def _inverter_with_energy(energy_total: int) -> InverterSpec:
     return replace(INVERTER_SPEC, energy_total=energy_total)
+
+
+def test_sensor_renamed_in_place() -> None:
+    """FimerSensor opts in to in-place entity id changes (Home Assistant 2026.11).
+
+    It overrides async_added_to_hass, so without async_entity_id_changed core
+    would remove and re-add it on every rename.
+    """
+    from custom_components.fimer.sensor import FimerSensor  # noqa: PLC0415
+    from homeassistant.helpers import entity as entity_helper  # noqa: PLC0415
+
+    assert "async_entity_id_changed" in FimerSensor.__dict__
+    assert entity_helper._entity_class_requires_readd(FimerSensor) is False

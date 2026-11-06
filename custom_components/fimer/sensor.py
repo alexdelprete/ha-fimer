@@ -520,6 +520,17 @@ class FimerSensor(SensorEntity):
         await super().async_added_to_hass()
         self.async_on_remove(self.device.async_add_listener(self.async_write_ha_state))
 
+    @callback
+    def async_entity_id_changed(self, old_entity_id: str) -> None:
+        """Opt in to in-place entity id changes (Home Assistant 2026.11).
+
+        The sensor overrides async_added_to_hass, so without this hook core removes
+        and re-adds it on every rename; the fallback ends in 2027.11. The device
+        listener writes the state of this object whatever its entity id, so there
+        is nothing to re-key.
+        """
+        super().async_entity_id_changed(old_entity_id)
+
     @property
     def available(self) -> bool:
         """Available while a working source reports the point."""
