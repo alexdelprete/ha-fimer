@@ -40,7 +40,6 @@ from .issues import (
     ISSUE_POWER_CONTROL_UNSUPPORTED,
     async_create_entry_issue,
     async_delete_entry_issue,
-    async_delete_entry_issues,
 )
 from .migration import async_take_over_legacy_entities
 from .pyfimer import PowerControlSupport, power_control_support
@@ -192,8 +191,3 @@ async def async_unload_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> No
     Raises a translated ConfigEntryError if a platform fails to unload.
     """
     await hass.config_entries.async_unload_platforms_or_raise(entry, PLATFORMS)
-
-
-async def async_remove_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> None:
-    """Clear the entry's repair issues along with the entry."""
-    async_delete_entry_issues(hass, entry.entry_id)

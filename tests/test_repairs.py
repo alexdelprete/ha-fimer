@@ -422,7 +422,10 @@ async def test_issues_go_with_the_entry(
     mock_unit.fail_requests(ModbusConnectionError("gone"))
     for _ in range(3):
         await _poll(hass, freezer)
-    assert _issue(issue_registry, "connection_failed_modbus", entry) is not None
+    issue = _issue(issue_registry, "connection_failed_modbus", entry)
+    assert issue is not None
+    # Linked to the entry, so core removes it with the entry (HA 2026.11)
+    assert issue.config_entry_id == entry.entry_id
     await hass.config_entries.async_remove(entry.entry_id)
     await hass.async_block_till_done()
     assert _issue(issue_registry, "connection_failed_modbus", entry) is None
