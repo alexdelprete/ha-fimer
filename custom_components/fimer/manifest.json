@@ -1,6 +1,7 @@
 {
   "domain": "fimer",
   "name": "FIMER (ABB / Power-One)",
+  "categories": ["energy.solar_batteries"],
   "codeowners": ["@alexdelprete"],
   "config_flow": true,
   "dependencies": ["modbus"],
