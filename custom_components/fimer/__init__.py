@@ -176,12 +176,14 @@ def _async_link_devices(
     datalogger = next((device for device in devices if device.device_type == "datalogger"), None)
     if datalogger is None:
         return
-    logger_entry = registry.async_get_or_create(
-        config_entry_id=entry.entry_id, **datalogger.device_info
+    # DeviceInfo is a dataclass since Home Assistant 2026.11: register it as is and
+    # set fields as attributes (the dict-style access is a compatibility layer).
+    logger_entry = registry.async_get_or_create_from_info(
+        config_entry_id=entry.entry_id, device_info=datalogger.device_info
     )
     for device in devices:
         if device is not datalogger:
-            device.device_info["via_device_id"] = logger_entry.id
+            device.device_info.via_device_id = logger_entry.id
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: FimerConfigEntry) -> None:
