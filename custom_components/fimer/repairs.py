@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-import voluptuous as vol
+import probatio
 
-from homeassistant import data_entry_flow
-from homeassistant.components.repairs import ConfirmRepairFlow, RepairsFlow
+from homeassistant.components.repairs import ConfirmRepairFlow, RepairsFlow, RepairsFlowResult
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
@@ -28,22 +27,20 @@ class ForgetDevicesRepairFlow(RepairsFlow):
         self._entry_id = entry_id
         self._missing = missing
 
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> data_entry_flow.FlowResult:
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> RepairsFlowResult:
         """Go straight to the confirmation."""
         return await self.async_step_confirm()
 
     async def async_step_confirm(
         self, user_input: dict[str, Any] | None = None
-    ) -> data_entry_flow.FlowResult:
+    ) -> RepairsFlowResult:
         """Forget the devices once confirmed."""
         if user_input is not None:
             async_forget_devices(self.hass, self._entry_id, set(self._missing))
             return self.async_create_entry(data={})
         return self.async_show_form(
             step_id="confirm",
-            data_schema=vol.Schema({}),
+            data_schema=probatio.Schema({}),
             description_placeholders={
                 "missing_devices": format_device_list(self.hass, self._entry_id, self._missing)
             },
@@ -58,15 +55,13 @@ class DisablePowerControlRepairFlow(RepairsFlow):
         self._entry_id = entry_id
         self._model = model
 
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> data_entry_flow.FlowResult:
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> RepairsFlowResult:
         """Go straight to the confirmation."""
         return await self.async_step_confirm()
 
     async def async_step_confirm(
         self, user_input: dict[str, Any] | None = None
-    ) -> data_entry_flow.FlowResult:
+    ) -> RepairsFlowResult:
         """Disable the option once confirmed; the entry reloads without the entities."""
         if user_input is not None:
             entry = self.hass.config_entries.async_get_entry(self._entry_id)
@@ -78,7 +73,7 @@ class DisablePowerControlRepairFlow(RepairsFlow):
             return self.async_create_entry(data={})
         return self.async_show_form(
             step_id="confirm",
-            data_schema=vol.Schema({}),
+            data_schema=probatio.Schema({}),
             description_placeholders={"model": self._model},
         )
 

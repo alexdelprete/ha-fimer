@@ -28,7 +28,7 @@ from modbus_connection.encode import (
     encode_uint16,
     encode_uint32,
 )
-import voluptuous as vol
+import probatio
 
 from homeassistant.core import (
     HomeAssistant,
@@ -74,47 +74,57 @@ DATA_TYPES: Final = ["raw", "uint16", "int16", "uint32", "int32", "float32", "st
 WORD_ORDERS: Final = ["big", "little"]
 _WORDS_PER_TYPE: Final = {"uint16": 1, "int16": 1, "uint32": 2, "int32": 2, "float32": 2}
 
-_ENTRY = {vol.Required(ATTR_CONFIG_ENTRY): cv.string}
+_ENTRY = {probatio.Required(ATTR_CONFIG_ENTRY): cv.string}
 
-READ_REGISTERS_SCHEMA = vol.Schema(
+READ_REGISTERS_SCHEMA = probatio.Schema(
     {
         **_ENTRY,
-        vol.Required(ATTR_ADDRESS): vol.All(vol.Coerce(int), vol.Range(min=0, max=0xFFFF)),
-        vol.Optional(ATTR_COUNT, default=1): vol.All(vol.Coerce(int), vol.Range(min=1, max=125)),
-        vol.Optional(ATTR_REGISTER_TYPE, default="holding"): vol.In(REGISTER_TYPES),
-        vol.Optional(ATTR_DATA_TYPE, default="raw"): vol.In(DATA_TYPES),
-        vol.Optional(ATTR_WORD_ORDER, default="big"): vol.In(WORD_ORDERS),
-    }
-)
-WRITE_REGISTERS_SCHEMA = vol.Schema(
-    {
-        **_ENTRY,
-        vol.Required(ATTR_ADDRESS): vol.All(vol.Coerce(int), vol.Range(min=0, max=0xFFFF)),
-        vol.Exclusive(ATTR_VALUE, "value"): vol.Any(vol.Coerce(float), cv.string),
-        vol.Exclusive(ATTR_VALUES, "value"): vol.All(
-            cv.ensure_list, [vol.All(vol.Coerce(int), vol.Range(min=0, max=0xFFFF))]
+        probatio.Required(ATTR_ADDRESS): probatio.All(
+            probatio.Coerce(int), probatio.Range(min=0, max=0xFFFF)
         ),
-        vol.Optional(ATTR_DATA_TYPE, default="uint16"): vol.In(DATA_TYPES),
-        vol.Optional(ATTR_WORD_ORDER, default="big"): vol.In(WORD_ORDERS),
-        vol.Optional(ATTR_COUNT): vol.All(vol.Coerce(int), vol.Range(min=1, max=123)),
+        probatio.Optional(ATTR_COUNT, default=1): probatio.All(
+            probatio.Coerce(int), probatio.Range(min=1, max=125)
+        ),
+        probatio.Optional(ATTR_REGISTER_TYPE, default="holding"): probatio.In(REGISTER_TYPES),
+        probatio.Optional(ATTR_DATA_TYPE, default="raw"): probatio.In(DATA_TYPES),
+        probatio.Optional(ATTR_WORD_ORDER, default="big"): probatio.In(WORD_ORDERS),
     }
 )
-WRITE_POINT_SCHEMA = vol.Schema(
+WRITE_REGISTERS_SCHEMA = probatio.Schema(
     {
         **_ENTRY,
-        vol.Required(ATTR_POINT): cv.string,
-        vol.Required(ATTR_VALUE): vol.Any(vol.Coerce(float), cv.string),
+        probatio.Required(ATTR_ADDRESS): probatio.All(
+            probatio.Coerce(int), probatio.Range(min=0, max=0xFFFF)
+        ),
+        probatio.Exclusive(ATTR_VALUE, "value"): probatio.Any(probatio.Coerce(float), cv.string),
+        probatio.Exclusive(ATTR_VALUES, "value"): probatio.All(
+            cv.ensure_list, [probatio.All(probatio.Coerce(int), probatio.Range(min=0, max=0xFFFF))]
+        ),
+        probatio.Optional(ATTR_DATA_TYPE, default="uint16"): probatio.In(DATA_TYPES),
+        probatio.Optional(ATTR_WORD_ORDER, default="big"): probatio.In(WORD_ORDERS),
+        probatio.Optional(ATTR_COUNT): probatio.All(
+            probatio.Coerce(int), probatio.Range(min=1, max=123)
+        ),
     }
 )
-SET_POWER_LIMIT_SCHEMA = vol.Schema(
+WRITE_POINT_SCHEMA = probatio.Schema(
     {
         **_ENTRY,
-        vol.Optional(ATTR_PERCENT): vol.All(vol.Coerce(float), vol.Range(min=0, max=100)),
-        vol.Optional(ATTR_ENABLED): cv.boolean,
+        probatio.Required(ATTR_POINT): cv.string,
+        probatio.Required(ATTR_VALUE): probatio.Any(probatio.Coerce(float), cv.string),
     }
 )
-GET_READINGS_SCHEMA = vol.Schema({**_ENTRY, vol.Optional(ATTR_DEVICE): cv.string})
-REDISCOVER_SCHEMA = vol.Schema(_ENTRY)
+SET_POWER_LIMIT_SCHEMA = probatio.Schema(
+    {
+        **_ENTRY,
+        probatio.Optional(ATTR_PERCENT): probatio.All(
+            probatio.Coerce(float), probatio.Range(min=0, max=100)
+        ),
+        probatio.Optional(ATTR_ENABLED): cv.boolean,
+    }
+)
+GET_READINGS_SCHEMA = probatio.Schema({**_ENTRY, probatio.Optional(ATTR_DEVICE): cv.string})
+REDISCOVER_SCHEMA = probatio.Schema(_ENTRY)
 
 
 @callback
