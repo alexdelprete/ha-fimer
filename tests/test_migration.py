@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.fimer.const import CONF_MIGRATE_FROM, DOMAIN, LEGACY_REST_DOMAIN
 from custom_components.fimer.migration import compact_serial, legacy_unique_id_to_new

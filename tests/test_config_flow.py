@@ -10,7 +10,7 @@ from unittest.mock import patch
 from modbus_connection import ModbusConnectionError
 from modbus_connection.mock import MockModbusUnit
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.fimer.const import (
     CONF_BASE_ADDRESS,

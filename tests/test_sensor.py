@@ -9,7 +9,7 @@ from freezegun.api import FrozenDateTimeFactory
 from modbus_connection import ModbusConnectionError
 from modbus_connection.mock import MockModbusUnit
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
+from pytest_homeassistant.common import MockConfigEntry, async_fire_time_changed
 
 from custom_components.fimer.pyfimer.modbus.testing import InverterSpec
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN

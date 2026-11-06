@@ -5,7 +5,7 @@ from __future__ import annotations
 from modbus_connection import ModbusConnectionError
 from modbus_connection.mock import MockModbusUnit
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 import voluptuous as vol
 
 from custom_components.fimer.const import CONF_USE_MODBUS, DOMAIN
