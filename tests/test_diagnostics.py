@@ -5,9 +5,7 @@ from __future__ import annotations
 from modbus_connection import ModbusConnectionError
 from modbus_connection.mock import MockModbusUnit
 from pytest_homeassistant.common import MockConfigEntry
-from pytest_homeassistant.components.diagnostics import (
-    get_diagnostics_for_config_entry,
-)
+from pytest_homeassistant.components.diagnostics import get_diagnostics_for_config_entry
 from pytest_homeassistant.typing import ClientSessionGenerator
 
 from homeassistant.components.diagnostics import REDACTED
