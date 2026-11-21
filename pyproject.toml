@@ -31,7 +31,7 @@ dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
     "pytest-cov",
-    "pytest-homeassistant==2026.11.0",
+    "pytest-homeassistant==2026.11.2",
     "pytest-timeout",
     "modbus-connection[tmodbus]==4.12.7",
     "pymodbus==3.16.1",
@@ -50,7 +50,7 @@ pytest = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
     "pytest-cov",
-    "pytest-homeassistant==2026.11.0",
+    "pytest-homeassistant==2026.11.2",
     "pytest-timeout",
 ]
 dev = [
